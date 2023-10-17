@@ -1,4 +1,4 @@
-# TÍTULO DEL JUEGO
+# PIXEL RUSH
 ## Grupo 02 - Lucky Dev
 
 - Javier Castro Magro -- j.castrom.2021@alumnos.urjc.es -- JavierCastroMagro03 
@@ -49,7 +49,7 @@ developers.
 ## 2. Introducción. Definición del Juego
 
 ### 2.1 Concepto
-Título del juego es un videojuego en el que pueden jugar **dos personas** (cada una de
+Pixel Rush es un videojuego en el que pueden jugar **dos personas** (cada una de
 ellas controla uno de los personajes). Los jugadores deben competir el uno contra el
 otro para completar el nivel lo antes posible y sin morir.
 
@@ -126,7 +126,7 @@ Todavía se tiene que pensar en si desarrollar algo de historia para el juego o 
 
 ## 4. Mecánicas
 ### 4.1 Introducción
-Las mecánicas de Título del juego, se basan principalmente en el movimiento lateral del
+Las mecánicas de Pixel Rush se basan principalmente en el movimiento lateral del
 personaje, mientras saltas para esquivar trampas y obstáculos y llegar a la meta.
 ### 4.2 Mecánicas Generales
 Movimiento 2D con scroll lateral y saltos.
