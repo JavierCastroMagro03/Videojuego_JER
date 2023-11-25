@@ -63,7 +63,7 @@ function create ()
 
 function update ()
 {
-    /*
+
     //Player 1
     if (cursors.left.isDown)
 {
@@ -78,14 +78,13 @@ else
 {
     player.setVelocityX(0);
 }
-*/
+
 
 if (cursors.up.isDown)
 {
     player.setVelocityY(-330);
 }
 
-/*
 
 //Player 2
 if (cursors.left.isDown)
@@ -101,7 +100,7 @@ else
 {
     player2.setVelocityX(0);
 }
-*/
+
 
 
 if (cursors.up.isDown)
