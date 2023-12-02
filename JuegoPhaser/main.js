@@ -1,12 +1,12 @@
 //-----------------------------------------------------------------------DECLARACIÓN DE VARIABLES-----------------------------------------------------------------------
 //Variables
-var scaleX = .3
-var scaleY = .6
+var scaleX = .5
+var scaleY = .5
 
-var timer = 0;
+//var timer = 0;
 
-var score1 = 0;
-var score2 = 0;
+var score1;
+var score2;
 var scoreText1;
 var scoreText2;
 
@@ -31,6 +31,11 @@ var vidasText2
 var textoDebug
 var traps
 var pinchos
+var fireballs
+var fireball1
+var fireball2
+var fireScore1
+var fireScore2
 var camara
 var platforms
 var cursors
@@ -65,12 +70,14 @@ class GameScene extends Phaser.Scene {
     //------------------------------------------PRELOAD------------------------------------------
     preload() {
 
-        this.load.image("pozo", "assets/pozo.png");
-        this.load.image("azulPlat", "assets/Blue.png");
-        this.load.image("coin", "assets/coin.png");
+        this.load.image("jugador1", "assets/sprites pj/Yang-juego.png");
+        this.load.image("jugador2", "assets/sprites pj/Yin-juego.png");
+        this.load.image("suelo", "assets/sprites plataformas/Tile-arriba.png");
+        this.load.image("coin", "assets/sprites xtra/coin.png");
+        this.load.image("fireball", "assets/sprites xtra/Fireball.png");
         this.load.image("cameraTracker", "assets/EmptyPNG.png");
         this.load.image("trampas", "assets/manoint.png");
-        this.load.image("pincho", "assets/hpIcon.png");
+        this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
         this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
         this.load.image("btnAjustes", "assets/buttons/BAjustesPequeño.png");
         this.load.image("btnSalir", "assets/buttons/BSalir.png");
@@ -92,14 +99,14 @@ class GameScene extends Phaser.Scene {
     create() {
 
         //Player1
-        player = this.physics.add.sprite(0, 0, "pozo").refreshBody();
+        player = this.physics.add.sprite(0, 0, "jugador1").refreshBody();
         player.setScale(scaleX, scaleY)
         player.setBounce(0.2)
 
         player.setCollideWorldBounds(true);
 
         //Player2
-        player2 = this.physics.add.sprite(0, 400, "pozo").refreshBody();
+        player2 = this.physics.add.sprite(0, 400, "jugador2").refreshBody();
         player2.setScale(scaleX, scaleY)
         player2.setBounce(0.2)
 
@@ -107,10 +114,13 @@ class GameScene extends Phaser.Scene {
 
 
         //Atributos de los personajes, y variables auxiliaresç
-        gameVelocity = 500;
+        gameVelocity = 400;
 
         score1 = 0;
         score2 = 0;
+
+        fireScore1 = 0;
+        fireScore2 = 0;
 
         vidas1 = 3;
         vidas2 = 3;
@@ -158,15 +168,9 @@ class GameScene extends Phaser.Scene {
         camara.body.setAllowGravity(false)
         camara.setCollideWorldBounds(true);
 
-        //Estructura - Plataformas
-        platforms = this.physics.add.staticGroup()
-
-        platforms.create(-500, 290, "azulPlat").setScale(10, 0.01).refreshBody();
-        platforms.create(-500, 590, "azulPlat").setScale(10, 0.01).refreshBody();
-
-        //Colisiones
-        this.physics.add.collider(player, platforms, function (player, platforms) { player1MidAir = false });
-        this.physics.add.collider(player2, platforms, function (player2, platforms) { player2MidAir = false });
+        //Colisiones fireballs
+        this.physics.add.collider(player, fireballs, function (player, fireball1) { vidas1--, vidasText1.text = 'Vidas: ' + vidas1, fireball1.destroy() });
+        this.physics.add.collider(player2, fireballs, function (player2, fireball2) { vidas2--, vidasText2.text = 'Vidas: ' + vidas2, fireball2.destroy() });
 
         //Controles flechas
         cursors = this.input.keyboard.createCursorKeys();
@@ -174,7 +178,6 @@ class GameScene extends Phaser.Scene {
         this.keyboard = this.input.keyboard.addKeys("W,A,S,D");
 
         //Camara
-        //this.cameras.setBounds(0,0,3000,600);
         this.cameras.main.startFollow(camara);
         this.cameras.main.setBackgroundColor('ccccff');
 
@@ -765,18 +768,18 @@ class GameScene extends Phaser.Scene {
             //WINCONDITION
             if (!hasWon) {
                 if (vidas1 != vidas2) {
-                    if (vidas1 < 3) {
+                    if (vidas1 < 1) {
 
                         this.YouWin(2);
 
-                    } else if (vidas2 < 3) {
+                    } else if (vidas2 < 1) {
 
 
                         this.YouWin(1);
 
                     }
                 }
-                else if (vidas1 < 3) {
+                else if (vidas1 < 1) {
 
                     this.Draw();
 
@@ -798,10 +801,15 @@ class GameScene extends Phaser.Scene {
 
         for (let index = 0; index < number; index++) {
 
-            coins.create(startingX, 220, "coin").setScale(0.12).refreshBody()
-            coins.create(startingX, 520, "coin").setScale(0.12).refreshBody()
-
-
+            //Monedas Player 1
+            coins.create(startingX, 220-100, "coin").setScale(1).refreshBody()
+            coins.create(startingX+100, 220, "coin").setScale(1).refreshBody()
+            coins.create(startingX+200, 220-100, "coin").setScale(1).refreshBody()
+            
+            //Monedas Player 2
+            coins.create(startingX, 520, "coin").setScale(1).refreshBody()
+            coins.create(startingX+100, 520-100, "coin").setScale(1).refreshBody()
+            coins.create(startingX+200, 520, "coin").setScale(1).refreshBody()
 
             startingX += separation;
         }
@@ -811,13 +819,29 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player, coins, function (player, coin) {
             coin.destroy();
             score1++;
+            fireScore1++
             scoreText1.text = 'Puntuación: ' + score1;
+            if (fireScore1 === 2)
+            {
+                
+                fireball2 = fireballs.create(player.x+300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireScore1 = 0;
+
+            }
         })
 
         contexto.physics.add.overlap(player2, coins, function (player2, coin) {
             coin.destroy();
             score2++;
+            fireScore2++;
             scoreText2.text = 'Puntuación: ' + score2;
+            if (fireScore2 === 2)
+            {
+                
+                fireball1 = fireballs.create(player2.x+300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireScore2 = 0;
+
+            }
         })
 
     }
@@ -837,7 +861,7 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player, traps, function (player, trap) {
 
             trap.destroy();
-            pinchos.create(player.x + screen.width + 50, 280, "pincho").setScale(1.7).refreshBody()
+            pinchos.create(player.x + screen.width + 50, 280, "pincho").refreshBody()
 
 
             //Colisiones con trampas
@@ -854,7 +878,7 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player2, traps, function (player2, trap) {
 
             trap.destroy();
-            pinchos.create(player2.x + screen.width + 50, 580, "pincho").setScale(1.7).refreshBody()
+            pinchos.create(player2.x + screen.width + 50, 580, "pincho").refreshBody()
 
             contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
 
@@ -868,20 +892,50 @@ class GameScene extends Phaser.Scene {
 
     }
 
+    GeneratePlatforms(contexto, startingX, separation, number) {
+
+        for (let index = 0; index < number; index++) {
+
+            //Plataforma Player 1
+            platforms.create(startingX, 290, "suelo").setScale(.5).refreshBody();
+
+            //Plataforma Player 2
+            platforms.create(startingX, 583, "suelo").setScale(.5).refreshBody();
+
+            startingX += separation;
+
+        }
+
+        //Plataforma Player 1
+        platforms.create(32*50, 258, "suelo").setScale(.5).refreshBody();
+
+        //Plataforma Player 2
+        platforms.create(960, 551, "suelo").setScale(.5).refreshBody();
+
+        //Colisiones
+        contexto.physics.add.collider(player, platforms, function (player, platforms) { player1MidAir = false });
+        contexto.physics.add.collider(player2, platforms, function (player2, platforms) { player2MidAir = false });
+
+    }
+
     CrearGrupos(contexto) {
 
         //Creo los grupos fisicos
+        platforms = contexto.physics.add.staticGroup()
         coins = contexto.physics.add.staticGroup()
         traps = contexto.physics.add.staticGroup()
         pinchos = contexto.physics.add.staticGroup();
+
+        //Grupo dinámic
+        fireballs = contexto.physics.add.group({allowGravity : false});
 
     }
 
     InicializarMundo(contexto) {
 
         this.GenerateCoins(contexto, 800, 1300, 5);
-        this.GenerateTraps(contexto, 1000, 2500, 3)
-
+        this.GenerateTraps(contexto, 1000, 500, 3);
+        this.GeneratePlatforms(contexto, -128, 32, 250);
 
     }
 
