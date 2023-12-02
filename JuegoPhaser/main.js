@@ -171,7 +171,7 @@ class GameScene extends Phaser.Scene{
         this.cameras.main.setBackgroundColor('ccccff');
 
         // BOTÓN DE AJUSTES
-        btnAjustes = this.add.image(1870, 30, 'btnAjustes').setInteractive({useHandCursor: true});
+        btnAjustes = this.add.image(1820, 30, 'btnAjustes').setInteractive({useHandCursor: true});
         btnAjustes.setScale(.5, .5);
 
         btnAjustes.on('pointerdown', function(){ PausarJuego(); });
@@ -867,13 +867,13 @@ class MainMenu extends Phaser.Scene {
     //------------------------------------------PRELOAD------------------------------------------
     preload ()
     {
-        this.load.image("coin", "assets/coin.png");
+        this.load.image("play", "assets/buttons/BJugarUP.png")
     }
 
     //------------------------------------------CREATE------------------------------------------
     create ()
     {
-        const playButton = this.add.sprite(960,300,'coin').setInteractive({useHandCursor: true});
+        const playButton = this.add.sprite(960,300,'play').setInteractive({useHandCursor: true});
         playButton.on('pointerdown', () => this.ChangeToGameScene());
     }
 
