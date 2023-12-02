@@ -9,6 +9,12 @@ var score1 = 0;
 var score2 = 0;
 var scoreText1;
 var scoreText2;
+
+var WinText;
+var LoseText;
+var player1TextY = 100;
+var player2TextY = 400;
+
 var updatedScore;
 
 var gameVelocity
@@ -26,13 +32,14 @@ var textoDebug
 var traps
 var pinchos
 var camara
-var platforms 
+var platforms
 var cursors
 
 
 var player;
 var player2;
 var coins;
+var hasWon;
 
 // Variables para los menús
 var gameOnPause = false;
@@ -49,13 +56,12 @@ var volumenSonido = 2;
 
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
-class GameScene extends Phaser.Scene{
+class GameScene extends Phaser.Scene {
 
-    constructor (GameScene)
-    {
+    constructor(GameScene) {
         super('GameScene');
     }
-    
+
     //------------------------------------------PRELOAD------------------------------------------
     preload() {
 
@@ -138,6 +144,8 @@ class GameScene extends Phaser.Scene{
         vidasText2.scrollFactorX = 0
         vidasText2.scrollFactorY = 0
 
+        hasWon  = false;
+
         //CREACION DEL MUNDO
         //Creo los grupos
         this.CrearGrupos(this);
@@ -171,10 +179,10 @@ class GameScene extends Phaser.Scene{
         this.cameras.main.setBackgroundColor('ccccff');
 
         // BOTÓN DE AJUSTES
-        btnAjustes = this.add.image(1820, 30, 'btnAjustes').setInteractive({useHandCursor: true});
+        btnAjustes = this.add.image(1820, 30, 'btnAjustes').setInteractive({ useHandCursor: true });
         btnAjustes.setScale(.5, .5);
 
-        btnAjustes.on('pointerdown', function(){ PausarJuego(); });
+        btnAjustes.on('pointerdown', function () { PausarJuego(); });
 
         // Mantener botón en la esquina
         btnAjustes.scrollFactorX = 0;
@@ -190,18 +198,18 @@ class GameScene extends Phaser.Scene{
         menuPausa.scrollFactorY = 0;
 
         // BOTÓN DE SALIR
-        btnSalir = this.add.image(1326, 122, 'btnSalir').setInteractive({useHandCursor: true});
+        btnSalir = this.add.image(1326, 122, 'btnSalir').setInteractive({ useHandCursor: true });
         btnSalir.setScale(.5, .5);
         btnSalir.setVisible(false);
 
-        btnSalir.on('pointerdown', function(){ PausarJuego(); });
+        btnSalir.on('pointerdown', function () { PausarJuego(); });
 
         // Mantener botón en la esquina
         btnSalir.scrollFactorX = 0;
         btnSalir.scrollFactorY = 0;
 
         // BOTÓN DE SALIR
-        btnInicio = this.add.image(726, 342, 'btnInicio').setInteractive({useHandCursor: true});
+        btnInicio = this.add.image(726, 342, 'btnInicio').setInteractive({ useHandCursor: true });
         btnInicio.setScale(1, 1);
         btnInicio.setVisible(false);
 
@@ -279,18 +287,18 @@ class GameScene extends Phaser.Scene{
         vol5Sonido.scrollFactorX = 0;
         vol5Sonido.scrollFactorY = 0;
 
-        btnMasMusica = this.add.image(1276, 272, 'btnMas').setInteractive({useHandCursor: true});
+        btnMasMusica = this.add.image(1276, 272, 'btnMas').setInteractive({ useHandCursor: true });
         btnMasMusica.setScale(.5, .5);
         btnMasMusica.setVisible(false);
-        btnMasMusica.on('pointerdown', function(){ ConfigurarMusica('añadir'); });
+        btnMasMusica.on('pointerdown', function () { ConfigurarMusica('añadir'); });
 
         btnMasMusica.scrollFactorX = 0;
         btnMasMusica.scrollFactorY = 0;
 
-        btnMenosMusica = this.add.image(1036, 272, 'btnMenos').setInteractive({useHandCursor: true});
+        btnMenosMusica = this.add.image(1036, 272, 'btnMenos').setInteractive({ useHandCursor: true });
         btnMenosMusica.setScale(.5, .5);
         btnMenosMusica.setVisible(false);
-        btnMenosMusica.on('pointerdown', function(){ ConfigurarMusica('reducir'); });
+        btnMenosMusica.on('pointerdown', function () { ConfigurarMusica('reducir'); });
 
         btnMenosMusica.scrollFactorX = 0;
         btnMenosMusica.scrollFactorY = 0;
@@ -302,18 +310,18 @@ class GameScene extends Phaser.Scene{
         iconMusica.scrollFactorX = 0;
         iconMusica.scrollFactorY = 0;
 
-        btnMasSonido = this.add.image(1276, 402, 'btnMas').setInteractive({useHandCursor: true});
+        btnMasSonido = this.add.image(1276, 402, 'btnMas').setInteractive({ useHandCursor: true });
         btnMasSonido.setScale(.5, .5);
         btnMasSonido.setVisible(false);
-        btnMasSonido.on('pointerdown', function(){ ConfigurarSonido('añadir'); });
+        btnMasSonido.on('pointerdown', function () { ConfigurarSonido('añadir'); });
 
         btnMasSonido.scrollFactorX = 0;
         btnMasSonido.scrollFactorY = 0;
 
-        btnMenosSonido = this.add.image(1036, 402, 'btnMenos').setInteractive({useHandCursor: true});
+        btnMenosSonido = this.add.image(1036, 402, 'btnMenos').setInteractive({ useHandCursor: true });
         btnMenosSonido.setScale(.5, .5);
         btnMenosSonido.setVisible(false);
-        btnMenosSonido.on('pointerdown', function(){ ConfigurarSonido('reducir'); });
+        btnMenosSonido.on('pointerdown', function () { ConfigurarSonido('reducir'); });
 
         btnMenosSonido.scrollFactorX = 0;
         btnMenosSonido.scrollFactorY = 0;
@@ -327,96 +335,96 @@ class GameScene extends Phaser.Scene{
 
         //------------------------------------------MENÚ DE PAUSA------------------------------------------
         //Función para pausar el juego
-        function PausarJuego(){
+        function PausarJuego() {
 
-            if(!gameOnPause){
-    
+            if (!gameOnPause) {
+
                 player.setVelocityX(0);
                 player2.setVelocityX(0);
                 camara.setVelocityX(0);
-    
+
                 gameOnPause = true;
                 menuPausa.setVisible(true);
                 btnAjustes.setVisible(false);
                 btnSalir.setVisible(true);
                 btnInicio.setVisible(true);
-    
+
                 MostrarVolumen();
                 btnMasMusica.setVisible(true);
                 btnMenosMusica.setVisible(true);
-    
+
                 btnMasSonido.setVisible(true);
                 btnMenosSonido.setVisible(true);
-    
+
                 iconMusica.setVisible(true);
                 iconSonido.setVisible(true);
-    
-    
-            }else{
-    
+
+
+            } else {
+
                 player.setVelocityX(gameVelocity);
                 player2.setVelocityX(gameVelocity);
                 camara.setVelocityX(gameVelocity);
-    
+
                 gameOnPause = false;
                 menuPausa.setVisible(false);
                 btnAjustes.setVisible(true);
                 btnSalir.setVisible(false);
                 btnInicio.setVisible(false);
-    
+
                 vol0Musica.setVisible(false);
                 vol1Musica.setVisible(false);
                 vol2Musica.setVisible(false);
                 vol3Musica.setVisible(false);
                 vol4Musica.setVisible(false);
                 vol5Musica.setVisible(false);
-    
+
                 vol0Sonido.setVisible(false);
                 vol1Sonido.setVisible(false);
                 vol2Sonido.setVisible(false);
                 vol3Sonido.setVisible(false);
                 vol4Sonido.setVisible(false);
                 vol5Sonido.setVisible(false);
-    
+
                 btnMasMusica.setVisible(false);
                 btnMenosMusica.setVisible(false);
-    
+
                 btnMasSonido.setVisible(false);
                 btnMenosSonido.setVisible(false);
-    
+
                 iconMusica.setVisible(false);
                 iconSonido.setVisible(false);
             }
         }
 
-        function ConfigurarMusica(operación){
+        function ConfigurarMusica(operación) {
 
-            if(operación == 'añadir'){
-    
+            if (operación == 'añadir') {
+
                 volumenMusica++;
-    
-            }else{
-    
+
+            } else {
+
                 volumenMusica--;
-    
+
             }
-    
-            if(volumenMusica > 5){
-    
+
+            if (volumenMusica > 5) {
+
                 volumenMusica = 5;
-    
+
             }
-    
-            if(volumenMusica < 0){
-    
+
+            if (volumenMusica < 0) {
+
                 volumenMusica = 0;
-    
+
             }
-    
-            switch(volumenMusica){
-    
+
+            switch (volumenMusica) {
+
                 case 0:
-    
+
                     vol0Musica.setVisible(true);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -424,9 +432,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 1:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(true);
                     vol2Musica.setVisible(false);
@@ -434,9 +442,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 2:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(true);
@@ -444,9 +452,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 3:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -454,9 +462,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 4:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -464,9 +472,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(true);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 5:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -476,35 +484,35 @@ class GameScene extends Phaser.Scene{
                     break;
             }
         }
-    
-        function ConfigurarSonido(operación){
-    
-            if(operación == 'añadir'){
-    
+
+        function ConfigurarSonido(operación) {
+
+            if (operación == 'añadir') {
+
                 volumenSonido++;
-    
-            }else{
-    
+
+            } else {
+
                 volumenSonido--;
-    
+
             }
-    
-            if(volumenSonido > 5){
-    
+
+            if (volumenSonido > 5) {
+
                 volumenSonido = 5;
-    
+
             }
-    
-            if(volumenSonido < 0){
-    
+
+            if (volumenSonido < 0) {
+
                 volumenSonido = 0;
-    
+
             }
-    
-            switch(volumenSonido){
-    
+
+            switch (volumenSonido) {
+
                 case 0:
-    
+
                     vol0Sonido.setVisible(true);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -512,9 +520,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 1:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(true);
                     vol2Sonido.setVisible(false);
@@ -522,9 +530,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 2:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(true);
@@ -532,9 +540,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 3:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -542,9 +550,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 4:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -552,9 +560,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(true);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 5:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -564,13 +572,13 @@ class GameScene extends Phaser.Scene{
                     break;
             }
         }
-    
-        function MostrarVolumen(){
-    
-            switch(volumenMusica){
-    
+
+        function MostrarVolumen() {
+
+            switch (volumenMusica) {
+
                 case 0:
-    
+
                     vol0Musica.setVisible(true);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -578,9 +586,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 1:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(true);
                     vol2Musica.setVisible(false);
@@ -588,9 +596,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 2:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(true);
@@ -598,9 +606,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 3:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -608,9 +616,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(false);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 4:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -618,9 +626,9 @@ class GameScene extends Phaser.Scene{
                     vol4Musica.setVisible(true);
                     vol5Musica.setVisible(false);
                     break;
-    
+
                 case 5:
-    
+
                     vol0Musica.setVisible(false);
                     vol1Musica.setVisible(false);
                     vol2Musica.setVisible(false);
@@ -629,11 +637,11 @@ class GameScene extends Phaser.Scene{
                     vol5Musica.setVisible(true);
                     break;
             }
-    
-            switch(volumenSonido){
-    
+
+            switch (volumenSonido) {
+
                 case 0:
-    
+
                     vol0Sonido.setVisible(true);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -641,9 +649,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 1:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(true);
                     vol2Sonido.setVisible(false);
@@ -651,9 +659,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 2:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(true);
@@ -661,9 +669,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 3:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -671,9 +679,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(false);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 4:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -681,9 +689,9 @@ class GameScene extends Phaser.Scene{
                     vol4Sonido.setVisible(true);
                     vol5Sonido.setVisible(false);
                     break;
-    
+
                 case 5:
-    
+
                     vol0Sonido.setVisible(false);
                     vol1Sonido.setVisible(false);
                     vol2Sonido.setVisible(false);
@@ -693,14 +701,15 @@ class GameScene extends Phaser.Scene{
                     break;
             }
         }
-    
+
     }
 
 
-    //------------------------------------------UPLOAD------------------------------------------
+    //------------------------------------------UPDATE------------------------------------------
     update() {
 
-        if(!gameOnPause){
+        if (!gameOnPause) {
+            
             //Player 1
             if (this.keyboard.A.isDown) {
                 player.setVelocityX(-160);
@@ -743,7 +752,7 @@ class GameScene extends Phaser.Scene{
             textoDebug.text = "PlayerX = " + player.x;
 
             //LOOP
-            if (player.x > 4500) {
+            if (player.x > 6700) {
 
                 player.x = 0;
                 player2.x = 0;
@@ -752,13 +761,34 @@ class GameScene extends Phaser.Scene{
                 this.InicializarMundo(this);
 
             }
+
+            //WINCONDITION
+            if (!hasWon) {
+                if (vidas1 != vidas2) {
+                    if (vidas1 < 3) {
+
+                        this.YouWin(2);
+
+                    } else if (vidas2 < 3) {
+
+
+                        this.YouWin(1);
+
+                    }
+                }
+                else if (vidas1 < 3) {
+
+                    this.Draw();
+
+                }
+            }
         }
     }
 
     //------------------------------------------FUNCIONES DEL JUEGO------------------------------------------
 
-    ChangeToMainMenu(){
-    
+    ChangeToMainMenu() {
+
         gameOnPause = false;
         this.scene.start('MainMenu');
 
@@ -778,13 +808,13 @@ class GameScene extends Phaser.Scene{
 
 
         //Colisiones
-        contexto.physics.add.collider(player, coins, function (player, coin) {
+        contexto.physics.add.overlap(player, coins, function (player, coin) {
             coin.destroy();
             score1++;
             scoreText1.text = 'Puntuación: ' + score1;
         })
 
-        contexto.physics.add.collider(player2, coins, function (player2, coin) {
+        contexto.physics.add.overlap(player2, coins, function (player2, coin) {
             coin.destroy();
             score2++;
             scoreText2.text = 'Puntuación: ' + score2;
@@ -803,42 +833,42 @@ class GameScene extends Phaser.Scene{
             startingX += separation;
         }
 
+        //Colisiones con trampas
+        contexto.physics.add.overlap(player, traps, function (player, trap) {
+
+            trap.destroy();
+            pinchos.create(player.x + screen.width + 50, 280, "pincho").setScale(1.7).refreshBody()
+
+
             //Colisiones con trampas
-            contexto.physics.add.collider(player, traps, function (player, trap) {
+            contexto.physics.add.overlap(player, pinchos, function (player, pincho) {
 
-                trap.destroy();
-                pinchos.create(player.x + screen.width + 50, 280, "pincho").setScale(1.7).refreshBody()
-
-
-                //Colisiones con trampas
-                contexto.physics.add.collider(player, pinchos, function (player, pincho) {
-
-                    pincho.destroy();
-                        vidas1--;
-                        vidasText1.text = 'Vidas: ' + vidas1;
-
-                })
+                pincho.destroy();
+                vidas1--;
+                vidasText1.text = 'Vidas: ' + vidas1;
 
             })
 
-            contexto.physics.add.collider(player2, traps, function (player2, trap) {
+        })
 
-                trap.destroy();
-                pinchos.create(player2.x + screen.width + 50, 580, "pincho").setScale(1.7).refreshBody()
+        contexto.physics.add.overlap(player2, traps, function (player2, trap) {
 
-                contexto.physics.add.collider(player2, pinchos, function (player2, pincho) {
+            trap.destroy();
+            pinchos.create(player2.x + screen.width + 50, 580, "pincho").setScale(1.7).refreshBody()
 
-                    pincho.destroy();
-                    vidas2--;
-                    vidasText2.text = 'Vidas: ' + vidas2;
+            contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
 
-                })
+                pincho.destroy();
+                vidas2--;
+                vidasText2.text = 'Vidas: ' + vidas2;
 
             })
+
+        })
 
     }
 
-    CrearGrupos(contexto){
+    CrearGrupos(contexto) {
 
         //Creo los grupos fisicos
         coins = contexto.physics.add.staticGroup()
@@ -847,13 +877,72 @@ class GameScene extends Phaser.Scene{
 
     }
 
-    InicializarMundo(contexto){
+    InicializarMundo(contexto) {
 
         this.GenerateCoins(contexto, 800, 1300, 5);
         this.GenerateTraps(contexto, 1000, 2500, 3)
 
 
     }
+
+    YouWin(p) {
+
+        
+        gameVelocity = 0;
+        this.gravity = 0;
+
+        //WINTEXT
+        WinText = this.add.text(600, 10, "YOU WIN", { fontSize: "100px", fill: '#000' })
+        WinText.scrollFactorX = 0;
+
+        LoseText = this.add.text(600, 10, "YOU LOSE", { fontSize: "100px", fill: '#000' })
+        LoseText.scrollFactorX = 0;
+
+        if (p == 1) {
+
+            WinText.y = player1TextY;
+            LoseText.y = player2TextY;
+
+        }
+        else if (p == 2) {
+
+            WinText.y = player2TextY;
+            LoseText.y = player1TextY;
+
+        }
+
+        hasWon = true;
+        btnInicio.setVisible(true);
+        btnAjustes.destroy();
+        btnInicio.x = 880;
+        btnInicio.y = 300;
+
+    }
+
+    Draw() {
+
+        gameVelocity = 0;
+        this.gravity = 0;
+
+        //WINTEXT
+        WinText = this.add.text(750, 10, "DRAW", { fontSize: "100px", fill: '#000' })
+        WinText.scrollFactorX = 0;
+
+        LoseText = this.add.text(750, 10, "DRAW", { fontSize: "100px", fill: '#000' })
+        LoseText.scrollFactorX = 0;
+
+        WinText.y = player1TextY;
+        LoseText.y = player2TextY;
+
+        hasWon = true;
+        btnInicio.setVisible(true);
+        btnAjustes.destroy();
+        btnInicio.x = 880;
+        btnInicio.y = 300;
+
+
+    }
+
     //-----------------------------------------------------------------------FIN ESCENA DE JUEGO-----------------------------------------------------------------------
 }
 
@@ -865,21 +954,18 @@ class MainMenu extends Phaser.Scene {
     }
 
     //------------------------------------------PRELOAD------------------------------------------
-    preload ()
-    {
+    preload() {
         this.load.image("play", "assets/buttons/BJugarUP.png")
     }
 
     //------------------------------------------CREATE------------------------------------------
-    create ()
-    {
-        const playButton = this.add.sprite(960,300,'play').setInteractive({useHandCursor: true});
+    create() {
+        const playButton = this.add.sprite(960, 300, 'play').setInteractive({ useHandCursor: true });
         playButton.on('pointerdown', () => this.ChangeToGameScene());
     }
 
     //------------------------------------------UPLOAD------------------------------------------
-    ChangeToGameScene()
-    {
+    ChangeToGameScene() {
 
         this.scene.start('GameScene');
 
