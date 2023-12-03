@@ -123,7 +123,7 @@ class GameScene extends Phaser.Scene {
     //------------------------------------------CREATE------------------------------------------
     create() {
 
-        vM = 1;
+        vM = 0.8;
         vS = 0.3;
         gameTheme = this.sound.add("gameTheme");
         gameTheme.play({loop:true})
@@ -172,15 +172,15 @@ class GameScene extends Phaser.Scene {
         scoresXCoord = 1530;
         vidasXCoord = 20;
 
-        scoreText1 = this.add.text(scoresXCoord, textos1YCoord, 'Puntuación: ' + score1, { fontSize: '32px', fill: '#000' })
-        scoreText2 = this.add.text(scoresXCoord, textos2YCoord, 'Puntuación: ' + score2, { fontSize: '32px', fill: '#000' })
+        // scoreText1 = this.add.text(scoresXCoord, textos1YCoord, 'Puntuación: ' + score1, { fontSize: '32px', fill: '#000' })
+        // scoreText2 = this.add.text(scoresXCoord, textos2YCoord, 'Puntuación: ' + score2, { fontSize: '32px', fill: '#000' })
 
         //Mantener los textos en las esquinas
-        scoreText1.scrollFactorX = 0
-        scoreText1.scrollFactorY = 0
+        // scoreText1.scrollFactorX = 0
+        // scoreText1.scrollFactorY = 0
 
-        scoreText2.scrollFactorX = 0
-        scoreText2.scrollFactorY = 0
+        // scoreText2.scrollFactorX = 0
+        // scoreText2.scrollFactorY = 0
 
         hasWon = false;
 
@@ -415,7 +415,7 @@ class GameScene extends Phaser.Scene {
             if (operación == 'añadir' && volumenSonido < 5) {
 
                 volumenSonido++;
-                vS-=0.1;
+                vS+=0.1;
                 coinSound.setVolume(vS)
 
             } else if (operación == 'reducir' && volumenSonido > 0) {
@@ -585,7 +585,7 @@ class GameScene extends Phaser.Scene {
             coin.destroy();
             score1++;
             fireScore1++
-            scoreText1.text = 'Puntuación: ' + score1;
+            //scoreText1.text = 'Puntuación: ' + score1;
             if (fireScore1 === 4) {
 
                 fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
@@ -600,7 +600,7 @@ class GameScene extends Phaser.Scene {
             coin.destroy();
             score2++;
             fireScore2++;
-            scoreText2.text = 'Puntuación: ' + score2;
+            //scoreText2.text = 'Puntuación: ' + score2;
             if (fireScore2 === 4) {
 
                 fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
@@ -626,7 +626,6 @@ class GameScene extends Phaser.Scene {
 
             traps.create(startingX, 220-100, "trampas").setScale(.8).refreshBody()
             traps.create(startingX, 520, "trampas").setScale(.8).refreshBody()
-
 
             startingX += separation;
         }
@@ -764,21 +763,42 @@ class GameScene extends Phaser.Scene {
 
         if(fallen1 || fallen2)
         {
-            
-            //WINTEXT
-            WinText = this.add.text(600, 10, "YOU WIN", { fontSize: "100px", fill: '#000' })
-            WinText.scrollFactorX = 0;
-            
-            LoseText = this.add.text(600, 10, "YOU LOSE", { fontSize: "100px", fill: '#000' })
-            LoseText.scrollFactorX = 0;
 
-            if (fallen2) {
+            if(fallen1 && fallen2)
+            {
+
+                //Draw
+                WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
+
+                LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
+
+                WinText.y = player1TextY;
+                LoseText.y = player2TextY;
+
+            }
+            else if (fallen2) {
+
+                //WINTEXT
+                WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
+                
+                LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
 
                 WinText.y = player1TextY;
                 LoseText.y = player2TextY;
 
             }
             else if (fallen1) {
+
+                //WINTEXT
+                WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
+                
+                LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
 
                 WinText.y = player2TextY;
                 LoseText.y = player1TextY;
@@ -789,10 +809,10 @@ class GameScene extends Phaser.Scene {
         else if (vidas1 == vidas2) {
 
             //Draw
-            WinText = this.add.text(750, 10, "DRAW", { fontSize: "100px", fill: '#000' })
+            WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
             WinText.scrollFactorX = 0;
 
-            LoseText = this.add.text(750, 10, "DRAW", { fontSize: "100px", fill: '#000' })
+            LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
             LoseText.scrollFactorX = 0;
 
             WinText.y = player1TextY;
@@ -802,10 +822,10 @@ class GameScene extends Phaser.Scene {
         else {
 
             //WINTEXT
-            WinText = this.add.text(600, 10, "YOU WIN", { fontSize: "100px", fill: '#000' })
+            WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
             WinText.scrollFactorX = 0;
 
-            LoseText = this.add.text(600, 10, "YOU LOSE", { fontSize: "100px", fill: '#000' })
+            LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
             LoseText.scrollFactorX = 0;
 
             if (vidas2 < vidas1) {
@@ -852,9 +872,14 @@ class MainMenu extends Phaser.Scene {
     //------------------------------------------CREATE------------------------------------------
     create() {
         menuTheme = this.sound.add("menuTheme")
+        menuTheme.setVolume(0.5)
         menuTheme.play({loop: true})
-        const playButton = this.add.sprite(960, 300, 'play').setInteractive({ useHandCursor: true });
+
+        const playButton = this.add.sprite(920, 300, 'play').setInteractive({ useHandCursor: true });
+        playButton.setScale(1.5)
         playButton.on('pointerdown', () => this.ChangeToGameScene());
+
+        this.cameras.main.setBackgroundColor('ccccff');
     }
 
     //------------------------------------------UPLOAD------------------------------------------
