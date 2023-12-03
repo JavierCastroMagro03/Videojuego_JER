@@ -38,6 +38,9 @@ var fireScore1
 var fireScore2
 var camara
 var platforms
+var caidas
+var fallen1
+var fallen2
 var cursors
     
 
@@ -79,10 +82,12 @@ class GameScene extends Phaser.Scene {
         this.load.image("jugador1", "assets/sprites pj/Yang-juego.png");
         this.load.image("jugador2", "assets/sprites pj/Yin-juego.png");
         this.load.image("suelo", "assets/sprites plataformas/Tile-arriba.png");
+        this.load.image("caida", "assets/sprites plataformas/Tile-abajo.png");
+        this.load.image("agua", "assets/Blue.png");
         this.load.image("coin", "assets/sprites xtra/coin.png");
         this.load.image("fireball", "assets/sprites xtra/Fireball.png");
         this.load.image("cameraTracker", "assets/EmptyPNG.png");
-        this.load.image("trampas", "assets/manoint.png");
+        this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
         this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
         this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
         this.load.image("btnAjustes", "assets/buttons/BAjustesPequeño.png");
@@ -121,14 +126,17 @@ class GameScene extends Phaser.Scene {
         player2.setCollideWorldBounds(true);
 
 
-        //Atributos de los personajes, y variables auxiliaresç
-        gameVelocity = 400;
+        //Atributos de los personajes, y variables auxiliares
+        gameVelocity = 300;
 
         score1 = 0;
         score2 = 0;
 
         fireScore1 = 0;
         fireScore2 = 0;
+
+        fallen1 = false;
+        fallen2 = false;
 
         vidas1 = 3;
         vidas2 = 3;
@@ -455,7 +463,7 @@ class GameScene extends Phaser.Scene {
                 player.setVelocityX(0);
             }
             if (this.keyboard.W.isDown && !player1MidAir) {
-                player.setVelocityY(-330);
+                player.setVelocityY(-400);
                 player1MidAir = true;
             }
 
@@ -473,7 +481,7 @@ class GameScene extends Phaser.Scene {
             }
 
             if (cursors.up.isDown && !player2MidAir) {
-                player2.setVelocityY(-330);
+                player2.setVelocityY(-400);
                 player2MidAir = true;
             }
 
@@ -501,6 +509,10 @@ class GameScene extends Phaser.Scene {
                     this.WinCondition();
 
                 }
+                else if (fallen1 || fallen2)
+                {
+                    this.WinCondition();
+                }
 
             }
         }
@@ -520,14 +532,14 @@ class GameScene extends Phaser.Scene {
         for (let index = 0; index < number; index++) {
 
             //Monedas Player 1
-            coins.create(startingX, 220 - 100, "coin").setScale(1).refreshBody()
-            coins.create(startingX + 100, 220, "coin").setScale(1).refreshBody()
-            coins.create(startingX + 200, 220 - 100, "coin").setScale(1).refreshBody()
+            coins.create(startingX, 220 - 100, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 120, 220, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 240, 220 - 100, "coin").setScale(.8).refreshBody()
 
             //Monedas Player 2
-            coins.create(startingX, 520, "coin").setScale(1).refreshBody()
-            coins.create(startingX + 100, 520 - 100, "coin").setScale(1).refreshBody()
-            coins.create(startingX + 200, 520, "coin").setScale(1).refreshBody()
+            coins.create(startingX, 520, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 120, 520 - 100, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 240, 520, "coin").setScale(.8).refreshBody()
 
             startingX += separation;
         }
@@ -539,7 +551,7 @@ class GameScene extends Phaser.Scene {
             score1++;
             fireScore1++
             scoreText1.text = 'Puntuación: ' + score1;
-            if (fireScore1 === 2) {
+            if (fireScore1 === 4) {
 
                 fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
                 fireScore1 = 0;
@@ -552,7 +564,7 @@ class GameScene extends Phaser.Scene {
             score2++;
             fireScore2++;
             scoreText2.text = 'Puntuación: ' + score2;
-            if (fireScore2 === 2) {
+            if (fireScore2 === 4) {
 
                 fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
                 fireScore2 = 0;
@@ -564,10 +576,18 @@ class GameScene extends Phaser.Scene {
 
     GenerateTraps(contexto, startingX, separation, number) {
 
+
+        pinchos.create(1900, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900*2, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900*3, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900*2, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900*3, 565, "pincho").setScale(.9).refreshBody()
+
         for (let index = 0; index < number; index++) {
 
-            traps.create(startingX, 220, "trampas").setScale(0.3).refreshBody()
-            traps.create(startingX, 520, "trampas").setScale(0.3).refreshBody()
+            traps.create(startingX, 220-100, "trampas").setScale(.8).refreshBody()
+            traps.create(startingX, 520, "trampas").setScale(.8).refreshBody()
 
 
             startingX += separation;
@@ -577,37 +597,36 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player, traps, function (player, trap) {
 
             trap.destroy();
-            pinchos.create(player.x + screen.width + 50, 280, "pincho").refreshBody()
+            pinchos.create(player.x + screen.width + 50, 565, "pincho").setScale(.9).refreshBody()
 
+        })
 
-            //Colisiones con trampas
-            contexto.physics.add.overlap(player, pinchos, function (player, pincho) {
+        //Colisiones con trampas
+        contexto.physics.add.overlap(player, pinchos, function (player, pincho) {
 
-                pincho.destroy();
-                player1HP[vidas1-1].destroy(); vidas1--;
-
-            })
-
+            pincho.destroy();
+            player1HP[vidas1-1].destroy(); vidas1--;
+        
         })
 
         contexto.physics.add.overlap(player2, traps, function (player2, trap) {
 
             trap.destroy();
-            pinchos.create(player2.x + screen.width + 50, 580, "pincho").refreshBody()
+            pinchos.create(player2.x + screen.width + 50, 272, "pincho").setScale(.9).refreshBody()
 
-            contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
+        })
+        
+        contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
 
-                pincho.destroy();
-                player2HP[vidas2-1].destroy(); vidas2--;
+            pincho.destroy();
+            player2HP[vidas2-1].destroy(); vidas2--;
 
-
-            })
 
         })
 
     }
 
-    GeneratePlatforms(contexto, startingX, separation, number) {
+    GeneratePlatforms(contexto, startingX, separation, number, holePosition) {
 
         for (let index = 0; index < number; index++) {
 
@@ -617,15 +636,16 @@ class GameScene extends Phaser.Scene {
             //Plataforma Player 2
             platforms.create(startingX, 583, "suelo").setScale(.5).refreshBody();
 
+            //Creación de un hueco en el suelo
+            if(startingX === 32*holePosition)
+            {
+                startingX+=128
+                holePosition+=46
+            }
+
             startingX += separation;
 
         }
-
-        //Plataforma Player 1
-        platforms.create(32 * 50, 258, "suelo").setScale(.5).refreshBody();
-
-        //Plataforma Player 2
-        platforms.create(960, 551, "suelo").setScale(.5).refreshBody();
 
         //Colisiones
         contexto.physics.add.collider(player, platforms, function (player, platforms) { player1MidAir = false });
@@ -633,10 +653,53 @@ class GameScene extends Phaser.Scene {
 
     }
 
+    GenerateFalls(contexto, startingX, separation, number, holePosition) {
+
+        for (let index = 0; index < number; index++) {
+
+            //Creación de una plataforma que detecte caida
+            if(startingX === 32*(holePosition+1))
+            {
+                for(let i=0; i<4; i++)
+                {
+
+                    caidas.create(startingX, 300, "agua").setScale(.2, .005).refreshBody();
+                    caidas.create(startingX, 593, "agua").setScale(.2, .005).refreshBody()
+
+                }
+
+                for(let i=0; i<4; i++)
+                {
+                    //Plataforma Caida Player 1
+                    
+                    caidas.create(startingX, 302.5, "suelo").setScale(.5, .1).refreshBody();
+                    
+
+                    //Plataforma Caida Player 2
+                    caidas.create(startingX, 595.5, "suelo").setScale(.5, .1).refreshBody()
+            
+                    startingX += separation;
+                }
+
+                holePosition += 46;
+            }
+            
+
+            startingX += separation;
+
+        }
+
+        //Colisiones
+        contexto.physics.add.collider(player, caidas, function (player, caidas) { fallen1 = true });
+        contexto.physics.add.collider(player2, caidas, function (player2, caidas) { fallen2 = true });
+
+    }
+
     CrearGrupos(contexto) {
 
         //Creo los grupos fisicos
         platforms = contexto.physics.add.staticGroup()
+        caidas = contexto.physics.add.staticGroup();
         coins = contexto.physics.add.staticGroup()
         traps = contexto.physics.add.staticGroup()
         pinchos = contexto.physics.add.staticGroup();
@@ -648,9 +711,10 @@ class GameScene extends Phaser.Scene {
 
     InicializarMundo(contexto) {
 
+        this.GenerateFalls(contexto, -128, 32, 250, 46);
+        this.GeneratePlatforms(contexto, -128, 32, 250, 46);
         this.GenerateCoins(contexto, 800, 1300, 5);
-        this.GenerateTraps(contexto, 1000, 500, 3);
-        this.GeneratePlatforms(contexto, -128, 32, 250);
+        this.GenerateTraps(contexto, 920, 1300, 5);
 
     }
 
@@ -659,7 +723,31 @@ class GameScene extends Phaser.Scene {
         gameVelocity = 0;
         this.gravity = 0;
 
-        if (vidas1 == vidas2) {
+        if(fallen1 || fallen2)
+        {
+            
+            //WINTEXT
+            WinText = this.add.text(600, 10, "YOU WIN", { fontSize: "100px", fill: '#000' })
+            WinText.scrollFactorX = 0;
+            
+            LoseText = this.add.text(600, 10, "YOU LOSE", { fontSize: "100px", fill: '#000' })
+            LoseText.scrollFactorX = 0;
+
+            if (fallen2) {
+
+                WinText.y = player1TextY;
+                LoseText.y = player2TextY;
+
+            }
+            else if (fallen1) {
+
+                WinText.y = player2TextY;
+                LoseText.y = player1TextY;
+
+            }
+
+        }
+        else if (vidas1 == vidas2) {
 
             //Draw
             WinText = this.add.text(750, 10, "DRAW", { fontSize: "100px", fill: '#000' })
