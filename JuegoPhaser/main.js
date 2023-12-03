@@ -1,6 +1,12 @@
 //-----------------------------------------------------------------------DECLARACIÓN DE VARIABLES-----------------------------------------------------------------------
 //Variables
-var music 
+var gameTheme 
+var menuTheme
+var coinSound
+var dmgSound
+var fireballSFX
+var vM;
+var vS;
 
 var scaleX = .5
 var scaleY = .5
@@ -67,8 +73,8 @@ var player2HP
 
 var btnMasMusica, btnMasSonido, btnMenosMusica, btnMenosSonido;
 var iconMusica, iconSonido;
-var volumenMusica = 2;
-var volumenSonido = 2;
+var volumenMusica;
+var volumenSonido;
 
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
@@ -108,14 +114,27 @@ class GameScene extends Phaser.Scene {
         this.load.image("corazonHP", "assets/sprites xtra/Vida.png");
 
         this.load.audio("gameTheme", ["Assets/Audio/BattleMusicRep.mp3"]);
+        this.load.audio("coinPickUp", ["assets/audio/CoinSound.mp3"])
+        this.load.audio("dmgSound", ["assets/audio/DmgSound.mp3"])
+        this.load.audio("fireballSFX", ["assets/audio/fireball.mp3"])
 
     }
 
     //------------------------------------------CREATE------------------------------------------
     create() {
 
-        music = this.sound.add("gameTheme");
-        music.play({loop:true})
+        vM = 1;
+        vS = 0.3;
+        gameTheme = this.sound.add("gameTheme");
+        gameTheme.play({loop:true})
+        coinSound = this.sound.add("coinPickUp");
+        coinSound.setVolume(vS)
+        dmgSound = this.sound.add("dmgSound")
+        fireballSFX = this.sound.add("fireballSFX")
+        fireballSFX.setVolume(vS)
+
+        volumenMusica = 2;
+        volumenSonido = 2;
 
         //Player1
         player = this.physics.add.sprite(0, 0, "jugador1").refreshBody();
@@ -178,8 +197,8 @@ class GameScene extends Phaser.Scene {
         camara.setCollideWorldBounds(true);
 
         //Colisiones fireballs
-        this.physics.add.collider(player, fireballs, function (player, fireball1) { player1HP[vidas1-1].destroy(); vidas1--, fireball1.destroy() });
-        this.physics.add.collider(player2, fireballs, function (player2, fireball2) { player2HP[vidas2-1].destroy(); vidas2--, fireball2.destroy() });
+        this.physics.add.overlap(player, fireballs, function (player, fireball1) { player1HP[vidas1-1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
+        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { player2HP[vidas2-1].destroy(); vidas2--,dmgSound.play(), fireball2.destroy() });
 
         //Controles flechas
         cursors = this.input.keyboard.createCursorKeys();
@@ -377,10 +396,14 @@ class GameScene extends Phaser.Scene {
             if (operación == 'añadir' && volumenMusica < 5) {
 
                 volumenMusica++;
+                vM+=0.3;
+                gameTheme.setVolume(vM)
 
             } else if (operación == 'reducir' && volumenMusica > 0) {
 
                 volumenMusica--;
+                vM-=0.3;
+                gameTheme.setVolume(vM)
 
             }
 
@@ -392,10 +415,14 @@ class GameScene extends Phaser.Scene {
             if (operación == 'añadir' && volumenSonido < 5) {
 
                 volumenSonido++;
+                vS-=0.1;
+                coinSound.setVolume(vS)
 
             } else if (operación == 'reducir' && volumenSonido > 0) {
 
                 volumenSonido--;
+                vS-=0.1;
+                coinSound.setVolume(vS)
 
             }
 
@@ -529,6 +556,7 @@ class GameScene extends Phaser.Scene {
     ChangeToMainMenu() {
 
         gameOnPause = false;
+        gameTheme.pause();
         this.scene.start('MainMenu');
 
     }
@@ -553,6 +581,7 @@ class GameScene extends Phaser.Scene {
 
         //Colisiones
         contexto.physics.add.overlap(player, coins, function (player, coin) {
+            coinSound.play()
             coin.destroy();
             score1++;
             fireScore1++
@@ -560,12 +589,14 @@ class GameScene extends Phaser.Scene {
             if (fireScore1 === 4) {
 
                 fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireballSFX.play()
                 fireScore1 = 0;
 
             }
         })
 
         contexto.physics.add.overlap(player2, coins, function (player2, coin) {
+            coinSound.play()
             coin.destroy();
             score2++;
             fireScore2++;
@@ -573,6 +604,7 @@ class GameScene extends Phaser.Scene {
             if (fireScore2 === 4) {
 
                 fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireballSFX.play()
                 fireScore2 = 0;
 
             }
@@ -603,7 +635,7 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player, traps, function (player, trap) {
 
             trap.destroy();
-            pinchos.create(player.x + screen.width + 50, 565, "pincho").setScale(.9).refreshBody()
+            pinchos.create(player.x + screen.width + 20, 565, "pincho").setScale(.9).refreshBody()
 
         })
 
@@ -612,6 +644,7 @@ class GameScene extends Phaser.Scene {
 
             pincho.destroy();
             player1HP[vidas1-1].destroy(); vidas1--;
+            dmgSound.play();
         
         })
 
@@ -626,7 +659,7 @@ class GameScene extends Phaser.Scene {
 
             pincho.destroy();
             player2HP[vidas2-1].destroy(); vidas2--;
-
+            dmgSound.play();
 
         })
 
@@ -812,10 +845,14 @@ class MainMenu extends Phaser.Scene {
     //------------------------------------------PRELOAD------------------------------------------
     preload() {
         this.load.image("play", "assets/buttons/BJugarUP.png")
+
+        this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
     }
 
     //------------------------------------------CREATE------------------------------------------
     create() {
+        menuTheme = this.sound.add("menuTheme")
+        menuTheme.play({loop: true})
         const playButton = this.add.sprite(960, 300, 'play').setInteractive({ useHandCursor: true });
         playButton.on('pointerdown', () => this.ChangeToGameScene());
     }
@@ -824,6 +861,7 @@ class MainMenu extends Phaser.Scene {
     ChangeToGameScene() {
 
         this.scene.start('GameScene');
+        menuTheme.pause();
 
     }
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
