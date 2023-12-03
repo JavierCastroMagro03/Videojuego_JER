@@ -145,11 +145,13 @@ En las tierras del Japón feudal, dos samuráis excepcionales, Yin y Yang, desta
 sus habilidades únicas. Ying, de naturaleza serena y pensativa, manejaba su katana con
 movimientos suaves y precisos. Por otro lado, Yang, apasionado y enérgico, prefería la
 fuerza bruta y un estilo agresivo con su espada.
+
 Ambos samuráis se conocieron en un camino donde sus rutas se cruzaron durante una
 misión para proteger a un anciano sabio que poseía conocimientos antiguos. La tarea
 resultó ser más desafiante de lo esperado, y Ying y Yang se vieron obligados a unir sus
 esfuerzos para superar a sus enemigos. A pesar de sus diferentes estilos, descubrieron
 que sus habilidades se complementaban a la perfección.
+
 Conforme continuaron trabajando juntos, Yin y Yang formaron un vínculo imbatible. Sus
 victorias se volvieron legendarias, y la gente comenzó a llamarlos "YinYang",
 simbolizando la armonía encontrada entre lo opuesto.
@@ -178,6 +180,7 @@ Por otro lado, Yang nació en una familia de guerreros que valoraban la fuerza b
 determinación inquebrantable. Desde pequeño, Yang demostró ser apasionado y tener
 un don natural para la lucha. Fue entrenado por su padre, un samurái valiente pero
 impulsivo, quien le inculcó la importancia de la valentía y la determinación en la batalla.
+
 La vida de Yang dio un giro cuando su padre fue asesinado en un conflicto territorial.
 Lleno de ira y sed de venganza, Yang emprendió un viaje para perfeccionar sus
 habilidades y hacer justicia a la memoria de su padre. Sin embargo, conforme avanzaba,
@@ -186,6 +189,7 @@ se dio cuenta de que la fuerza sin control solo conduce a la destrucción.
 La llegada de Yin en su vida marcó un cambio significativo. A través de su asociación,
 Yang aprendió a dirigir su energía de manera más efectiva y a equilibrar su enfoque
 apasionado con la estrategia y la reflexión.
+
 Juntos, Yin y Yang no solo forjaron una formidable alianza, sino que también
 encontraron la paz y la completitud en la armonía de sus diferencias.
 
@@ -228,7 +232,10 @@ diferentes escenas a lo largo del videojuego.
 En el flujograma 1 se ve lo que se ha implementado en esta segunda fase y en el
 flujograma 2 se muestra el resultado al que se quiere llegar al final de la práctica.
 
-Las figuras con los flujogramas están aclarados en la memoria.
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/fa021789-3a95-4369-ba0a-43d5e80daa46)
+
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/94060245-1a80-49fc-9edd-5ca35b208007)
+
 
 ## 7. Interfaces
 
@@ -253,7 +260,9 @@ momento pulsando el botón del engranaje. Además, esta interfaz contiene:
 - Controlador de volumen para los efectos de sonido.
 - Botón para volver al menú principal.
 - Botón para reanudar el juego.
-La figura 6 que muestra el menú de ajustes se encuentra en la memoria
+
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/775b23e8-d794-4379-8df6-bae58d759586)
+
 
 ## 8. Niveles
 La idea, para la primera entrega, es desarrollar un nivel al completo con todo nivel de
@@ -263,17 +272,20 @@ dificultad y otorga la oportunidad de obtener la insignia “Subes de nivel”.
 
 ## 9. Personajes
 ### 9.1 Personajes Jugables
-Figura 7 de Yin y Yang referenciada en la memoria.
+
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/de6225fa-41d5-44d0-900e-1650081ef103)
 
 Los dos personajes tienen un estilo artístico similar a los personajes que aparecen en la
 figura 3 en el apartado 2.6 de estética.
+
 Primero se realizó el arte de Yang y posteriormente se le **invirtieron los colores**. La figura
 de los personajes es la misma, pero el solo tener que invertir los colores ahorró mucho
 tiempo que se hubiese invertido en desarrollar otro personaje diferente.
+
 Como inspiración, también se ha utilizado la imagen de la figura 8 perteneciente a una
 skin de Minecraft.
 
-Figura 8 de una skin de minecraft de insipiración referenciada en la memoria.
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/f7c19da1-aba5-4811-b73c-05e49e9faa55)
 
 ### 9.2 Personajes No Jugables
 Por definir.
@@ -308,31 +320,32 @@ La tipografía de las mayúsculas es completamente **original** y la de las min�
 basada en la tipografía empleada en **“Blasphemous II”** con unos retoques para hacerla
 única.
 
-La figura 9 esta referenciada en la memoria y muestra la tipografía.
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/a481379c-cab8-4b98-9dfd-ab7e28ee145c)
 
 ### 11.2 Botones
 En la figura 10 se pueden ver los botones empleados para iniciar la partida, acceder a la
 pantalla de inicio desde menú de pausa y el botón de ajustes (que aún no ha sido
 añadido a la pantalla principal, pero se hará de cara a la siguiente entrega).
 
-La figura 10 esta referenciada en la memoria y muestra los botones empleados.
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/1dd6c32b-a73a-4676-a335-578a03934b03)
+
 
 ### 11.3 TileSet plataformas
 En la figura 11 se muestra el tileset de las plataformas que configuran el nivel.
 
-La figura 11 se encuentra referenciada en la memoria y muestra el tileset empleado.
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/df8e6e80-f4ce-412b-acb4-c8cf3f456754)
 
 ### 11.4 Elementos extra
 En la figura 12 se muestran los elementos extra que componen el nivel como: vida, barra
 de progreso, bloque random, monedas, trampas…
 
-La figura 12 se encuentra referenciada en la memoria y muestra diversos elementos tales como las vidas, las monedas, los pinchos...
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/c9b714eb-ff40-4143-aa93-f4fe6b973d5d)
 
 ### 11.5 Paletas de colores extra
 En la figura 13 se muestran diversas paletas de colores empleadas en los elementos
 extra del apartado anterior.
 
-La figura 13 se encuentra referenciada en la memoria y muestra las paletas de colores empleadas en el apartado 11.4
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/54d388b3-dff9-45b2-8226-4e50eebd5c5c)
 
 ## 12. Anexo
 **Anexo 1: Estructura del GDD**
@@ -345,19 +358,28 @@ https://ivisualformacion.com/blog/tutoriales/como-redactar-gdd-videojuegos
 El juego se ha desarrollado con el framework de Phaser3.
 A nivel de código, se ha utilizado el editor de **Visual Studio Code**, el lenguaje de
 programación **JavaScript** y el lenguaje de marcado **HTML**
+
 Logo Phaser: https://www.google.com/imgres?imgurl=https%3A%2F%2Fphaser.io%2Fimages%2Flogo%2Flogo-download-vector.png&tbnid=40FJuXYcYF69uM&vet=12ahUKEwj60NK27fOCAxWUTaQEHeLmCk4QMygAegQIARBN..i&imgrefurl=https%3A%2F%2Fphaser.io%2Fdownload%2Flogo&docid=ykk8YuXJ18rFKM&w=222&h=190&q=logo%20phaser%203&client=opera-gx&ved=2ahUKEwj60NK27fOCAxWUTaQEHeLmCk4QMygAegQIARBN
+
 Logo Visual Studio Code: https://www.google.com/imgres?imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F9%2F9a%2FVisual_Studio_Code_1.35_icon.svg%2F2048px-Visual_Studio_Code_1.35_icon.svg.png&tbnid=JZ2CsLPtYMB1AM&vet=12ahUKEwjaksu_7fOCAxXxU6QEHaF0DBMQMygAegQIARBI..i&imgrefurl=https%3A%2F%2Fes.m.wikipedia.org%2Fwiki%2FArchivo%3AVisual_Studio_Code_1.35_icon.svg&docid=zUIcI0JZLmO8WM&w=2048&h=2048&q=logo%20vs%20code&client=opera-gx&ved=2ahUKEwjaksu_7fOCAxXxU6QEHaF0DBMQMygAegQIARBI
+
 Logo HTML5: https://www.google.com/imgres?imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F6%2F61%2FHTML5_logo_and_wordmark.svg&tbnid=O2LAft90i-2uhM&vet=12ahUKEwjGnvHG7fOCAxUSmScCHcrlBqgQMygAegQIARBI..i&imgrefurl=https%3A%2F%2Fes.m.wikipedia.org%2Fwiki%2FArchivo%3AHTML5_logo_and_wordmark.svg&docid=K6HBnuRMhxWIZM&w=800&h=800&q=logo%20html5&client=opera-gx&ved=2ahUKEwjGnvHG7fOCAxUSmScCHcrlBqgQMygAegQIARBI
+
 Logo JavaScript: https://www.google.com/imgres?imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F6%2F6a%2FJavaScript-logo.png&tbnid=hDOuE3Uh0EiOSM&vet=12ahUKEwimldTb7fOCAxWmuycCHRzXATEQMygAegQIARBN..i&imgrefurl=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FArchivo%3AJavaScript-logo.png&docid=TN-nKiwxFcbTAM&w=1052&h=1052&q=logo%20js&client=opera-gx&ved=2ahUKEwimldTb7fOCAxWmuycCHRzXATEQMygAegQIARBN
 
 **Anexo 3: Sonidos**
 -**Recoger monedas:** https://freesound.org/people/MATRIXXX_/sounds/402767/
+
 -**Daño a personajes:** https://freesound.org/people/EVRetro/sounds/501104/
+
 -**Bola de fuego:** https://freesound.org/people/Julien%20Matthey/sounds/105016/
-Todos ellos obtenidos de Freesound: https://freesound.org+
+
+Todos ellos obtenidos de Freesound: https://freesound.org
+
 Logo Freesound: https://www.google.com/imgres?imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F3%2F3c%2FFreesound_project_website_logo.png&tbnid=M9dp5TjBUsAxMM&vet=12ahUKEwiQu8Ln7fOCAxUtrycCHRoACCAQMygAegQIARBU..i&imgrefurl=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3AFreesound_project_website_logo.png&docid=VV4VB8mxsyo7wM&w=541&h=188&q=logo%20freesound&client=opera-gx&ved=2ahUKEwiQu8Ln7fOCAxUtrycCHRoACCAQMygAegQIARBU
 
 **Otros:**
+
 **Tipografías** del documento y power point obtenidas en: https://www.dafont.com/es/
 
 **Pixel art** realizado en **Aseprite**.
