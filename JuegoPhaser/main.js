@@ -76,7 +76,6 @@ var iconMusica, iconSonido;
 var volumenMusica;
 var volumenSonido;
 
-
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
 
