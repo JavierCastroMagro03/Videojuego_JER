@@ -217,6 +217,12 @@ a tu contrincante. Caer en un hueco del mapa implicará perder directamente, sin
 una vida. Otros efectos secundarios que pueden tener son: ralentizado, imposibilidad
 de saltar, ceguera…. Estos elementos no han sido aún implementados, pero se busca implementarlos en la Fase 3.
 
+### 4.3 Diseño de nivel
+
+En la siguiente figura podemos ver los distintos elementos implementados en nuestro primer nivel:
+
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/4d0d9941-e899-4b3d-8847-f4cba38cfdcd)
+
 ## 5. Conocimiento Almacenado en Red
 Lo que tiene que mantenerse en la red, para que se actualice de forma adecuada el juego
 y los dos jugadores puedan disfrutar de una buena experiencia es:
