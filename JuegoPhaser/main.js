@@ -1,5 +1,7 @@
 //-----------------------------------------------------------------------DECLARACIÓN DE VARIABLES-----------------------------------------------------------------------
 //Variables
+var music 
+
 var scaleX = .5
 var scaleY = .5
 
@@ -103,13 +105,17 @@ class GameScene extends Phaser.Scene {
         this.load.image("btnMas", "assets/volume/BMas.png");
         this.load.image("iconMusica", "assets/volume/IconMusica.png");
         this.load.image("iconSonido", "assets/volume/IconSonido.png");
-
         this.load.image("corazonHP", "assets/sprites xtra/Vida.png");
+
+        this.load.audio("gameTheme", ["Assets/Audio/BattleMusicRep.mp3"]);
 
     }
 
     //------------------------------------------CREATE------------------------------------------
     create() {
+
+        music = this.sound.add("gameTheme");
+        music.play({loop:true})
 
         //Player1
         player = this.physics.add.sprite(0, 0, "jugador1").refreshBody();
@@ -615,7 +621,7 @@ class GameScene extends Phaser.Scene {
             pinchos.create(player2.x + screen.width + 50, 272, "pincho").setScale(.9).refreshBody()
 
         })
-        
+
         contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
 
             pincho.destroy();
