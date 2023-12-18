@@ -390,15 +390,15 @@ class GameScene extends Phaser.Scene {
             }
         }
 
-        function ConfigurarMusica(operación) {
+        function ConfigurarMusica(operacion) {
 
-            if (operación == 'añadir' && volumenMusica < 5) {
+            if (operacion == 'añadir' && volumenMusica < 5) {
 
                 volumenMusica++;
                 vM+=0.3;
                 gameTheme.setVolume(vM)
 
-            } else if (operación == 'reducir' && volumenMusica > 0) {
+            } else if (operacion == 'reducir' && volumenMusica > 0) {
 
                 volumenMusica--;
                 vM-=0.3;
@@ -409,15 +409,15 @@ class GameScene extends Phaser.Scene {
             musicToggles(volumenMusica);
         }
 
-        function ConfigurarSonido(operación) {
+        function ConfigurarSonido(operacion) {
 
-            if (operación == 'añadir' && volumenSonido < 5) {
+            if (operacion == 'añadir' && volumenSonido < 5) {
 
                 volumenSonido++;
                 vS+=0.1;
                 coinSound.setVolume(vS)
 
-            } else if (operación == 'reducir' && volumenSonido > 0) {
+            } else if (operacion == 'reducir' && volumenSonido > 0) {
 
                 volumenSonido--;
                 vS-=0.1;
