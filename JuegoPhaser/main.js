@@ -8,8 +8,6 @@ var fireballSFX
 var vM;
 var vS;
 
-var loginHecho = false;
-
 var scaleX = .5
 var scaleY = .5
 
@@ -52,7 +50,7 @@ var caidas
 var fallen1
 var fallen2
 var cursors
-    
+
 
 var player;
 var player2;
@@ -79,6 +77,13 @@ var volumenMusica;
 var volumenSonido;
 
 var videoFondo;
+
+//FONDO
+let coordenadasXSuelosCerca;
+let coordenadasXSuelosLejano;
+
+//LOGIN
+var loginHecho = false;
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
@@ -132,7 +137,7 @@ class GameScene extends Phaser.Scene {
         this.load.image("sueloLejano1", "assets/escenario/sueloLejano1.png");
         this.load.image("sueloLejano2", "assets/escenario/sueloLejano2.png");
 
-        
+
         this.load.image("btnAjustesMenuDouble", "assets/buttons/botones nuevos/Bajustesdoble.png");
 
 
@@ -152,7 +157,7 @@ class GameScene extends Phaser.Scene {
         this.scale.resize(10000, 600);
 
         gameTheme = this.sound.add("gameTheme");
-        gameTheme.play({loop:true})
+        gameTheme.play({ loop: true })
         coinSound = this.sound.add("coinPickUp");
         coinSound.setVolume(vS)
         dmgSound = this.sound.add("dmgSound")
@@ -226,8 +231,8 @@ class GameScene extends Phaser.Scene {
         camara.setCollideWorldBounds(true);
 
         //Colisiones fireballs
-        this.physics.add.overlap(player, fireballs, function (player, fireball1) { player1HP[vidas1-1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
-        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { player2HP[vidas2-1].destroy(); vidas2--,dmgSound.play(), fireball2.destroy() });
+        this.physics.add.overlap(player, fireballs, function (player, fireball1) { player1HP[vidas1 - 1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
+        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { player2HP[vidas2 - 1].destroy(); vidas2--, dmgSound.play(), fireball2.destroy() });
 
         //Controles flechas
         cursors = this.input.keyboard.createCursorKeys();
@@ -316,8 +321,8 @@ class GameScene extends Phaser.Scene {
 
         for (var i = 0; i < player1HP.length; i++) {
 
-            player1HP[i] = this.add.image((i +.4)*hpOffset,30, 'corazonHP');
-            player2HP[i] = this.add.image((i+.4)*hpOffset,340, 'corazonHP');
+            player1HP[i] = this.add.image((i + .4) * hpOffset, 30, 'corazonHP');
+            player2HP[i] = this.add.image((i + .4) * hpOffset, 340, 'corazonHP');
 
             player1HP[i].setScale(.8);
             player2HP[i].setScale(.8);
@@ -435,13 +440,13 @@ class GameScene extends Phaser.Scene {
             if (operacion == 'añadir' && volumenMusica < 5) {
 
                 volumenMusica++;
-                vM+=0.3;
+                vM += 0.3;
                 gameTheme.setVolume(vM)
 
             } else if (operacion == 'reducir' && volumenMusica > 0) {
 
                 volumenMusica--;
-                vM-=0.3;
+                vM -= 0.3;
                 gameTheme.setVolume(vM)
 
             }
@@ -454,13 +459,13 @@ class GameScene extends Phaser.Scene {
             if (operacion == 'añadir' && volumenSonido < 5) {
 
                 volumenSonido++;
-                vS+=0.1;
+                vS += 0.1;
                 coinSound.setVolume(vS)
 
             } else if (operacion == 'reducir' && volumenSonido > 0) {
 
                 volumenSonido--;
-                vS-=0.1;
+                vS -= 0.1;
                 coinSound.setVolume(vS)
 
             }
@@ -581,8 +586,7 @@ class GameScene extends Phaser.Scene {
                     this.WinCondition();
 
                 }
-                else if (fallen1 || fallen2)
-                {
+                else if (fallen1 || fallen2) {
                     this.WinCondition();
                 }
 
@@ -656,15 +660,15 @@ class GameScene extends Phaser.Scene {
 
 
         pinchos.create(1900, 272, "pincho").setScale(.9).refreshBody()
-        pinchos.create(1900*2, 272, "pincho").setScale(.9).refreshBody()
-        pinchos.create(1900*3, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 2, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 3, 272, "pincho").setScale(.9).refreshBody()
         pinchos.create(1900, 565, "pincho").setScale(.9).refreshBody()
-        pinchos.create(1900*2, 565, "pincho").setScale(.9).refreshBody()
-        pinchos.create(1900*3, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 2, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 3, 565, "pincho").setScale(.9).refreshBody()
 
         for (let index = 0; index < number; index++) {
 
-            traps.create(startingX, 220-100, "trampas").setScale(.8).refreshBody()
+            traps.create(startingX, 220 - 100, "trampas").setScale(.8).refreshBody()
             traps.create(startingX, 520, "trampas").setScale(.8).refreshBody()
 
             startingX += separation;
@@ -682,9 +686,9 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player, pinchos, function (player, pincho) {
 
             pincho.destroy();
-            player1HP[vidas1-1].destroy(); vidas1--;
+            player1HP[vidas1 - 1].destroy(); vidas1--;
             dmgSound.play();
-        
+
         })
 
         contexto.physics.add.overlap(player2, traps, function (player2, trap) {
@@ -697,7 +701,7 @@ class GameScene extends Phaser.Scene {
         contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
 
             pincho.destroy();
-            player2HP[vidas2-1].destroy(); vidas2--;
+            player2HP[vidas2 - 1].destroy(); vidas2--;
             dmgSound.play();
 
         })
@@ -715,10 +719,9 @@ class GameScene extends Phaser.Scene {
             platforms.create(startingX, 583, "suelo").setScale(.5).refreshBody();
 
             //Creación de un hueco en el suelo
-            if(startingX === 32*holePosition)
-            {
-                startingX+=128
-                holePosition+=46
+            if (startingX === 32 * holePosition) {
+                startingX += 128
+                holePosition += 46
             }
 
             startingX += separation;
@@ -736,32 +739,29 @@ class GameScene extends Phaser.Scene {
         for (let index = 0; index < number; index++) {
 
             //Creación de una plataforma que detecte caida
-            if(startingX === 32*(holePosition+1))
-            {
-                for(let i=0; i<4; i++)
-                {
+            if (startingX === 32 * (holePosition + 1)) {
+                for (let i = 0; i < 4; i++) {
 
                     caidas.create(startingX, 300, "agua").setScale(.2, .005).refreshBody();
                     caidas.create(startingX, 593, "agua").setScale(.2, .005).refreshBody()
 
                 }
 
-                for(let i=0; i<4; i++)
-                {
+                for (let i = 0; i < 4; i++) {
                     //Plataforma Caida Player 1
-                    
+
                     caidas.create(startingX, 302.5, "suelo").setScale(.5, .1).refreshBody();
-                    
+
 
                     //Plataforma Caida Player 2
                     caidas.create(startingX, 595.5, "suelo").setScale(.5, .1).refreshBody()
-            
+
                     startingX += separation;
                 }
 
                 holePosition += 46;
             }
-            
+
 
             startingX += separation;
 
@@ -801,11 +801,9 @@ class GameScene extends Phaser.Scene {
         gameVelocity = 0;
         this.gravity = 0;
 
-        if(fallen1 || fallen2)
-        {
+        if (fallen1 || fallen2) {
 
-            if(fallen1 && fallen2)
-            {
+            if (fallen1 && fallen2) {
 
                 //Draw
                 WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
@@ -823,7 +821,7 @@ class GameScene extends Phaser.Scene {
                 //WINTEXT
                 WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
                 WinText.scrollFactorX = 0;
-                
+
                 LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
                 LoseText.scrollFactorX = 0;
 
@@ -836,7 +834,7 @@ class GameScene extends Phaser.Scene {
                 //WINTEXT
                 WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
                 WinText.scrollFactorX = 0;
-                
+
                 LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
                 LoseText.scrollFactorX = 0;
 
@@ -891,280 +889,178 @@ class GameScene extends Phaser.Scene {
 
     }
 
-    CreateBackground(){
+    CreateBackground() {
 
         // Jugador 1
-        var sol1  = this.add.image(1300, 100, 'sol');
+        var sol1 = this.add.image(1300, 100, 'sol');
         sol1.setScale(.15);
         sol1.scrollFactorX = 0.1;
         sol1.scrollFactorY = 0;
-        var nube1  = this.add.image(1300, 100, 'nube1');
+        var nube1 = this.add.image(1300, 100, 'nube1');
         nube1.setScale(.15);
         nube1.scrollFactorX = 0.15;
         nube1.scrollFactorY = 0;
-        var nube8  = this.add.image(200, 100, 'nube1');
+        var nube8 = this.add.image(200, 100, 'nube1');
         nube8.setScale(.15);
         nube8.scrollFactorX = 0.15;
         nube8.scrollFactorY = 0;
-        var nube2  = this.add.image(1500, 200, 'nube2');
+        var nube2 = this.add.image(1500, 200, 'nube2');
         nube2.setScale(.15);
         nube2.scrollFactorX = 0.2;
         nube2.scrollFactorY = 0;
-        var nube9  = this.add.image(2600, 200, 'nube2');
+        var nube9 = this.add.image(2600, 200, 'nube2');
         nube9.setScale(.15);
         nube9.scrollFactorX = 0.2;
         nube9.scrollFactorY = 0;
-        var nube3  = this.add.image(900, 150, 'nube3');
+        var nube3 = this.add.image(900, 150, 'nube3');
         nube3.setScale(.15);
         nube3.scrollFactorX = 0.25;
         nube3.scrollFactorY = 0;
-        var nube10  = this.add.image(2300, 100, 'nube3');
+        var nube10 = this.add.image(2300, 100, 'nube3');
         nube10.setScale(.15);
         nube10.scrollFactorX = 0.25;
         nube10.scrollFactorY = 0;
-        var arbolLejano3  = this.add.image(1200, 185, 'arbolLejano3');
+
+        var arbolLejano3 = this.add.image(1200, 185, 'arbolLejano3');
         arbolLejano3.setScale(.07);
         arbolLejano3.scrollFactorX = 0.3;
         arbolLejano3.scrollFactorY = 0;
-        var arbolLejano4  = this.add.image(2200, 185, 'arbolLejano3');
+        var arbolLejano4 = this.add.image(2200, 185, 'arbolLejano3');
         arbolLejano4.setScale(.07);
         arbolLejano4.scrollFactorX = 0.3;
         arbolLejano4.scrollFactorY = 0;
-        var arbolLejano1  = this.add.image(900, 175, 'arbolLejano1');
+        var arbolLejano1 = this.add.image(900, 175, 'arbolLejano1');
         arbolLejano1.setScale(.1);
         arbolLejano1.scrollFactorX = 0.4;
         arbolLejano1.scrollFactorY = 0;
-        var arbolLejano2  = this.add.image(1100, 175, 'arbolLejano2');
+        var arbolLejano2 = this.add.image(1100, 175, 'arbolLejano2');
         arbolLejano2.setScale(.1);
         arbolLejano2.scrollFactorX = 0.4;
         arbolLejano2.scrollFactorY = 0;
-        var arbolLejano5  = this.add.image(2400, 175, 'arbolLejano1');
+        var arbolLejano5 = this.add.image(2400, 175, 'arbolLejano1');
         arbolLejano5.setScale(.1);
         arbolLejano5.scrollFactorX = 0.4;
         arbolLejano5.scrollFactorY = 0;
-        var arbolLejano6  = this.add.image(2100, 175, 'arbolLejano2');
+        var arbolLejano6 = this.add.image(2100, 175, 'arbolLejano2');
         arbolLejano6.setScale(.1);
         arbolLejano6.scrollFactorX = 0.4;
         arbolLejano6.scrollFactorY = 0;
-        var sueloLejano1  = this.add.image(800, 190, 'sueloLejano1');
-        sueloLejano1.setScale(.12);
-        sueloLejano1.scrollFactorX = 0.5;
-        sueloLejano1.scrollFactorY = 0;
-        var sueloLejano2  = this.add.image(1006, 190, 'sueloLejano1');
-        sueloLejano2.setScale(.12);
-        sueloLejano2.scrollFactorX = 0.5;
-        sueloLejano2.scrollFactorY = 0;
-        var sueloLejano3  = this.add.image(1200, 190, 'sueloLejano2');
-        sueloLejano3.setScale(.12);
-        sueloLejano3.scrollFactorX = 0.5;
-        sueloLejano3.scrollFactorY = 0;
-        var sueloLejano8  = this.add.image(1400, 190, 'sueloLejano1');
-        sueloLejano8.setScale(.12);
-        sueloLejano8.scrollFactorX = 0.5;
-        sueloLejano8.scrollFactorY = 0;
-        var sueloLejano4  = this.add.image(2400, 190, 'sueloLejano2');
-        sueloLejano4.setScale(.12);
-        sueloLejano4.scrollFactorX = 0.5;
-        sueloLejano4.scrollFactorY = 0;
-        var sueloLejano7  = this.add.image(2600, 190, 'sueloLejano1');
-        sueloLejano7.setScale(.12);
-        sueloLejano7.scrollFactorX = 0.5;
-        sueloLejano7.scrollFactorY = 0;
-        var sueloLejano5  = this.add.image(2800, 190, 'sueloLejano2');
-        sueloLejano5.setScale(.12);
-        sueloLejano5.scrollFactorX = 0.5;
-        sueloLejano5.scrollFactorY = 0;
-        var sueloLejano6  = this.add.image(3005, 190, 'sueloLejano1');
-        sueloLejano6.setScale(.12);
-        sueloLejano6.scrollFactorX = 0.5;
-        sueloLejano6.scrollFactorY = 0;
-        var sueloLejano9  = this.add.image(2200, 190, 'sueloLejano1');
-        sueloLejano9.setScale(.12);
-        sueloLejano9.scrollFactorX = 0.5;
-        sueloLejano9.scrollFactorY = 0;
-        var sueloLejano10  = this.add.image(1610, 190, 'sueloLejano1');
-        sueloLejano10.setScale(.12);
-        sueloLejano10.scrollFactorX = 0.5;
-        sueloLejano10.scrollFactorY = 0;
-        var sueloLejano11  = this.add.image(1910, 190, 'sueloLejano2');
-        sueloLejano11.setScale(.12);
-        sueloLejano11.scrollFactorX = 0.5;
-        sueloLejano11.scrollFactorY = 0;
-        var suelo1  = this.add.image(1240, 190, 'suelo1');
-        suelo1.setScale(.15);
-        suelo1.scrollFactorX = 0.6;
-        suelo1.scrollFactorY = 0;
-        var suelo2  = this.add.image(1900, 190, 'suelo2');
-        suelo2.setScale(.15);
-        suelo2.scrollFactorX = 0.6;
-        suelo2.scrollFactorY = 0;
-        var suelo3  = this.add.image(2155, 190, 'suelo1');
-        suelo3.setScale(.15);
-        suelo3.scrollFactorX = 0.6;
-        suelo3.scrollFactorY = 0;
-        var suelo4  = this.add.image(2500, 190, 'suelo2');
-        suelo4.setScale(.15);
-        suelo4.scrollFactorX = 0.6;
-        suelo4.scrollFactorY = 0;
-        var suelo8  = this.add.image(2700, 190, 'suelo2');
-        suelo8.setScale(.15);
-        suelo8.scrollFactorX = 0.6;
-        suelo8.scrollFactorY = 0;
-        var suelo5  = this.add.image(200, 190, 'suelo2');
-        suelo5.setScale(.15);
-        suelo5.scrollFactorX = 0.6;
-        suelo5.scrollFactorY = 0;
-        var suelo6  = this.add.image(3600, 190, 'suelo1');
-        suelo6.setScale(.15);
-        suelo6.scrollFactorX = 0.6;
-        suelo6.scrollFactorY = 0;
-        var estatua  = this.add.image(1500, 190, 'estatua');
-        estatua.setScale(.15);
-        estatua.scrollFactorX = 0.6;
-        estatua.scrollFactorY = 0;
-        var rayos  = this.add.image(1370, 30, 'rayos');
+
+
+
+
+        var rayos = this.add.image(1370, 30, 'rayos');
         rayos.setScale(.5);
         rayos.scrollFactorX = 0.1;
         rayos.scrollFactorY = 0;
-        
-        var arco1  = this.add.image(6450, 130, 'arco');
+
+        var arco1 = this.add.image(6450, 130, 'arco');
         arco1.setScale(.15);
 
         // Jugador 2
-        var sol2  = this.add.image(1300, 443, 'sol');
+        var sol2 = this.add.image(1300, 443, 'sol');
         sol2.setScale(.15);
         sol2.scrollFactorX = 0.1;
         sol2.scrollFactorY = 0;
-        var nube4  = this.add.image(1300, 393, 'nube1');
+        var nube4 = this.add.image(1300, 393, 'nube1');
         nube4.setScale(.15);
         nube4.scrollFactorX = 0.15;
         nube4.scrollFactorY = 0;
-        var nube5  = this.add.image(1500, 493, 'nube2');
+        var nube5 = this.add.image(1500, 493, 'nube2');
         nube5.setScale(.15);
         nube5.scrollFactorX = 0.2;
         nube5.scrollFactorY = 0;
-        var nube6  = this.add.image(900, 443, 'nube3');
+        var nube6 = this.add.image(900, 443, 'nube3');
         nube6.setScale(.15);
         nube6.scrollFactorX = 0.25;
         nube6.scrollFactorY = 0;
-        var nube8  = this.add.image(200, 393, 'nube1');
+        var nube8 = this.add.image(200, 393, 'nube1');
         nube8.setScale(.15);
         nube8.scrollFactorX = 0.15;
         nube8.scrollFactorY = 0;
-        var nube9  = this.add.image(2600, 493, 'nube2');
+        var nube9 = this.add.image(2600, 493, 'nube2');
         nube9.setScale(.15);
         nube9.scrollFactorX = 0.2;
         nube9.scrollFactorY = 0;
-        var nube10  = this.add.image(2300, 393, 'nube3');
+        var nube10 = this.add.image(2300, 393, 'nube3');
         nube10.setScale(.15);
         nube10.scrollFactorX = 0.25;
         nube10.scrollFactorY = 0;
-        var arbolLejano3  = this.add.image(1200, 453, 'arbolLejano3');
+        var arbolLejano3 = this.add.image(1200, 453, 'arbolLejano3');
         arbolLejano3.setScale(.07);
         arbolLejano3.scrollFactorX = 0.3;
         arbolLejano3.scrollFactorY = 0;
-        var arbolLejano4  = this.add.image(2200, 453, 'arbolLejano3');
+        var arbolLejano4 = this.add.image(2200, 453, 'arbolLejano3');
         arbolLejano4.setScale(.07);
         arbolLejano4.scrollFactorX = 0.3;
         arbolLejano4.scrollFactorY = 0;
-        var arbolLejano1  = this.add.image(900, 443, 'arbolLejano1');
+        var arbolLejano1 = this.add.image(900, 443, 'arbolLejano1');
         arbolLejano1.setScale(.1);
         arbolLejano1.scrollFactorX = 0.4;
         arbolLejano1.scrollFactorY = 0;
-        var arbolLejano2  = this.add.image(1100, 453, 'arbolLejano2');
+        var arbolLejano2 = this.add.image(1100, 453, 'arbolLejano2');
         arbolLejano2.setScale(.1);
         arbolLejano2.scrollFactorX = 0.4;
         arbolLejano2.scrollFactorY = 0;
-        var arbolLejano5  = this.add.image(2400, 443, 'arbolLejano1');
+        var arbolLejano5 = this.add.image(2400, 443, 'arbolLejano1');
         arbolLejano5.setScale(.1);
         arbolLejano5.scrollFactorX = 0.4;
         arbolLejano5.scrollFactorY = 0;
-        var arbolLejano6  = this.add.image(2100, 453, 'arbolLejano2');
+        var arbolLejano6 = this.add.image(2100, 453, 'arbolLejano2');
         arbolLejano6.setScale(.1);
         arbolLejano6.scrollFactorX = 0.4;
         arbolLejano6.scrollFactorY = 0;
-        var sueloLejano1  = this.add.image(800, 483, 'sueloLejano1');
-        sueloLejano1.setScale(.12);
-        sueloLejano1.scrollFactorX = 0.5;
-        sueloLejano1.scrollFactorY = 0;
-        var sueloLejano2  = this.add.image(1006, 483, 'sueloLejano1');
-        sueloLejano2.setScale(.12);
-        sueloLejano2.scrollFactorX = 0.5;
-        sueloLejano2.scrollFactorY = 0;
-        var sueloLejano3  = this.add.image(1200, 483, 'sueloLejano2');
-        sueloLejano3.setScale(.12);
-        sueloLejano3.scrollFactorX = 0.5;
-        sueloLejano3.scrollFactorY = 0;
-        var sueloLejano8  = this.add.image(1400, 483, 'sueloLejano1');
-        sueloLejano8.setScale(.12);
-        sueloLejano8.scrollFactorX = 0.5;
-        sueloLejano8.scrollFactorY = 0;
-        var sueloLejano4  = this.add.image(2400, 483, 'sueloLejano2');
-        sueloLejano4.setScale(.12);
-        sueloLejano4.scrollFactorX = 0.5;
-        sueloLejano4.scrollFactorY = 0;
-        var sueloLejano7  = this.add.image(2600, 483, 'sueloLejano1');
-        sueloLejano7.setScale(.12);
-        sueloLejano7.scrollFactorX = 0.5;
-        sueloLejano7.scrollFactorY = 0;
-        var sueloLejano5  = this.add.image(2800, 483, 'sueloLejano2');
-        sueloLejano5.setScale(.12);
-        sueloLejano5.scrollFactorX = 0.5;
-        sueloLejano5.scrollFactorY = 0;
-        var sueloLejano6  = this.add.image(3005, 483, 'sueloLejano1');
-        sueloLejano6.setScale(.12);
-        sueloLejano6.scrollFactorX = 0.5;
-        sueloLejano6.scrollFactorY = 0;
-        var sueloLejano9  = this.add.image(2200, 483, 'sueloLejano1');
-        sueloLejano9.setScale(.12);
-        sueloLejano9.scrollFactorX = 0.5;
-        sueloLejano9.scrollFactorY = 0;
-        var sueloLejano10  = this.add.image(1610, 483, 'sueloLejano1');
-        sueloLejano10.setScale(.12);
-        sueloLejano10.scrollFactorX = 0.5;
-        sueloLejano10.scrollFactorY = 0;
-        var sueloLejano11  = this.add.image(1910, 483, 'sueloLejano2');
-        sueloLejano11.setScale(.12);
-        sueloLejano11.scrollFactorX = 0.5;
-        sueloLejano11.scrollFactorY = 0;
-        var suelo1  = this.add.image(1240, 483, 'suelo1');
-        suelo1.setScale(.15);
-        suelo1.scrollFactorX = 0.6;
-        suelo1.scrollFactorY = 0;
-        var suelo2  = this.add.image(1900, 483, 'suelo2');
-        suelo2.setScale(.15);
-        suelo2.scrollFactorX = 0.6;
-        suelo2.scrollFactorY = 0;
-        var suelo3  = this.add.image(2155, 483, 'suelo1');
-        suelo3.setScale(.15);
-        suelo3.scrollFactorX = 0.6;
-        suelo3.scrollFactorY = 0;
-        var suelo4  = this.add.image(2500, 483, 'suelo2');
-        suelo4.setScale(.15);
-        suelo4.scrollFactorX = 0.6;
-        suelo4.scrollFactorY = 0;
-        var suelo8  = this.add.image(2700, 483, 'suelo2');
-        suelo8.setScale(.15);
-        suelo8.scrollFactorX = 0.6;
-        suelo8.scrollFactorY = 0;
-        var suelo5  = this.add.image(200, 483, 'suelo2');
-        suelo5.setScale(.15);
-        suelo5.scrollFactorX = 0.6;
-        suelo5.scrollFactorY = 0;
-        var suelo6  = this.add.image(3600, 483, 'suelo1');
-        suelo6.setScale(.15);
-        suelo6.scrollFactorX = 0.6;
-        suelo6.scrollFactorY = 0;
-        var estatua  = this.add.image(1500, 483, 'estatua');
-        estatua.setScale(.15);
-        estatua.scrollFactorX = 0.6;
-        estatua.scrollFactorY = 0;
-        var rayos  = this.add.image(1210, 570, 'rayos');
+
+        var rayos = this.add.image(1210, 570, 'rayos');
         rayos.setScale(.5);
         rayos.scrollFactorX = 0.1;
         rayos.scrollFactorY = 0;
-        var arco2  = this.add.image(6450, 423, 'arco');
+        var arco2 = this.add.image(6450, 423, 'arco');
         arco2.setScale(.15);
+
+        //INICIO SUELOS MIO
+        coordenadasXSuelosCerca = [1240, 1900, 2155, 2500, 2700, 200, 3600, 1500];
+        coordenadasXSuelosLejano = [800, 1006, 1200, 1400, 2400, 2600, 2800, 3005, 2200, 1610, 1910];
+
+        this.creadorSuelos(coordenadasXSuelosLejano, .12, .5, 0, "sueloLejano1", "sueloLejano2");
+        this.creadorSuelos(coordenadasXSuelosCerca, .15, 0.6, 0, "suelo1", "suelo2");
+
+    }
+
+    creadorSuelos(XSuelos, escala, scrollX, scrollY, opcion1, opcion2) {
+
+        let suelos = [];
+        var ySuelos = 190;
+        var xSubstractor = 0;
+
+        for (var i = 0; i < XSuelos.length * 2; i++) {
+
+            if (i == 8) {
+
+                ySuelos = 483;
+                xSubstractor = XSuelos.length;
+            }
+
+            if (i == 0 || i == 2 || i == 6 || i == 8 || i == 10 || i == 14) {
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion1);
+            }
+            else if (i == 7 || i == 15) {
+
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, "estatua");
+
+            }
+            else {
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion2);
+
+            }
+
+            suelos[i].setScale(escala);
+            suelos[i].scrollFactorX = scrollX;
+            suelos[i].scrollFactorY = scrollY;
+        }
 
     }
 
@@ -1186,7 +1082,6 @@ class MainMenu extends Phaser.Scene {
         this.load.image("btnCreditos", "assets/buttons/botones nuevos/Bcreditos.png");
         this.load.image("btnGuia", "assets/buttons/botones nuevos/Bguia.png");
         this.load.image("btnJugar", "assets/buttons/botones nuevos/Bjugar.png");
-
         this.load.image("ajusteUsuarios", "assets/backgrounds/Background.png")
 
         this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
@@ -1200,9 +1095,9 @@ class MainMenu extends Phaser.Scene {
         this.scale.resize(1280, 720);
         menuTheme = this.sound.add("menuTheme")
         menuTheme.setVolume(0.5)
-        menuTheme.play({loop: true})
+        menuTheme.play({ loop: true })
 
-        videoFondo = this.add.video(640,360, 'videoFondo');
+        videoFondo = this.add.video(640, 360, 'videoFondo');
         videoFondo.setScale(.67);
         videoFondo.play(true);
 
@@ -1212,15 +1107,17 @@ class MainMenu extends Phaser.Scene {
 
         const creditsButton = this.add.sprite(920, 600, 'btnCreditos').setInteractive({ useHandCursor: true });
         creditsButton.setScale(1.5)
+        creditsButton.on("pointerdown", () => this.LoadCredits());
 
         const btnGuia = this.add.sprite(920, 500, 'btnGuia').setInteractive({ useHandCursor: true });
         btnGuia.setScale(1.5)
-
         const btnAjustesMenu = this.add.sprite(920, 400, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
         btnAjustesMenu.setScale(1.5)
+
         this.add.sprite(640, 360, 'ajusteUsuarios').setScale(0.5).setVisible(false);
 
         this.cameras.main.setBackgroundColor('0240e1');
+
     }
 
     //------------------------------------------UPLOAD------------------------------------------
@@ -1231,7 +1128,48 @@ class MainMenu extends Phaser.Scene {
         menuTheme.pause();
 
     }
+
+    LoadCredits() {
+
+        this.scene.start('Credits')
+
+    }
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
+}
+
+class Credits extends Phaser.Scene {
+
+    constructor() {
+        super('Credits')
+    }
+
+    preload() {
+
+        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+        this.load.image("Creditos", "assets/backgrounds/PantallaCreditos.png")
+        this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
+    }
+
+    create() {
+
+        videoFondo = this.add.video(640, 360, 'videoFondo');
+        videoFondo.setScale(.67);
+        videoFondo.play(true);
+
+        var creditos = this.add.image(640, 360, "Creditos");
+
+        const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
+        playButton.setScale(1.2)
+        playButton.on('pointerdown', () => this.LoadMenu());
+
+
+    }
+
+    LoadMenu() {
+
+        this.scene.start('MainMenu')
+
+    }
 }
 
 class LogIn extends Phaser.Scene {
@@ -1240,9 +1178,9 @@ class LogIn extends Phaser.Scene {
         super('LogIn')
     }
 
-    preload ()
-    {
+    preload() {
         this.load.html("login", "assets/login.html");
+
         this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
     }
 
@@ -1270,29 +1208,17 @@ class LogIn extends Phaser.Scene {
 
                 if (inputText.value !== '' && inputPassword.value !== '')
                 {
-                    this.removeListener('click');
-
-                    this.setVisible(false);
 
                     text.setText(`Bienvenido ${inputText.value}`);
-
                     loginHecho = true;
 
 
                 }
                 else
                 {
-                    //  Flash the prompt
-                    this.scene.tweens.add({
-                        targets: text,
-                        alpha: 0.2,
-                        duration: 250,
-                        ease: 'Power3',
-                        yoyo: true
-                    });
+
                 }
             }
-            
         });
 
         element.on('click', function (event)
@@ -1307,6 +1233,7 @@ class LogIn extends Phaser.Scene {
             
         });
 
+    
     }
 
     update()
@@ -1331,12 +1258,11 @@ var config = {
             debug: false
         }
     },
-    //backgroundColor: '#222288',
     dom: {
         createContainer: true
     },
 
-    scene: [MainMenu, GameScene]
+    scene: [LogIn, MainMenu, GameScene, Credits]
 
 };
 
