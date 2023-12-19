@@ -13,7 +13,7 @@ var enMenu = true;
 var scaleX = .5
 var scaleY = .5
 
-//var timer = 0;
+var menuWincon
 
 var score1;
 var score2;
@@ -108,6 +108,7 @@ class GameScene extends Phaser.Scene {
         this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
         this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
         this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
+        this.load.image("menuWincon", "assets/buttons/FondoMenuPausa.png");
         this.load.image("btnAjustes", "assets/buttons/BAjustesPequeño.png");
         this.load.image("btnSalir", "assets/buttons/BSalir.png");
         this.load.image("btnInicio", "assets/buttons/BInicio.png");
@@ -802,6 +803,8 @@ class GameScene extends Phaser.Scene {
 
         gameVelocity = 0;
         this.gravity = 0;
+        
+        menuWincon.setVisible(true)
 
         if (fallen1 || fallen2) {
 
@@ -1104,19 +1107,19 @@ class MainMenu extends Phaser.Scene {
         videoFondo.setScale(.67);
         videoFondo.play(true);
 
-        const playButton = this.add.sprite(920, 300, 'btnJugar').setInteractive({ useHandCursor: true });
-        playButton.setScale(1.5)
+        const playButton = this.add.sprite(200, 370, 'btnJugar').setInteractive({ useHandCursor: true });
+        playButton.setScale(1.4)
         playButton.on('pointerdown', () => this.ChangeToGameScene());
 
-        const creditsButton = this.add.sprite(920, 600, 'btnCreditos').setInteractive({ useHandCursor: true });
-        creditsButton.setScale(1.5)
+        const creditsButton = this.add.sprite(200, 670, 'btnCreditos').setInteractive({ useHandCursor: true });
+        creditsButton.setScale(1.4)
         creditsButton.on("pointerdown", () => this.LoadCredits());
 
-        const btnGuia = this.add.sprite(920, 500, 'btnGuia').setInteractive({ useHandCursor: true });
-        btnGuia.setScale(1.5)
+        const btnGuia = this.add.sprite(200, 570, 'btnGuia').setInteractive({ useHandCursor: true });
+        btnGuia.setScale(1.4)
         
-        const btnAjustesMenu = this.add.sprite(920, 400, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
-        btnAjustesMenu.setScale(1.5)
+        const btnAjustesMenu = this.add.sprite(200, 470, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
+        btnAjustesMenu.setScale(1.4)
         btnAjustesMenu.on('pointerdown', () => this.ChangeToUserConfig());
 
         this.cameras.main.setBackgroundColor('0240e1');
