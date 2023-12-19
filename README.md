@@ -221,7 +221,8 @@ de saltar, ceguera…. Estos elementos no han sido aún implementados, pero se b
 
 En la siguiente figura podemos ver los distintos elementos implementados en nuestro primer nivel:
 
-![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/4d0d9941-e899-4b3d-8847-f4cba38cfdcd)
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/c92cc753-4611-4969-b22f-a0baffe08a97)
+
 
 ## 5. Conocimiento Almacenado en Red
 Lo que tiene que mantenerse en la red, para que se actualice de forma adecuada el juego
@@ -240,7 +241,34 @@ flujograma 2 se muestra el resultado al que se quiere llegar al final de la prá
 
 ![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/fa021789-3a95-4369-ba0a-43d5e80daa46)
 
+
 ![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/94060245-1a80-49fc-9edd-5ca35b208007)
+
+Al final de la tercera entrega este es el estado actual del flujograma:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/a6cc5d1f-a06d-4b7c-a784-abd1f11f8220)
+
+A continuación, las páginas principales de nuestra aplicación en estos momentos:
+
+LogIn:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/7d88a88c-e9be-47d4-8fab-f18df5e55c43)
+
+Menu Principal:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/10fbcc2e-9c05-4d49-9284-be4d99af5439)
+
+Pantalla de ajustes de usuario:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/4294526f-b20b-4d37-b9b2-c86405439f26)
+
+Guías:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/a03352b2-0d27-4dec-941c-d29ccbc8d8e7)
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/f2a1123e-c92b-468c-bbc5-b1b116c88857)
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/e7c4b138-71b9-412b-b892-5fced3b13b13)
+
+Créditos:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/33a569fd-b457-4382-92a6-888b7c7db3f8)
+
+Pantalla de juego:
+![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/6dd75b0a-256a-4c0f-9810-6f23ab03bb41)
+
 
 
 ## 7. Interfaces
