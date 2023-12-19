@@ -8,6 +8,8 @@ var fireballSFX
 var vM;
 var vS;
 
+var enMenu = true;
+
 var scaleX = .5
 var scaleY = .5
 
@@ -1082,7 +1084,6 @@ class MainMenu extends Phaser.Scene {
         this.load.image("btnCreditos", "assets/buttons/botones nuevos/Bcreditos.png");
         this.load.image("btnGuia", "assets/buttons/botones nuevos/Bguia.png");
         this.load.image("btnJugar", "assets/buttons/botones nuevos/Bjugar.png");
-        this.load.image("ajusteUsuarios", "assets/backgrounds/Background.png")
 
         this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
 
@@ -1111,10 +1112,10 @@ class MainMenu extends Phaser.Scene {
 
         const btnGuia = this.add.sprite(920, 500, 'btnGuia').setInteractive({ useHandCursor: true });
         btnGuia.setScale(1.5)
+        
         const btnAjustesMenu = this.add.sprite(920, 400, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
         btnAjustesMenu.setScale(1.5)
-
-        this.add.sprite(640, 360, 'ajusteUsuarios').setScale(0.5).setVisible(false);
+        btnAjustesMenu.on('pointerdown', () => this.ChangeToUserConfig());
 
         this.cameras.main.setBackgroundColor('0240e1');
 
@@ -1132,6 +1133,11 @@ class MainMenu extends Phaser.Scene {
     LoadCredits() {
 
         this.scene.start('Credits')
+    }
+    ChangeToUserConfig() {
+
+        this.scene.start('AjustesUsuarios');
+        menuTheme.pause();
 
     }
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
@@ -1245,6 +1251,94 @@ class LogIn extends Phaser.Scene {
     }
 }
 
+class AjustesUsuarios extends Phaser.Scene {
+
+    constructor() {
+        super('AjustesUsuarios')
+    }
+
+    preload ()
+    {
+        this.load.html("userConfig", "assets/userConfig.html");
+        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+    }
+
+    create ()
+    {
+
+        this.scale.resize(1280, 720);
+
+        videoFondo = this.add.video(640,360, 'videoFondo');
+        videoFondo.setScale(.67);
+        videoFondo.play(true);
+
+        const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px '});
+
+        const element = this.add.dom(640, 360, "body", ).createFromCache('userConfig');
+
+        element.addListener('click');
+
+        element.on('click', function (event)
+        {
+
+            if (event.target.name === 'createButton')
+            {
+                const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
+
+                if (inputText.value !== '' && inputPassword.value !== '')
+                {
+
+
+                }
+
+
+            }
+
+            if (event.target.name === 'updateButton')
+            {
+                const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
+
+            }
+
+            if (event.target.name === 'getButton')
+            {
+                const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
+
+            }
+
+            if (event.target.name === 'deleteButton')
+            {
+                const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
+
+            }
+
+            if (event.target.name === 'exitButton')
+            {
+
+                enMenu = false;
+
+            }
+            
+        });
+
+    }
+
+    update()
+    {
+        if(!enMenu)
+        {
+            this.scene.start('MainMenu');
+            enMenu = true;
+        }
+    }
+}
+
+
+
 //-----------------------------------------------------------------------CONFIGURACIÓN E INICIALIZACIÓN DEL JUEGO-----------------------------------------------------------------------
 var config = {
     type: Phaser.AUTO,
@@ -1262,7 +1356,7 @@ var config = {
         createContainer: true
     },
 
-    scene: [LogIn, MainMenu, GameScene, Credits]
+    scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
 
 };
 

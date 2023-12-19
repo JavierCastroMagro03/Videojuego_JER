@@ -10,8 +10,8 @@
             .container{
                 background-color: darkred;
                 border-radius: 10px;
-                height: 350px;
-                width: 700px;
+                height: 475px;
+                width: 900px;
                 position: 100px;
                 opacity: 90%;
             }
@@ -35,15 +35,26 @@
             log
             {
                 scale: 150%;
+                margin-right: 50px;
+                margin-left: 50px;
             }
         </style>
 
         <div class="container">
-            <div class="texto" type="text">Por favor introduzca su nombre y contraseña</div>
+            <div class="texto" type="text">Por favor introduzca nombre y contraseña</div>
             <div class="input"><input type="text" name="nameField" placeholder="Enter your name" style="font-size: 32px"></div>    
             <div class="input"><input type="text" name="passwordField" placeholder="Enter your password" style="font-size: 32px"></div>
             <div class="input">
-                <log><input type="button" name="playButton" value="Log In" style="font-size: 32px"><br /></log>
+                <log><input type="button" name="createButton" value="Crear" style="font-size: 32px"><br /></log>
+
+                <log><input type="button" name="updateButton" value="Actualizar" style="font-size: 32px"><br /></log>
+
+                <log><input type="button" name="getButton" value="Obtener" style="font-size: 32px"><br /></log>
+
+                <log><input type="button" name="deleteButton" value="Borrar" style="font-size: 32px"><br /></log>
+            </div>
+            <div class="input">
+                <log><input type="button" name="exitButton" value="Volver" style="font-size: 32px"><br /></log>
             </div>
         </div>
     </body>
