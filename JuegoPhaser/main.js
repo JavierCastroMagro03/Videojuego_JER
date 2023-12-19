@@ -1020,6 +1020,8 @@ class GameScene extends Phaser.Scene {
         var arco2 = this.add.image(6450, 423, 'arco');
         arco2.setScale(.15);
 
+        
+
         //INICIO SUELOS MIO
         coordenadasXSuelosCerca = [1240, 1900, 2155, 2500, 2700, 200, 3600, 1500];
         coordenadasXSuelosLejano = [800, 1006, 1200, 1400, 2400, 2600, 2800, 3005, 2200, 1610, 1910];
@@ -1349,6 +1351,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 700 },
+            fps: 30,
             debug: false
         }
     },
