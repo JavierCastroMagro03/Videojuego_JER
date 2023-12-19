@@ -6,6 +6,13 @@
 - Raúl González Suero -- r.gonzalezs.2021@alumnos.urjc.es -- raulglezsuero7
 - Manuel Alejandro Villalba Cruz -- ma.villalba.2021@alumnos.urjc.es -- LonchaDeXope
 
+## 0. Instrucciones
+1-. Iniciar SpringBoot y ejecutar la aplicación, asignando la IP correspondiente a la red. En nuestro caso, http://ip/index.html, donde ip es la IP de la red del servidor.
+
+2-. Abrir el buscador y escribir en la barra de búsqueda la dirección HTTP del servidor.
+
+3-. Jugar.
+
 ## 1. Equipo
 ### 1.1 Nombre
 Lucky Dev
@@ -233,6 +240,7 @@ y los dos jugadores puedan disfrutar de una buena experiencia es:
 - El estado de los personajes
 - El estado de los escenarios
 - La distancia recorrida de cada personaje
+
 ## 6. Flujograma
 En los flujogramas que se muestran a continuación, se puede ver cómo se viaja por
 diferentes escenas a lo largo del videojuego.
@@ -269,6 +277,10 @@ Créditos:
 Pantalla de juego:
 ![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/6dd75b0a-256a-4c0f-9810-6f23ab03bb41)
 
+### 6.1 Diagrama de clases y APIREST
+
+A continuación podemos ver el diagrama de clases:
+![UML JER](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/9120f7f1-9f6e-419a-bac1-c6e62e4b4ba5)
 
 
 ## 7. Interfaces
