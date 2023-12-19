@@ -97,6 +97,9 @@ var flecha
 
 var menuWincon
 
+//IP
+var ip = "192.168.1.139:8080";
+
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
 
@@ -1221,7 +1224,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "GET",
-				url: 'http://localhost:8080/usuario?nombre=' + n,
+				url: 'http://' +ip+ '/usuario?nombre=' + n,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
@@ -1243,7 +1246,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "POST",
-				url: "http://localhost:8080/crearUsuario",
+				url: "http://" +ip+ "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1271,7 +1274,7 @@ class AjustesUsuarios extends Phaser.Scene {
 
 
 				method: "PUT",
-				url: 'http://localhost:8080/actualizarUsuario',
+				url: 'http://' +ip+ '/actualizarUsuario',
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1296,7 +1299,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "DELETE",
-				url: 'http://localhost:8080/borrarUsuario?nombre='+n,
+				url: 'http://' +ip+ '/borrarUsuario?nombre='+n,
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1573,7 +1576,7 @@ class LogIn extends Phaser.Scene {
 			$.ajax({
 
 				method: "GET",
-				url: 'http://localhost:8080/usuario?nombre=' + n,
+				url: 'http://' +ip+ '/usuario?nombre=' + n,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
@@ -1595,7 +1598,7 @@ class LogIn extends Phaser.Scene {
 			$.ajax({
 
 				method: "POST",
-				url: "http://localhost:8080/crearUsuario",
+				url: "http://" +ip+ "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1608,33 +1611,6 @@ class LogIn extends Phaser.Scene {
 			}).catch(error => {
 
 				console.error("Error al hacer POST: ", error.message);
-
-			});
-
-
-		}
-
-		function updateUsuario() {
-
-
-			const datos = { nombre: "Carlos", password: "pollas", id: 3 };
-
-			$.ajax({
-
-
-				method: "PUT",
-				url: 'http://localhost:8080/actualizarUsuario',
-				data: JSON.stringify(datos),
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				console.log("Se ha actualizado el usuario numero 3");
-
-
-			}).catch(error => {
-
-				console.error("Error al hacer DELETE: ", error.message);
 
 			});
 
@@ -1661,6 +1637,7 @@ var config = {
 		default: 'arcade',
 		arcade: {
 			gravity: { y: 700 },
+			fps: 30,
 			debug: false
 		}
 	},
