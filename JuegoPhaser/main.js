@@ -130,6 +130,9 @@ class GameScene extends Phaser.Scene {
         this.load.image("sueloLejano1", "assets/escenario/sueloLejano1.png");
         this.load.image("sueloLejano2", "assets/escenario/sueloLejano2.png");
 
+        
+        this.load.image("btnAjustesMenuDouble", "assets/buttons/botones nuevos/Bajustesdoble.png");
+
 
         this.load.audio("gameTheme", ["Assets/Audio/BattleMusicRep.mp3"]);
         this.load.audio("coinPickUp", ["assets/audio/CoinSound.mp3"])
@@ -227,7 +230,7 @@ class GameScene extends Phaser.Scene {
         //Controles flechas
         cursors = this.input.keyboard.createCursorKeys();
         //Controles WASD
-        this.keyboard = this.input.keyboard.addKeys("W,A,S,D");
+        this.keyboard = this.input.keyboard.addKeys("W,A,S,D,ESC");
 
         //Camara
         this.cameras.main.startFollow(camara);
@@ -235,7 +238,7 @@ class GameScene extends Phaser.Scene {
 
         // BOTÓN DE AJUSTES
         btnAjustes = this.add.image(1820, 30, 'btnAjustes').setInteractive({ useHandCursor: true });
-        btnAjustes.setScale(.5, .5);
+        btnAjustes.setScale(.8);
 
         btnAjustes.on('pointerdown', function () { PausarJuego(); });
 
@@ -590,7 +593,7 @@ class GameScene extends Phaser.Scene {
     ChangeToMainMenu() {
 
         gameOnPause = false;
-        this.scale.resize(1280, 720);
+        //this.scale.resize(1280, 720);
         gameTheme.pause();
         this.scene.start('MainMenu');
 
@@ -1176,7 +1179,11 @@ class MainMenu extends Phaser.Scene {
 
     //------------------------------------------PRELOAD------------------------------------------
     preload() {
-        this.load.image("play", "assets/buttons/BJugarUP.png")
+        //this.load.image("play", "assets/buttons/BJugarUP.png")
+        this.load.image("btnAjustesMenu", "assets/buttons/botones nuevos/Bajustes.png");
+        this.load.image("btnCreditos", "assets/buttons/botones nuevos/Bcreditos.png");
+        this.load.image("btnGuia", "assets/buttons/botones nuevos/Bguia.png");
+        this.load.image("btnJugar", "assets/buttons/botones nuevos/Bjugar.png");
 
         this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
 
@@ -1195,9 +1202,16 @@ class MainMenu extends Phaser.Scene {
         videoFondo.setScale(.67);
         videoFondo.play(true);
 
-        const playButton = this.add.sprite(920, 300, 'play').setInteractive({ useHandCursor: true });
+        const playButton = this.add.sprite(920, 300, 'btnJugar').setInteractive({ useHandCursor: true });
         playButton.setScale(1.5)
         playButton.on('pointerdown', () => this.ChangeToGameScene());
+
+        const creditsButton = this.add.sprite(920, 600, 'btnCreditos').setInteractive({ useHandCursor: true });
+        creditsButton.setScale(1.5)
+        const btnGuia = this.add.sprite(920, 500, 'btnGuia').setInteractive({ useHandCursor: true });
+        btnGuia.setScale(1.5)
+        const btnAjustesMenu = this.add.sprite(920, 400, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
+        btnAjustesMenu.setScale(1.5)
 
         this.cameras.main.setBackgroundColor('0240e1');
     }
@@ -1213,6 +1227,71 @@ class MainMenu extends Phaser.Scene {
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
 }
 
+class LogIn extends Phaser.Scene {
+
+    constructor() {
+        super('LogIn')
+    }
+
+    preload ()
+    {
+        this.load.html("login", "assets/login.html");
+    }
+
+    create ()
+    {
+
+        const text = this.add.text(300, 10, 'Please enter your name', { color: 'white', fontSize: '20px '});
+
+        const element = this.add.dom(400, 0).createFromCache('login');
+
+        element.addListener('click');
+
+        element.on('click', function (event)
+        {
+
+            if (event.target.name === 'playButton')
+            {
+                const inputText = this.getChildByName('nameField');
+
+                //  Have they entered anything?
+                if (inputText.value !== '')
+                {
+                    //  Turn off the click events
+                    this.removeListener('click');
+
+                    //  Hide the login element
+                    this.setVisible(false);
+
+                    //  Populate the text with whatever they typed in
+                    text.setText(`Welcome ${inputText.value}`);
+                }
+                else
+                {
+                    //  Flash the prompt
+                    this.scene.tweens.add({
+                        targets: text,
+                        alpha: 0.2,
+                        duration: 250,
+                        ease: 'Power3',
+                        yoyo: true
+                    });
+                }
+            }
+
+        });
+     
+        this.tweens.add({
+            targets: element,
+            y: 300,
+            duration: 3000,
+            ease: 'Power3'
+        });
+
+    
+    }
+}
+
 //-----------------------------------------------------------------------CONFIGURACIÓN E INICIALIZACIÓN DEL JUEGO-----------------------------------------------------------------------
 var config = {
     type: Phaser.AUTO,
@@ -1226,8 +1305,12 @@ var config = {
             debug: false
         }
     },
+    backgroundColor: '#222288',
+    dom: {
+        createContainer: true
+    },
 
-    scene: [MainMenu, GameScene]
+    scene: [LogIn, MainMenu, GameScene]
 
 };
 
