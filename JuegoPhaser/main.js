@@ -8,6 +8,8 @@ var fireballSFX
 var vM;
 var vS;
 
+var loginHecho = false;
+
 var scaleX = .5
 var scaleY = .5
 
@@ -1185,6 +1187,8 @@ class MainMenu extends Phaser.Scene {
         this.load.image("btnGuia", "assets/buttons/botones nuevos/Bguia.png");
         this.load.image("btnJugar", "assets/buttons/botones nuevos/Bjugar.png");
 
+        this.load.image("ajusteUsuarios", "assets/backgrounds/Background.png")
+
         this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
 
         this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
@@ -1208,10 +1212,13 @@ class MainMenu extends Phaser.Scene {
 
         const creditsButton = this.add.sprite(920, 600, 'btnCreditos').setInteractive({ useHandCursor: true });
         creditsButton.setScale(1.5)
+
         const btnGuia = this.add.sprite(920, 500, 'btnGuia').setInteractive({ useHandCursor: true });
         btnGuia.setScale(1.5)
+
         const btnAjustesMenu = this.add.sprite(920, 400, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
         btnAjustesMenu.setScale(1.5)
+        this.add.sprite(640, 360, 'ajusteUsuarios').setScale(0.5).setVisible(false);
 
         this.cameras.main.setBackgroundColor('0240e1');
     }
@@ -1236,14 +1243,20 @@ class LogIn extends Phaser.Scene {
     preload ()
     {
         this.load.html("login", "assets/login.html");
+        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
     }
 
     create ()
     {
+        this.scale.resize(1280, 720);
 
-        const text = this.add.text(300, 10, 'Please enter your name', { color: 'white', fontSize: '20px '});
+        videoFondo = this.add.video(640,360, 'videoFondo');
+        videoFondo.setScale(.67);
+        videoFondo.play(true);
 
-        const element = this.add.dom(400, 0).createFromCache('login');
+        const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px '});
+
+        const element = this.add.dom(640, 360, "body", ).createFromCache('login');
 
         element.addListener('click');
 
@@ -1253,18 +1266,19 @@ class LogIn extends Phaser.Scene {
             if (event.target.name === 'playButton')
             {
                 const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
 
-                //  Have they entered anything?
-                if (inputText.value !== '')
+                if (inputText.value !== '' && inputPassword.value !== '')
                 {
-                    //  Turn off the click events
                     this.removeListener('click');
 
-                    //  Hide the login element
                     this.setVisible(false);
 
-                    //  Populate the text with whatever they typed in
-                    text.setText(`Welcome ${inputText.value}`);
+                    text.setText(`Bienvenido ${inputText.value}`);
+
+                    loginHecho = true;
+
+
                 }
                 else
                 {
@@ -1278,17 +1292,29 @@ class LogIn extends Phaser.Scene {
                     });
                 }
             }
-
-        });
-     
-        this.tweens.add({
-            targets: element,
-            y: 300,
-            duration: 3000,
-            ease: 'Power3'
+            
         });
 
-    
+        element.on('click', function (event)
+        {
+
+            if (event.target.name === 'logButton')
+            {
+                const inputText = this.getChildByName('nameField');
+                const inputPassword = this.getChildByName('passwordField');
+
+            }
+            
+        });
+
+    }
+
+    update()
+    {
+        if(loginHecho)
+        {
+            this.scene.start('MainMenu');
+        }
     }
 }
 
@@ -1305,12 +1331,12 @@ var config = {
             debug: false
         }
     },
-    backgroundColor: '#222288',
+    //backgroundColor: '#222288',
     dom: {
         createContainer: true
     },
 
-    scene: [LogIn, MainMenu, GameScene]
+    scene: [MainMenu, GameScene]
 
 };
 
