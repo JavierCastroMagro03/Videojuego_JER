@@ -8,18 +8,10 @@ var fireballSFX
 var vM;
 var vS;
 
-var enMenu = true;
-
-var guiaControles;
-var guiaFuego;
-var guiaTrampas
-var i;
-var flecha
-
 var scaleX = .5
 var scaleY = .5
 
-var menuWincon
+//var timer = 0;
 
 var score1;
 var score2;
@@ -92,6 +84,18 @@ let coordenadasXSuelosLejano;
 
 //LOGIN
 var loginHecho = false;
+var ids = 0;
+var nombreTemporal = "";
+var nombreGET = "";
+var enMenu;
+
+var guiaControles;
+var guiaFuego;
+var guiaTrampas
+var i;
+var flecha
+
+var menuWincon
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
@@ -115,7 +119,7 @@ class GameScene extends Phaser.Scene {
         this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
         this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
         this.load.image("menuWincon", "assets/backgrounds/FondoMenuPausaVacio.png");
-        this.load.image("btnAjustes", "assets/buttons/BAjustesPequeño.png");
+        this.load.image("btnAjustes", "assets/buttons/BAjustesPequeno.png");
         this.load.image("btnSalir", "assets/buttons/BSalir.png");
         this.load.image("btnInicio", "assets/buttons/BInicio.png");
         this.load.image("vol0", "assets/volume/vol-0.png");
@@ -1086,6 +1090,244 @@ class GameScene extends Phaser.Scene {
     //-----------------------------------------------------------------------FIN ESCENA DE JUEGO-----------------------------------------------------------------------
 }
 
+
+//------------------------------------------------------------------------------------------//
+
+class AjustesUsuarios extends Phaser.Scene {
+
+	constructor() {
+		super('AjustesUsuarios')
+	}
+
+	preload() {
+		this.load.html("userConfig", "assets/userConfig.html");
+		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+	}
+
+	create() {
+
+		this.scale.resize(1280, 720);
+
+		videoFondo = this.add.video(640, 360, 'videoFondo');
+		videoFondo.setScale(.67);
+		videoFondo.play(true);
+
+		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
+
+		const element = this.add.dom(640, 360, "body",).createFromCache('userConfig');
+
+		element.addListener('click');
+
+		element.on('click', function(event) {
+
+			if (event.target.name === 'createButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
+
+				if (inputText.value !== '' && inputPassword.value !== '') {
+
+					nombreTemporal = "" + inputText.value;
+
+					getUsuario(nombreTemporal);
+
+					checkIfUserExists(inputText.value, inputPassword.value);
+				}
+
+
+			}
+
+			if (event.target.name === 'updateButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
+				
+				if (inputText.value !== '' && inputPassword.value !== '') {
+
+
+					nombreTemporal = "" + inputText.value;
+
+					getUsuario(nombreTemporal);
+					
+					updateUsuario(inputText.value, inputPassword.value, ids);
+
+				}
+
+			}
+
+			if (event.target.name === 'getButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
+				
+				if (inputText.value !== '' && inputPassword.value !== '') {
+
+
+					nombreTemporal = "" + inputText.value;
+
+					getUsuario(nombreTemporal);
+					
+					console.log(nombreGET);
+
+				}
+
+			}
+
+			if (event.target.name === 'deleteButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
+				
+				if (inputText.value !== '' && inputPassword.value !== '') {
+
+					nombreTemporal = "" + inputText.value;
+
+					getUsuario(nombreTemporal);
+					
+					console.log(nombreTemporal);
+					console.log(nombreGET);
+					
+					deleteUsuario(nombreGET);
+
+				}
+
+			}
+
+			if (event.target.name === 'exitButton') {
+
+				enMenu = false;
+
+			}
+
+		});
+
+		//FUNCIONES JQUERY
+
+		function checkIfUserExists(username, password) {
+
+
+			if (nombreGET !== nombreTemporal) {
+
+				postUsuario(username, password, ids);
+
+			}
+			else {
+				console.log("Este user ya existe");
+
+			}
+
+		}
+
+		function getUsuario(n) {
+
+			const datos = { nombre: n };
+
+			$.ajax({
+
+				method: "GET",
+				url: 'http://localhost:8080/usuario?nombre=' + n,
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				nombreGET = "" + data.nombre;
+
+			}).catch(error => {
+
+				console.error("Error al hacer GET: ", error.message);
+
+			});
+
+		}
+
+		function postUsuario(n, p, i) {
+
+			const datos = { nombre: n, password: p, id: i };
+
+			$.ajax({
+
+				method: "POST",
+				url: "http://localhost:8080/crearUsuario",
+				data: JSON.stringify(datos),
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Se ha creado el usuario " + datos.nombre);
+				ids++;
+
+
+			}).catch(error => {
+
+				console.error("Error al hacer POST: ", error.message);
+
+			});
+
+
+		}
+
+		function updateUsuario(n, p, i) {
+
+
+			const datos = { nombre: n, password: p, id: i };
+
+			$.ajax({
+
+
+				method: "PUT",
+				url: 'http://localhost:8080/actualizarUsuario',
+				data: JSON.stringify(datos),
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Se ha actualizado el usuario " +ids);
+
+
+			}).catch(error => {
+
+				console.error("Error al hacer PUT: ", error.message);
+
+			});
+
+
+		}
+
+		function deleteUsuario(n) {
+
+			const datos = n;
+
+			$.ajax({
+
+				method: "DELETE",
+				url: 'http://localhost:8080/borrarUsuario?nombre='+n,
+				data: JSON.stringify(datos),
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Delete del usuario realizado correctamente");
+				ids--;
+				nombreGET= '';
+				nombreTemporal = '';
+
+
+			}).catch(error => {
+
+				console.error("Error al hacer DELETE: ", error.message);
+
+			});
+
+
+		}
+
+	}
+
+	update() {
+		if (!enMenu) {
+			this.scene.start('MainMenu');
+			enMenu = true;
+		}
+	}
+}
+//-------------------------------------------------------------------------------------------//
+
 //-----------------------------------------------------------------------ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
 class MainMenu extends Phaser.Scene {
 
@@ -1169,8 +1411,8 @@ class MainMenu extends Phaser.Scene {
     }
     ChangeToUserConfig() {
 
-        this.scene.start('AjustesUsuarios');
         menuTheme.pause();
+        this.scene.start('AjustesUsuarios');
 
     }
 
@@ -1208,218 +1450,226 @@ class MainMenu extends Phaser.Scene {
 
 class Credits extends Phaser.Scene {
 
-    constructor() {
-        super('Credits')
-    }
+	constructor() {
+		super('Credits')
+	}
 
-    preload() {
+	preload() {
 
-        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
-        this.load.image("Creditos", "assets/backgrounds/PantallaCreditos.png")
-        this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
-    }
+		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+		this.load.image("Creditos", "assets/backgrounds/PantallaCreditos.png")
+		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
+	}
 
-    create() {
+	create() {
 
-        videoFondo = this.add.video(640, 360, 'videoFondo');
-        videoFondo.setScale(.67);
-        videoFondo.play(true);
+		videoFondo = this.add.video(640, 360, 'videoFondo');
+		videoFondo.setScale(.67);
+		videoFondo.play(true);
 
-        var creditos = this.add.image(640, 360, "Creditos");
+		var creditos = this.add.image(640, 360, "Creditos");
 
-        const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
-        playButton.setScale(1.2)
-        playButton.on('pointerdown', () => this.LoadMenu());
+		const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
+		playButton.setScale(1.2)
+		playButton.on('pointerdown', () => this.LoadMenu());
 
 
-    }
+	}
 
-    LoadMenu() {
+	LoadMenu() {
 
-        this.scene.start('MainMenu')
+		this.scene.start('MainMenu')
 
-    }
+	}
 }
 
 class LogIn extends Phaser.Scene {
 
-    constructor() {
-        super('LogIn')
-    }
+	constructor() {
+		super('LogIn')
+	}
 
-    preload() {
-        this.load.html("login", "assets/login.html");
+	preload() {
+		this.load.html("login", "assets/login.html");
 
-        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
-    }
+		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+	}
 
-    create ()
-    {
-        this.scale.resize(1280, 720);
+	create() {
+		this.scale.resize(1280, 720);
 
-        videoFondo = this.add.video(640,360, 'videoFondo');
-        videoFondo.setScale(.67);
-        videoFondo.play(true);
+		videoFondo = this.add.video(640, 360, 'videoFondo');
+		videoFondo.setScale(.67);
+		videoFondo.play(true);
 
-        const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px '});
+		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
 
-        const element = this.add.dom(640, 360, "body", ).createFromCache('login');
+		const element = this.add.dom(640, 360, "body",).createFromCache('login');
 
-        element.addListener('click');
+		element.addListener('click');
 
-        element.on('click', function (event)
-        {
+		element.on('click', function(event) {
 
-            if (event.target.name === 'playButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
+			if (event.target.name === 'playButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
 
-                if (inputText.value !== '' && inputPassword.value !== '')
-                {
+				if (inputText.value !== '' && inputPassword.value !== '') {
+					nombreTemporal = "" + inputText.value;
 
-                    text.setText(`Bienvenido ${inputText.value}`);
-                    loginHecho = true;
+					getUsuario(nombreTemporal);
+
+					checkIfUserExists(inputText.value, inputPassword.value);
 
 
-                }
-                else
-                {
 
-                }
-            }
-        });
+				}
+				else {
 
-        element.on('click', function (event)
-        {
+				}
+			}
+		});
 
-            if (event.target.name === 'logButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
+		element.on('click', function(event) {
 
-            }
-            
-        });
+			if (event.target.name === 'logButton') {
+				const inputText = this.getChildByName('nameField');
+				const inputPassword = this.getChildByName('passwordField');
 
-    
-    }
+				getUsuario(inputText.value);
 
-    update()
-    {
-        if(loginHecho)
-        {
-            this.scene.start('MainMenu');
-        }
-    }
+				nombreTemporal = "" + inputText.value;
+
+				if (nombreGET === nombreTemporal) {
+
+					loginHecho = true;
+
+				}
+
+			}
+
+		});
+
+		//FUNCIONES JQUERY
+		function checkIfUserExists(username, password) {
+
+
+			if (nombreGET !== nombreTemporal) {
+
+				postUsuario(username, password, ids);
+
+			}
+			else {
+				console.log("Este user ya existe");
+
+			}
+
+		}
+
+		function getUsuario(n) {
+
+			const datos = { nombre: n };
+
+			$.ajax({
+
+				method: "GET",
+				url: 'http://localhost:8080/usuario?nombre=' + n,
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				nombreGET = "" + data.nombre;
+
+			}).catch(error => {
+
+				console.error("Error al hacer GET: ", error.message);
+
+			});
+
+		}
+
+		function postUsuario(n, p, i) {
+
+			const datos = { nombre: n, password: p, id: i };
+
+			$.ajax({
+
+				method: "POST",
+				url: "http://localhost:8080/crearUsuario",
+				data: JSON.stringify(datos),
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Se ha creado el usuario " + datos.nombre);
+				ids++;
+
+
+			}).catch(error => {
+
+				console.error("Error al hacer POST: ", error.message);
+
+			});
+
+
+		}
+
+		function updateUsuario() {
+
+
+			const datos = { nombre: "Carlos", password: "pollas", id: 3 };
+
+			$.ajax({
+
+
+				method: "PUT",
+				url: 'http://localhost:8080/actualizarUsuario',
+				data: JSON.stringify(datos),
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Se ha actualizado el usuario numero 3");
+
+
+			}).catch(error => {
+
+				console.error("Error al hacer DELETE: ", error.message);
+
+			});
+
+
+		}
+
+	}
+
+	update() {
+		if (loginHecho) {
+			this.scene.start('MainMenu');
+		}
+	}
+
 }
-
-class AjustesUsuarios extends Phaser.Scene {
-
-    constructor() {
-        super('AjustesUsuarios')
-    }
-
-    preload ()
-    {
-        this.load.html("userConfig", "assets/userConfig.html");
-        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
-    }
-
-    create ()
-    {
-
-        this.scale.resize(1280, 720);
-
-        videoFondo = this.add.video(640,360, 'videoFondo');
-        videoFondo.setScale(.67);
-        videoFondo.play(true);
-
-        const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px '});
-
-        const element = this.add.dom(640, 360, "body", ).createFromCache('userConfig');
-
-        element.addListener('click');
-
-        element.on('click', function (event)
-        {
-
-            if (event.target.name === 'createButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
-
-                if (inputText.value !== '' && inputPassword.value !== '')
-                {
-
-
-                }
-
-
-            }
-
-            if (event.target.name === 'updateButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
-
-            }
-
-            if (event.target.name === 'getButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
-
-            }
-
-            if (event.target.name === 'deleteButton')
-            {
-                const inputText = this.getChildByName('nameField');
-                const inputPassword = this.getChildByName('passwordField');
-
-            }
-
-            if (event.target.name === 'exitButton')
-            {
-
-                enMenu = false;
-
-            }
-            
-        });
-
-    }
-
-    update()
-    {
-        if(!enMenu)
-        {
-            this.scene.start('MainMenu');
-            enMenu = true;
-        }
-    }
-}
-
-
 
 //-----------------------------------------------------------------------CONFIGURACIÓN E INICIALIZACIÓN DEL JUEGO-----------------------------------------------------------------------
 var config = {
-    type: Phaser.AUTO,
-    width: 10000,
-    height: 600,
-    parent: 'index',
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 700 },
-            fps: 30,
-            debug: false
-        }
-    },
-    dom: {
-        createContainer: true
-    },
+	type: Phaser.AUTO,
+	width: 10000,
+	height: 600,
+	parent: 'index',
+	physics: {
+		default: 'arcade',
+		arcade: {
+			gravity: { y: 700 },
+			debug: false
+		}
+	},
+	dom: {
+		createContainer: true
+	},
 
+	//scene: [LogIn, MainMenu, GameScene, Credits, AjustesUsuarios]
+	
     scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
 
 };
