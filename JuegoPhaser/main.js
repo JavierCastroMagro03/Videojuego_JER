@@ -10,6 +10,12 @@ var vS;
 
 var enMenu = true;
 
+var guiaControles;
+var guiaFuego;
+var guiaTrampas
+var i;
+var flecha
+
 var scaleX = .5
 var scaleY = .5
 
@@ -108,7 +114,7 @@ class GameScene extends Phaser.Scene {
         this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
         this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
         this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
-        this.load.image("menuWincon", "assets/buttons/FondoMenuPausa.png");
+        this.load.image("menuWincon", "assets/backgrounds/FondoMenuPausaVacio.png");
         this.load.image("btnAjustes", "assets/buttons/BAjustesPequeño.png");
         this.load.image("btnSalir", "assets/buttons/BSalir.png");
         this.load.image("btnInicio", "assets/buttons/BInicio.png");
@@ -247,7 +253,7 @@ class GameScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('0240e1');
 
         // BOTÓN DE AJUSTES
-        btnAjustes = this.add.image(1820, 30, 'btnAjustes').setInteractive({ useHandCursor: true });
+        btnAjustes = this.add.image(1800, 50, 'btnAjustes').setInteractive({ useHandCursor: true });
         btnAjustes.setScale(.8);
 
         btnAjustes.on('pointerdown', function () { PausarJuego(); });
@@ -268,6 +274,10 @@ class GameScene extends Phaser.Scene {
         menuPausa = this.add.image(950, 300, 'fondoMenuPausa');
         menuPausa.setScale(1, 1);
         menuPausa.setVisible(false);
+
+        menuWincon = this.add.image(0, 300, 'menuWincon');
+        menuWincon.setScale(1.2, 1.2);
+        menuWincon.setVisible(false);
 
         // Mantener menu de pausa en su posición.
         menuPausa.scrollFactorX = 0;
@@ -532,16 +542,16 @@ class GameScene extends Phaser.Scene {
         if (!gameOnPause) {
 
             //Player 1
-            if (this.keyboard.A.isDown) {
-                player.setVelocityX(-160);
-            }
-            else if (this.keyboard.D.isDown) {
-                player.setVelocityX(160);
+            // if (this.keyboard.A.isDown) {
+            //     player.setVelocityX(-160);
+            // }
+            // else if (this.keyboard.D.isDown) {
+            //     player.setVelocityX(160);
 
-            }
-            else {
-                player.setVelocityX(0);
-            }
+            // }
+            // else {
+            //     player.setVelocityX(0);
+            // }
             if (this.keyboard.W.isDown && !player1MidAir) {
                 player.setVelocityY(-400);
                 player1MidAir = true;
@@ -549,16 +559,16 @@ class GameScene extends Phaser.Scene {
 
 
             //Player 2
-            if (cursors.left.isDown) {
-                player2.setVelocityX(-160);
-            }
-            else if (cursors.right.isDown) {
-                player2.setVelocityX(160);
+            // if (cursors.left.isDown) {
+            //     player2.setVelocityX(-160);
+            // }
+            // else if (cursors.right.isDown) {
+            //     player2.setVelocityX(160);
 
-            }
-            else {
-                player2.setVelocityX(0);
-            }
+            // }
+            // else {
+            //     player2.setVelocityX(0);
+            // }
 
             if (cursors.up.isDown && !player2MidAir) {
                 player2.setVelocityY(-400);
@@ -804,6 +814,7 @@ class GameScene extends Phaser.Scene {
         gameVelocity = 0;
         this.gravity = 0;
         
+        menuWincon.x = player2.x+750;
         menuWincon.setVisible(true)
 
         if (fallen1 || fallen2) {
@@ -1090,6 +1101,11 @@ class MainMenu extends Phaser.Scene {
         this.load.image("btnGuia", "assets/buttons/botones nuevos/Bguia.png");
         this.load.image("btnJugar", "assets/buttons/botones nuevos/Bjugar.png");
 
+        this.load.image("guiaControles", "assets/guiaControles.jpeg");
+        this.load.image("guiaFuego", "assets/guiaFuego.jpeg");
+        this.load.image("guiaTrampas", "assets/guiaTrampas.jpeg");
+        this.load.image("flecha", "assets/FlechaDcha.png");
+
         this.load.audio("menuTheme", ["Assets/Audio/MenuTheme.mp3"]);
 
         this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
@@ -1098,6 +1114,8 @@ class MainMenu extends Phaser.Scene {
     //------------------------------------------CREATE------------------------------------------
     create() {
 
+        i=0;
+        
         this.scale.resize(1280, 720);
         menuTheme = this.sound.add("menuTheme")
         menuTheme.setVolume(0.5)
@@ -1117,10 +1135,20 @@ class MainMenu extends Phaser.Scene {
 
         const btnGuia = this.add.sprite(200, 570, 'btnGuia').setInteractive({ useHandCursor: true });
         btnGuia.setScale(1.4)
+        btnGuia.on("pointerdown", () => this.pasarGuias())
         
         const btnAjustesMenu = this.add.sprite(200, 470, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
         btnAjustesMenu.setScale(1.4)
         btnAjustesMenu.on('pointerdown', () => this.ChangeToUserConfig());
+
+        guiaTrampas = this.add.image(640,360,'guiaTrampas').setVisible(false)
+        guiaFuego = this.add.image(640,360,'guiaFuego').setVisible(false)
+         guiaControles = this.add.image(640,360,'guiaControles').setVisible(false)
+         
+        flecha = this.add.sprite(1100, 600, 'flecha').setInteractive({ useHandCursor: true });
+        flecha.setScale(1.4)
+        flecha.setVisible(false)
+        flecha.on('pointerdown', () => this.pasarGuias());
 
         this.cameras.main.setBackgroundColor('0240e1');
 
@@ -1145,6 +1173,36 @@ class MainMenu extends Phaser.Scene {
         menuTheme.pause();
 
     }
+
+    pasarGuias()
+    {
+        if(i===0)
+        {
+            guiaControles.setVisible(true)
+            flecha.setVisible(true)
+            i++;
+        }
+        else if (i===1)
+        {
+            guiaControles.setVisible(false)
+            guiaFuego.setVisible(true)
+            i++;
+        }
+        else if (i===2)
+        {
+            guiaFuego.setVisible(false)
+            guiaTrampas.setVisible(true)
+            i++;
+        }
+        else
+        {
+            guiaTrampas.setVisible(false)
+            flecha.setVisible(false)
+            i=0;
+        }
+        
+    }
+
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
 }
 
