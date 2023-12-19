@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------DECLARACIÓN DE VARIABLES-----------------------------------------------------------------------
 //Variables
-var gameTheme 
+var gameTheme
 var menuTheme
 var coinSound
 var dmgSound
