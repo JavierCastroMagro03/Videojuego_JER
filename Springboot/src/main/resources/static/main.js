@@ -97,8 +97,7 @@ var flecha
 
 var menuWincon
 
-//IP
-var ip = "192.168.1.139:8080";
+var serverText;
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
@@ -221,16 +220,6 @@ class GameScene extends Phaser.Scene {
 
         scoresXCoord = 1530;
         vidasXCoord = 20;
-
-        // scoreText1 = this.add.text(scoresXCoord, textos1YCoord, 'Puntuación: ' + score1, { fontSize: '32px', fill: '#000' })
-        // scoreText2 = this.add.text(scoresXCoord, textos2YCoord, 'Puntuación: ' + score2, { fontSize: '32px', fill: '#000' })
-
-        //Mantener los textos en las esquinas
-        // scoreText1.scrollFactorX = 0
-        // scoreText1.scrollFactorY = 0
-
-        // scoreText2.scrollFactorX = 0
-        // scoreText2.scrollFactorY = 0
 
         hasWon = false;
 
@@ -1105,6 +1094,7 @@ class AjustesUsuarios extends Phaser.Scene {
 	preload() {
 		this.load.html("userConfig", "assets/userConfig.html");
 		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
 	}
 
 	create() {
@@ -1118,6 +1108,10 @@ class AjustesUsuarios extends Phaser.Scene {
 		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
 
 		const element = this.add.dom(640, 360, "body",).createFromCache('userConfig');
+		
+		const menuButton = this.add.sprite(130, 670, 'btnMenu').setInteractive({ useHandCursor: true });
+		menuButton.setScale(1.2)
+		menuButton.on('pointerdown', () => this.LoadMenu());
 
 		element.addListener('click');
 
@@ -1224,7 +1218,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "GET",
-				url: 'http://' +ip+ '/usuario?nombre=' + n,
+				url: '/usuario?nombre=' + n,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
@@ -1246,7 +1240,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "POST",
-				url: "http://" +ip+ "/crearUsuario",
+				url: "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1274,7 +1268,7 @@ class AjustesUsuarios extends Phaser.Scene {
 
 
 				method: "PUT",
-				url: 'http://' +ip+ '/actualizarUsuario',
+				url: '/actualizarUsuario',
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1299,7 +1293,7 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 				method: "DELETE",
-				url: 'http://' +ip+ '/borrarUsuario?nombre='+n,
+				url: '/borrarUsuario?nombre='+n,
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1321,7 +1315,11 @@ class AjustesUsuarios extends Phaser.Scene {
 		}
 
 	}
+	LoadMenu() {
 
+		this.scene.start('MainMenu')
+
+	}
 	update() {
 		if (!enMenu) {
 			this.scene.start('MainMenu');
@@ -1396,8 +1394,45 @@ class MainMenu extends Phaser.Scene {
         flecha.on('pointerdown', () => this.pasarGuias());
 
         this.cameras.main.setBackgroundColor('0240e1');
+        
+        
+            serverText = this.add.text(200, 10, "Server Status", { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5  })
+            
 
     }
+    
+    update(){
+		
+		var url = $(location).attr('href');
+
+        $.ajax({
+            type: 'GET',
+            dataType: 'jsonp',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+  jsonp: 'jsonp',
+            statusCode: {
+                404: function () {
+                    serverText.setText("Estado del Servidor: Desconectado");
+                    serverText.setColor('#ff0000');
+                },
+                0: function () {
+                    serverText.setText("Estado del Servidor: Desconectado");
+                    serverText.setColor('#ff0000');
+                },
+                500: function () {
+                    serverText.setText("Estado del Servidor: Error interno ");
+                    serverText.setColor('#ff0000');
+                },
+                200: function () {
+                    serverText.setText("Estado del Servidor: Conectado ");
+                    serverText.setColor('#00ff00');
+                    
+                    }
+            }
+        });
+		
+	}
 
     //------------------------------------------UPLOAD------------------------------------------
     ChangeToGameScene() {
@@ -1411,11 +1446,15 @@ class MainMenu extends Phaser.Scene {
     LoadCredits() {
 
         this.scene.start('Credits')
+        menuTheme.pause();
+
     }
     ChangeToUserConfig() {
 
         menuTheme.pause();
         this.scene.start('AjustesUsuarios');
+        menuTheme.pause();
+
 
     }
 
@@ -1461,7 +1500,6 @@ class Credits extends Phaser.Scene {
 
 		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
 		this.load.image("Creditos", "assets/backgrounds/PantallaCreditos.png")
-		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
 	}
 
 	create() {
@@ -1485,6 +1523,7 @@ class Credits extends Phaser.Scene {
 
 	}
 }
+//-----------------------------------------------------------------------LOGUUIIUIIIIN-----------------------------------------------------------------------
 
 class LogIn extends Phaser.Scene {
 
@@ -1494,11 +1533,13 @@ class LogIn extends Phaser.Scene {
 
 	preload() {
 		this.load.html("login", "assets/login.html");
-
 		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
+		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
 	}
 
 	create() {
+		
+		
 		this.scale.resize(1280, 720);
 
 		videoFondo = this.add.video(640, 360, 'videoFondo');
@@ -1507,7 +1548,7 @@ class LogIn extends Phaser.Scene {
 
 		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
 
-		const element = this.add.dom(640, 360, "body",).createFromCache('login');
+		const element = this.add.dom(640, 360, "body").createFromCache("login");
 
 		element.addListener('click');
 
@@ -1542,8 +1583,11 @@ class LogIn extends Phaser.Scene {
 				getUsuario(inputText.value);
 
 				nombreTemporal = "" + inputText.value;
+				
+				console.log(nombreTemporal);
+		console.log(nombreGET);
 
-				if (nombreGET === nombreTemporal) {
+				if (nombreGET === nombreTemporal && nombreGET != "") {
 
 					loginHecho = true;
 
@@ -1556,7 +1600,7 @@ class LogIn extends Phaser.Scene {
 		//FUNCIONES JQUERY
 		function checkIfUserExists(username, password) {
 
-
+		
 			if (nombreGET !== nombreTemporal) {
 
 				postUsuario(username, password, ids);
@@ -1576,11 +1620,11 @@ class LogIn extends Phaser.Scene {
 			$.ajax({
 
 				method: "GET",
-				url: 'http://' +ip+ '/usuario?nombre=' + n,
+				url: '/usuario?nombre=' + n,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
-
+	
 				nombreGET = "" + data.nombre;
 
 			}).catch(error => {
@@ -1598,7 +1642,7 @@ class LogIn extends Phaser.Scene {
 			$.ajax({
 
 				method: "POST",
-				url: "http://" +ip+ "/crearUsuario",
+				url: "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
@@ -1616,8 +1660,10 @@ class LogIn extends Phaser.Scene {
 
 
 		}
+	
 
 	}
+	
 
 	update() {
 		if (loginHecho) {
@@ -1643,11 +1689,11 @@ var config = {
 	},
 	dom: {
 		createContainer: true
-	},
-
-	//scene: [LogIn, MainMenu, GameScene, Credits, AjustesUsuarios]
+	},	
 	
-    scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
+	scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
+	
+    //scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
 
 };
 
