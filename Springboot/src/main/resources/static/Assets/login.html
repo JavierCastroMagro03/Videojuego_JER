@@ -21,6 +21,12 @@
                 justify-content: center;
                 padding: 3%;
             }
+
+            .field{
+                font-size: 32px;
+                scale: 125%;
+            }
+
             .texto
             {
                 color: white;
@@ -40,8 +46,8 @@
 
         <div class="container">
             <div class="texto" type="text">Por favor introduzca su nombre y contraseña</div>
-            <div class="input"><input type="text" name="nameField" placeholder="Nombre de usuario" style="font-size: 32px"></div>    
-            <div class="input"><input type="text" name="passwordField" placeholder="Constraseña" style="font-size: 32px"></div>
+            <div class="input"><input type="text" class="field" name="nameField" placeholder="Nombre de usuario"></div>
+            <div class="input"><input type="password" class="field" name="passwordField" placeholder="Constraseña"></div>
             <div class="input">
                 <log><input type="button" name="logButton" value="Iniciar Sesión" style="font-size: 32px"><br /></log>
             </div>

@@ -87,7 +87,10 @@ var loginHecho = false;
 var ids = 0;
 var nombreTemporal = "";
 var nombreGET = "";
-var enMenu;
+var enLogin;
+
+//textoslogin
+var usuarioExiste;
 
 var guiaControles;
 var guiaFuego;
@@ -98,6 +101,7 @@ var flecha
 var menuWincon
 
 var serverText;
+var connectedUsers;
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
@@ -1188,7 +1192,7 @@ class AjustesUsuarios extends Phaser.Scene {
 
 			if (event.target.name === 'exitButton') {
 
-				enMenu = false;
+				//enMenu = false;
 
 			}
 
@@ -1217,7 +1221,8 @@ class AjustesUsuarios extends Phaser.Scene {
 
 			$.ajax({
 
-				method: "GET",
+				method: "GET", 
+  async: false,
 				url: '/usuario?nombre=' + n,
 				processData: false,
 				contentType: "application/json"
@@ -1239,7 +1244,8 @@ class AjustesUsuarios extends Phaser.Scene {
 
 			$.ajax({
 
-				method: "POST",
+				method: "POST", 
+  async: false,
 				url: "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
@@ -1267,7 +1273,8 @@ class AjustesUsuarios extends Phaser.Scene {
 			$.ajax({
 
 
-				method: "PUT",
+				method: "PUT", 
+  async: false,
 				url: '/actualizarUsuario',
 				data: JSON.stringify(datos),
 				processData: false,
@@ -1292,7 +1299,8 @@ class AjustesUsuarios extends Phaser.Scene {
 
 			$.ajax({
 
-				method: "DELETE",
+				method: "DELETE", 
+  async: false,
 				url: '/borrarUsuario?nombre='+n,
 				data: JSON.stringify(datos),
 				processData: false,
@@ -1321,9 +1329,9 @@ class AjustesUsuarios extends Phaser.Scene {
 
 	}
 	update() {
-		if (!enMenu) {
-			this.scene.start('MainMenu');
-			enMenu = true;
+		if (!enLogin) {
+			enMenu = false;
+			this.scene.start('LogIn');
 		}
 	}
 }
@@ -1398,7 +1406,10 @@ class MainMenu extends Phaser.Scene {
         
             serverText = this.add.text(200, 10, "Server Status", { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5  })
             
-
+            connectedUsers = this.add.text(600, 650, "Usuarios conectados: 0", { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5  })
+                    connectedUsers.setColor('#ffffff');
+           
+		
     }
     
     update(){
@@ -1409,8 +1420,6 @@ class MainMenu extends Phaser.Scene {
             type: 'GET',
             dataType: 'jsonp',
             url: url,
-            contentType: "application/json; charset=utf-8",
-  jsonp: 'jsonp',
             statusCode: {
                 404: function () {
                     serverText.setText("Estado del Servidor: Desconectado");
@@ -1429,10 +1438,22 @@ class MainMenu extends Phaser.Scene {
                     serverText.setColor('#00ff00');
                     
                     }
-            }
+            },
+            success: function(data){
+				
+			console.log("pollas")
+				
+			},
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+     console.log('Error: ' + textStatus);
+        console.log('Error details: ', errorThrown);
+  }
         });
+        
 		
-	}
+	}	
+	
+	
 
     //------------------------------------------UPLOAD------------------------------------------
     ChangeToGameScene() {
@@ -1451,7 +1472,6 @@ class MainMenu extends Phaser.Scene {
     }
     ChangeToUserConfig() {
 
-        menuTheme.pause();
         this.scene.start('AjustesUsuarios');
         menuTheme.pause();
 
@@ -1538,13 +1558,16 @@ class LogIn extends Phaser.Scene {
 	}
 
 	create() {
-		
-		
+
 		this.scale.resize(1280, 720);
 
 		videoFondo = this.add.video(640, 360, 'videoFondo');
 		videoFondo.setScale(.67);
 		videoFondo.play(true);
+		
+		
+            usuarioExiste = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 630, "", { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center'  }).setOrigin(0.5);
+                    usuarioExiste.setColor('#ffffff');
 
 		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
 
@@ -1559,6 +1582,7 @@ class LogIn extends Phaser.Scene {
 				const inputPassword = this.getChildByName('passwordField');
 
 				if (inputText.value !== '' && inputPassword.value !== '') {
+					
 					nombreTemporal = "" + inputText.value;
 
 					getUsuario(nombreTemporal);
@@ -1580,18 +1604,14 @@ class LogIn extends Phaser.Scene {
 				const inputText = this.getChildByName('nameField');
 				const inputPassword = this.getChildByName('passwordField');
 
-				getUsuario(inputText.value);
 
 				nombreTemporal = "" + inputText.value;
+				getUsuario(inputText.value);
 				
-				console.log(nombreTemporal);
-		console.log(nombreGET);
+				
+			
 
-				if (nombreGET === nombreTemporal && nombreGET != "") {
-
-					loginHecho = true;
-
-				}
+				checkLogIn(inputText.value)
 
 			}
 
@@ -1604,13 +1624,25 @@ class LogIn extends Phaser.Scene {
 			if (nombreGET !== nombreTemporal) {
 
 				postUsuario(username, password, ids);
+				usuarioExiste.setText("Usuario "+username+" creado correctamente");
 
 			}
 			else {
-				console.log("Este user ya existe");
+				usuarioExiste.setText("El usuario "+username+" ya existe");
 
 			}
 
+		}
+		
+		function checkLogIn(username){
+			
+			if (nombreGET == username && nombreGET != "") {
+
+					loginHecho = true;
+				usuarioExiste.setText("Login hecho correctamente");
+
+				}
+			
 		}
 
 		function getUsuario(n) {
@@ -1619,8 +1651,9 @@ class LogIn extends Phaser.Scene {
 
 			$.ajax({
 
-				method: "GET",
-				url: '/usuario?nombre=' + n,
+				method: "GET", 
+  async: false,
+				url: '/usuario?nombre=' + datos.nombre,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
@@ -1641,14 +1674,15 @@ class LogIn extends Phaser.Scene {
 
 			$.ajax({
 
-				method: "POST",
+				method: "POST", 
+  async: false,
 				url: "/crearUsuario",
 				data: JSON.stringify(datos),
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
 
-				console.log("Se ha creado el usuario " + datos.nombre);
+				console.log("Se ha creado el usuario " + data.nombre);
 				ids++;
 
 
@@ -1666,6 +1700,7 @@ class LogIn extends Phaser.Scene {
 	
 
 	update() {
+		
 		if (loginHecho) {
 			this.scene.start('MainMenu');
 		}
@@ -1691,9 +1726,9 @@ var config = {
 		createContainer: true
 	},	
 	
-	scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
+	//scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
 	
-    //scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
+    scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
 
 };
 

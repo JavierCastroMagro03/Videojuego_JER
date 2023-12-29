@@ -5,7 +5,7 @@
 
         </script>
     </head>
-    <body>
+    <body id="cuerpo" class="cuerpo">
         <style>
             .container{
                 background-color: darkred;
@@ -21,6 +21,12 @@
                 justify-content: center;
                 padding: 3%;
             }
+
+            .field{
+                font-size: 32px;
+                scale: 125%;
+            }
+
             .texto
             {
                 color: white;
@@ -42,20 +48,16 @@
 
         <div class="container">
             <div class="texto" type="text">Por favor introduzca nombre y contraseña</div>
-            <div class="input"><input type="text" name="nameField" placeholder="Introduce tu nombre" style="font-size: 32px"></div>    
-            <div class="input"><input type="text" name="passwordField" placeholder="Introduce tu contraseña" style="font-size: 32px"></div>
+            <div class="input"><input type="password" class="field" name="nameField" placeholder="Contraseña actual"></div>
+            <div class="input"><input type="password" class="field" name="passwordField" placeholder="Nueva contraseña"></div>
             <div class="input">
-                <!-- <log><input type="button" name="createButton" value="Crear" style="font-size: 32px"><br /></log> -->
 
                 <log><input type="button" name="updateButton" value="Actualizar" style="font-size: 32px"><br /></log>
 
-                <!-- <log><input type="button" name="getButton" value="Obtener" style="font-size: 32px"><br /></log> -->
-
                 <log><input type="button" name="deleteButton" value="Borrar" style="font-size: 32px"><br /></log>
+
             </div>
-            <div class="input">
-               <!-- <log><input type="button" name="exitButton" value="Volver" style="font-size: 32px"><br /></log> -->
-            </div>
+
         </div>
     </body>
 </html>
