@@ -78,6 +78,17 @@ var volumenSonido;
 
 var videoFondo;
 
+// BARRA DE PROGRESO
+const progressBarWidth = 700;
+const progressBarHeight = 15;
+const progressBarRadius = 7.5;
+const progressBarX = 600;
+const progressBarY = 10;
+
+var progress = 0;
+
+var progressBar, progressBarGradient, progressBarBorder;
+
 //FONDO
 let coordenadasXSuelosCerca;
 let coordenadasXSuelosLejano;
@@ -88,6 +99,11 @@ var ids = 0;
 var nombreTemporal = "";
 var nombreGET = "";
 var enLogin;
+
+var guia1, guia2, guia3;
+var flechaDchaGuia1, flechaDchaGuia2, flechaDchaGuia3;
+var flechaIzqGuia1, flechaIzqGuia2, flechaIzqGuia3;
+var idGuia = 0;
 
 //textoslogin
 var usuarioExiste;
@@ -392,6 +408,20 @@ class GameScene extends Phaser.Scene {
         iconSonido.scrollFactorX = 0;
         iconSonido.scrollFactorY = 0;
 
+        // Barra de progreso
+
+        progressBar = this.add.graphics();
+        progressBar.scrollFactorX = 0;
+
+        progressBarGradient = this.add.graphics();
+        progressBarGradient.scrollFactorX = 0;
+
+        progressBarBorder = this.add.graphics();
+        progressBarBorder.lineStyle(2, "0xFFFFFF", 1);
+        progressBarBorder.scrollFactorX = 0;
+        progressBarBorder.strokeRoundedRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, progressBarRadius);
+
+
 
         //------------------------------------------MENÚ DE PAUSA------------------------------------------
         //Función para pausar el juego
@@ -604,6 +634,8 @@ class GameScene extends Phaser.Scene {
                 }
 
             }
+
+            this.UpdateProgressBar();
         }
     }
 
@@ -1082,6 +1114,21 @@ class GameScene extends Phaser.Scene {
 
     }
 
+    UpdateProgressBar(){
+
+        progress = progressBarWidth * (player.x / 6700);
+        progressBar.clear();
+        progressBar.fillStyle("0x28e028", 1);
+
+        progressBar.fillRoundedRect(progressBarX, progressBarY, progress, progressBarHeight, progressBarRadius);
+
+        progressBarGradient.clear();
+        progressBarGradient.fillStyle("0xFFFFFF", 0.5);
+        progressBarGradient.fillRoundedRect(progressBarX, progressBarY, progress, progressBarHeight / 2, progressBarRadius / 2);
+
+
+    }
+
 
     //-----------------------------------------------------------------------FIN ESCENA DE JUEGO-----------------------------------------------------------------------
 }
@@ -1364,8 +1411,6 @@ class MainMenu extends Phaser.Scene {
 
     //------------------------------------------CREATE------------------------------------------
     create() {
-
-        i=0;
         
         this.scale.resize(1280, 720);
         menuTheme = this.sound.add("menuTheme")
@@ -1386,20 +1431,20 @@ class MainMenu extends Phaser.Scene {
 
         const btnGuia = this.add.sprite(200, 570, 'btnGuia').setInteractive({ useHandCursor: true });
         btnGuia.setScale(1.4)
-        btnGuia.on("pointerdown", () => this.pasarGuias())
+        btnGuia.on("pointerdown", () => this.LoadGuides())
         
         const btnAjustesMenu = this.add.sprite(200, 470, 'btnAjustesMenu').setInteractive({ useHandCursor: true });
         btnAjustesMenu.setScale(1.4)
         btnAjustesMenu.on('pointerdown', () => this.ChangeToUserConfig());
 
-        guiaTrampas = this.add.image(640,360,'guiaTrampas').setVisible(false)
-        guiaFuego = this.add.image(640,360,'guiaFuego').setVisible(false)
-         guiaControles = this.add.image(640,360,'guiaControles').setVisible(false)
+        // guiaTrampas = this.add.image(640,360,'guiaTrampas').setVisible(false)
+        // guiaFuego = this.add.image(640,360,'guiaFuego').setVisible(false)
+        //  guiaControles = this.add.image(640,360,'guiaControles').setVisible(false)
          
-        flecha = this.add.sprite(1100, 600, 'flecha').setInteractive({ useHandCursor: true });
-        flecha.setScale(1.4)
-        flecha.setVisible(false)
-        flecha.on('pointerdown', () => this.pasarGuias());
+        // flecha = this.add.sprite(1100, 600, 'flecha').setInteractive({ useHandCursor: true });
+        // flecha.setScale(1.4)
+        // flecha.setVisible(false)
+        // flecha.on('pointerdown', () => this.pasarGuias());
 
         this.cameras.main.setBackgroundColor('0240e1');
         
@@ -1478,34 +1523,39 @@ class MainMenu extends Phaser.Scene {
 
     }
 
-    pasarGuias()
+    LoadGuides()
     {
-        if(i===0)
-        {
-            guiaControles.setVisible(true)
-            flecha.setVisible(true)
-            i++;
-        }
-        else if (i===1)
-        {
-            guiaControles.setVisible(false)
-            guiaFuego.setVisible(true)
-            i++;
-        }
-        else if (i===2)
-        {
-            guiaFuego.setVisible(false)
-            guiaTrampas.setVisible(true)
-            i++;
-        }
-        else
-        {
-            guiaTrampas.setVisible(false)
-            flecha.setVisible(false)
-            i=0;
-        }
-        
+        this.scene.start('GuideScene');
     }
+
+    // pasarGuias()
+    // {
+    //     if(i===0)
+    //     {
+    //         guiaControles.setVisible(true)
+    //         flecha.setVisible(true)
+    //         i++;
+    //     }
+    //     else if (i===1)
+    //     {
+    //         guiaControles.setVisible(false)
+    //         guiaFuego.setVisible(true)
+    //         i++;
+    //     }
+    //     else if (i===2)
+    //     {
+    //         guiaFuego.setVisible(false)
+    //         guiaTrampas.setVisible(true)
+    //         i++;
+    //     }
+    //     else
+    //     {
+    //         guiaTrampas.setVisible(false)
+    //         flecha.setVisible(false)
+    //         i=0;
+    //     }
+        
+    // }
 
     //-----------------------------------------------------------------------FIN ESCENA MENÚ PRINCIPAL-----------------------------------------------------------------------
 }
@@ -1543,6 +1593,112 @@ class Credits extends Phaser.Scene {
 
 	}
 }
+
+class GuideScene extends Phaser.Scene {
+
+	constructor() {
+		super('GuideScene')
+	}
+
+	preload() {
+
+		this.load.image("guia1", "assets/backgrounds/Guia1.png");
+        this.load.image("guia2", "assets/backgrounds/guia2.png");
+        this.load.image("guia3", "assets/backgrounds/guia3.png");
+		this.load.image("btnSalir", "assets/buttons/botones nuevos/BSalir.png");
+        this.load.image("flechaIzq", "assets/buttons/botones nuevos/FlechaIzq.png");
+        this.load.image("flechaDcha", "assets/buttons/botones nuevos/FlechaDcha.png");
+	}
+
+	create() {
+
+        idGuia = 0;
+		guia1 = this.add.image(640, 360, "guia1");
+        guia1.setVisible(false);
+        guia2 = this.add.image(640, 360, "guia2");
+        guia2.setVisible(false);
+        guia3 = this.add.image(640, 360, "guia3");
+
+        flechaDchaGuia1 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
+        flechaDchaGuia1.setVisible(false);
+        flechaDchaGuia1.on('pointerdown', () => this.PasarGuia("avanza"));
+        flechaDchaGuia3 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
+        flechaDchaGuia3.on('pointerdown', () => this.PasarGuia("avanza"));
+
+        flechaIzqGuia1 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
+        flechaIzqGuia1.on('pointerdown', () => this.PasarGuia("retrocede"));
+        flechaIzqGuia1.setVisible(false);
+        flechaIzqGuia2 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
+        flechaIzqGuia2.on('pointerdown', () => this.PasarGuia("retrocede"));
+        flechaIzqGuia2.setVisible(false);
+
+		const playButton = this.add.sprite(230, 640, 'btnSalir').setInteractive({ useHandCursor: true });
+		playButton.setScale(1.2)
+		playButton.on('pointerdown', () => this.LoadMenu());
+
+
+	}
+
+    PasarGuia(paso){
+
+        if(paso == "avanza"){
+
+            idGuia++;
+
+        }else if(paso == "retrocede"){
+
+            idGuia--;
+
+        }
+        if(idGuia > 2){
+
+            idGuia = 2;
+
+        }
+
+        if(idGuia < 0){
+
+            idGuia = 0;
+
+        }
+
+        switch(idGuia){
+
+            case 0:
+                flechaDchaGuia3.setVisible(true);
+                flechaDchaGuia1.setVisible(false);
+                flechaIzqGuia1.setVisible(false);
+                guia3.setVisible(true);
+                guia1.setVisible(false);
+            break;
+
+            case 1:
+                flechaDchaGuia3.setVisible(false);
+                flechaDchaGuia1.setVisible(true);
+                flechaIzqGuia1.setVisible(true);
+                flechaIzqGuia2.setVisible(false);
+                guia3.setVisible(false);
+                guia2.setVisible(false);
+                guia1.setVisible(true);
+            break;
+
+            case 2:
+                flechaDchaGuia1.setVisible(false);
+                flechaIzqGuia2.setVisible(true);
+                flechaIzqGuia1.setVisible(false);
+                guia1.setVisible(false);
+                guia2.setVisible(true);
+            break;
+        }
+    }
+
+	LoadMenu() {
+
+		this.scene.start('MainMenu')
+
+	}
+}
+
 //-----------------------------------------------------------------------LOGUUIIUIIIIN-----------------------------------------------------------------------
 
 class LogIn extends Phaser.Scene {
@@ -1728,7 +1884,7 @@ var config = {
 	
 	//scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
 	
-    scene: [LogIn, MainMenu, GameScene, Credits,AjustesUsuarios]
+    scene: [LogIn, MainMenu, GameScene, Credits, GuideScene, AjustesUsuarios]
 
 };
 
