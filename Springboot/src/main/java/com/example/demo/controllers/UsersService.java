@@ -18,37 +18,86 @@ public class UsersService
 {
 	
 	private List<Usuario> userList;
+	private int nUsers;
 	
 	public UsersService(int numUsers)
 	{
 		userList = new ArrayList<>();
+		nUsers = 0;
 		
 		
 		
 	}
 
 
-	public Optional<Usuario> getUsuario(String n) 
+	public Usuario getUsuario(String n) 
 	{
 		
 		Optional optional = Optional.empty();
 		
-		for(Usuario usuario: userList)
-		{
-			if(n.equals(usuario.getNombre()))
+		
+		for(int i = 0; i < userList.size(); i++){
+			
+			if(n.equals(userList.get(i).getNombre()))
 			{
+			
+				userList.get(i).setId(i);
 				
-				optional = Optional.of(usuario);
 				
-				return optional;
+				Usuario u = userList.get(i);
+				//optional = Optional.of(usuario);
+				
+				return u;
 				
 			}
+			
 		}
 		
 		
-		return optional;
+		return null;
 
 	}
+	
+	public Optional<Usuario> getUsuarioViaID(int i) 
+	{
+
+		if(userList.size() >= i) {
+			
+			return Optional.of(userList.get(i));
+		}
+		
+		return null;
+
+	}
+	
+	public List<Usuario> getUserList(){
+		
+		//Actualizo las IDS
+for(int i = 0; i < userList.size(); i++){
+					
+				userList.get(i).setId(i);
+				
+}
+		
+
+		return userList;
+	}
+	
+	public int getConnectedUsers() {
+		
+		return nUsers;
+	}
+	
+public int connectUser() {
+		nUsers++;
+		
+		return nUsers;
+	}
+
+public int disconnectUser() {
+	nUsers--;
+	return nUsers;
+}
 	
 	public Usuario save(Usuario usuario)
 	{
@@ -58,27 +107,22 @@ public class UsersService
 		
 	}
 
-	public Optional<Usuario> deleteUsuario(String nombre) 
+	public Optional<Usuario> deleteUsuario(int id) 
 	{
 		
 		Optional optional = Optional.empty();
 		
-		for(Usuario usuario: userList)
-		{
-			if(nombre.equals(usuario.getNombre()))
-			{
-				
-				optional = Optional.of(usuario);
-				
-				userList.remove(usuario);
-				
-				return optional;
-				
-			}
+		
+		if(userList.size() >= id) {
+
+			optional = Optional.of(userList.get(id));
+			
+			userList.remove(id);
+			return optional;
+			
 		}
 		
-		return optional;
-
+return null;
 	}
 	
 	public Usuario updateUser(Usuario usuario) {
@@ -90,5 +134,21 @@ public class UsersService
 		
 		return usuario;
 	}
+	
+public String actualizarNombreUsuario(int id, String name) {
+		
+		userList.get(id).setNombre(name);
+		
+		
+		return name;
+	}
+
+public String actualizarPassword(int id, String password) {
+	
+	userList.get(id).setContraseña(password);
+	
+	
+	return password;
+}
 	
 }

@@ -3,9 +3,11 @@
     <head>
         <script >
 
+
         </script>
     </head>
     <body id="cuerpo" class="cuerpo">
+		
         <style>
             .container{
                 background-color: darkred;
@@ -16,7 +18,7 @@
                 opacity: 90%;
             }
             .input {
-                display: flex;
+                display: block;
                 align-items: center;
                 justify-content: center;
                 padding: 3%;
@@ -47,18 +49,27 @@
         </style>
 
         <div class="container">
-            <div class="texto" type="text">Por favor introduzca nombre y contraseña</div>
+            <div class="texto" type="text">¿Qué desea hacer?</div>
+            <!-- AJUSTES ANTIGUOS
             <div class="input"><input type="password" class="field" name="nameField" placeholder="Contraseña actual"></div>
             <div class="input"><input type="password" class="field" name="passwordField" placeholder="Nueva contraseña"></div>
             <div class="input">
+				
+				
 
                 <log><input type="button" name="updateButton" value="Actualizar" style="font-size: 32px"><br /></log>
 
                 <log><input type="button" name="deleteButton" value="Borrar" style="font-size: 32px"><br /></log>
-
+                -->
+                <div class="input">
+                <log><input type="button" name="actualizarUsuario" value="Actualizar Usuario" style="font-size: 32px"><br /></log>             
+                <log><input type="button" name="actualizarContrasena" value="Actualizar Contraseña" style="font-size: 32px"><br /></log>             
+                <log><input type="button" name="deleteUser" value="Borrar Usuario" style="font-size: 32px"><br /></log>
+                
             </div>
 
         </div>
+        
     </body>
 </html>
 

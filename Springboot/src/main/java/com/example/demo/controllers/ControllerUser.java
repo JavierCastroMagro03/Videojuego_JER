@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -35,7 +36,22 @@ public class ControllerUser {
     public Usuario getUsuario(@RequestParam String nombre)
     {
 
-        Optional usuario = usersService.getUsuario(nombre);
+        Usuario usuario = usersService.getUsuario(nombre);
+        
+        if(usuario != null)
+        {
+            return usuario;
+        }
+        
+        return null;
+
+    }
+    
+    @GetMapping("/usuarioConID")
+    public Usuario getUsuarioViaId(@RequestParam int id)
+    {
+
+        Optional usuario = usersService.getUsuarioViaID(id);
         
         if(usuario.isPresent())
         {
@@ -43,6 +59,50 @@ public class ControllerUser {
         }
         
         return null;
+
+    }
+    
+    @GetMapping("/userList")
+    public List<Usuario> getUserList()
+    {
+
+        return usersService.getUserList();
+
+    }
+    
+    @GetMapping("/getOnlineUsers")
+    public int getNumber()
+    {
+
+        int n = usersService.getConnectedUsers();
+        
+
+            return n;
+
+
+    }
+    
+    @GetMapping("/disconnectUsers")
+    public int minusUser()
+    {
+
+        int n = usersService.disconnectUser();
+        
+
+            return n;
+
+
+    }
+    
+    @GetMapping("/connectUsers")
+    public int addUser()
+    {
+
+        int n = usersService.connectUser();
+        
+
+            return n;
+
 
     }
 
@@ -55,9 +115,9 @@ public class ControllerUser {
     }
 
     @DeleteMapping("/borrarUsuario")
-    public Usuario deleteUsuario(@RequestParam String nombre)
+    public Usuario deleteUsuario(@RequestParam int id)
     {
-        Optional usuarioBorrado = usersService.deleteUsuario(nombre);
+        Optional<Usuario> usuarioBorrado = usersService.deleteUsuario(id);
         
         if(usuarioBorrado.isPresent())
         {
@@ -73,6 +133,31 @@ public class ControllerUser {
     	Usuario usuarioActualizado = usersService.updateUser(usuario);
     	
     	return usuarioActualizado;
+    }
+    
+    @PutMapping("/actualizarNombreUsuario")
+    public String actualizarNombreUsuario(@RequestParam int id, @RequestParam String name)
+    {
+    	
+    	String nuevoNombre;
+
+    	nuevoNombre = usersService.actualizarNombreUsuario(id, name);
+    	
+    	return nuevoNombre;
+    	
+    }
+    
+    @PutMapping("/actualizarPassword")
+    public String actualizarPassword(@RequestParam int id, @RequestParam String password)
+    {
+    	
+    	String contra;
+
+		System.out.print("HAsta aqui bien");
+		contra = usersService.actualizarPassword(id, password);
+    	
+    	return contra;
+    	
     }
 
 }
