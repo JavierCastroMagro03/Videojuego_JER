@@ -1,6 +1,11 @@
 package com.example.demo.controllers;
 
+import java.io.BufferedReader;
 import java.io.Console;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,7 +78,7 @@ public class UsersService
 	public List<Usuario> getUserList(){
 		
 		//Actualizo las IDS
-for(int i = 0; i < userList.size(); i++){
+		for(int i = 0; i < userList.size(); i++){
 					
 				userList.get(i).setId(i);
 				
@@ -150,5 +155,57 @@ public String actualizarPassword(int id, String password) {
 	
 	return password;
 }
+	
+	public void saveTXT (Usuario usuario) throws IOException
+    {
+
+        File myFile = new File("usuariosGuardados.txt");
+        if (myFile.createNewFile())
+        {
+            System.out.println("File created:" + myFile.getName());
+        }
+
+        try(FileWriter writer = new FileWriter("usuariosGuardados.txt", true))
+        {
+            writer.write("Nombre: " + usuario.getNombre() + "; Contraseña: " + usuario.getPassword() + "\n");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    public Boolean readTXT (Usuario usuario)
+    {
+        Boolean encontrado = false;
+        try (FileReader fr = new FileReader("C:/Users/raulg/Documents/workspace-spring-tool-suite-4-4.21.0.RELEASE/demo/usuariosGuardados.txt")) 
+        {
+            BufferedReader br = new BufferedReader(fr);
+
+            //Lectura del fichero
+            String linea;
+
+            while((linea=br.readLine())!=null)
+            {
+                if(linea.equals("Nombre: " + usuario.getNombre() + "; Contraseña: " + usuario.getPassword()))
+                {
+                    System.out.println("En el loop" + linea);
+                    encontrado = true;
+                    System.out.println(encontrado);
+                    return encontrado;
+                }
+                System.out.println(linea);
+            }
+
+        }
+        catch(Exception e) 
+        {
+            e.printStackTrace();
+        }
+        return encontrado;
+    }
+	
+	
 	
 }

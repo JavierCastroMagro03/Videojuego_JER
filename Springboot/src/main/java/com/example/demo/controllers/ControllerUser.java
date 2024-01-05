@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,12 @@ public class ControllerUser {
     {
 
         Usuario usuario = usersService.getUsuario(nombre);
-        
+
         if(usuario != null)
         {
             return usuario;
         }
-        
+
         return null;
 
     }
@@ -52,12 +53,12 @@ public class ControllerUser {
     {
 
         Optional usuario = usersService.getUsuarioViaID(id);
-        
+
         if(usuario.isPresent())
         {
             return (Usuario) usuario.get();
         }
-        
+
         return null;
 
     }
@@ -107,9 +108,13 @@ public class ControllerUser {
     }
 
     @PostMapping("/crearUsuario")
-    public Usuario createUser(@RequestBody Usuario usuario)
+    public Usuario createUser(@RequestBody Usuario usuario) throws IOException
     {
         Usuario usuarioGuardado = usersService.save(usuario);
+        
+        usersService.saveTXT(usuario);
+        
+        usersService.readTXT(usuario);
 
         return usuarioGuardado;
     }
@@ -118,46 +123,47 @@ public class ControllerUser {
     public Usuario deleteUsuario(@RequestParam int id)
     {
         Optional<Usuario> usuarioBorrado = usersService.deleteUsuario(id);
-        
+
         if(usuarioBorrado.isPresent())
         {
             return (Usuario) usuarioBorrado.get();
         }
-        
+
         return null;
     }
-    
+
     @PutMapping("/actualizarUsuario")
     public Usuario updateUsuario(@RequestBody Usuario usuario)
     {
-    	Usuario usuarioActualizado = usersService.updateUser(usuario);
-    	
-    	return usuarioActualizado;
+        Usuario usuarioActualizado = usersService.updateUser(usuario);
+
+        return usuarioActualizado;
     }
-    
+
     @PutMapping("/actualizarNombreUsuario")
     public String actualizarNombreUsuario(@RequestParam int id, @RequestParam String name)
     {
-    	
-    	String nuevoNombre;
 
-    	nuevoNombre = usersService.actualizarNombreUsuario(id, name);
-    	
-    	return nuevoNombre;
-    	
+        String nuevoNombre;
+
+        nuevoNombre = usersService.actualizarNombreUsuario(id, name);
+
+        return nuevoNombre;
+
     }
-    
+
     @PutMapping("/actualizarPassword")
     public String actualizarPassword(@RequestParam int id, @RequestParam String password)
     {
-    	
-    	String contra;
 
-		System.out.print("HAsta aqui bien");
-		contra = usersService.actualizarPassword(id, password);
-    	
-    	return contra;
-    	
+        String contra;
+
+        System.out.print("HAsta aqui bien");
+        contra = usersService.actualizarPassword(id, password);
+
+        return contra;
+
     }
+
 
 }

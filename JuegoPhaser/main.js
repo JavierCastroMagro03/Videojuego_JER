@@ -1,3 +1,83 @@
+//-----------------------------------------------------------------------WEBSOCKETS-----------------------------------------------------------------------
+function WebSocketConnection()
+{
+	connection = new WebSocket('ws://localhost:8080/user');
+	connection.onopen = function()
+	{
+		console.log('Estableciendo conexion');
+	}
+			
+	connection.onerror = function(e)
+	{
+		console.log('WS error: ' + e)
+	}
+	
+	
+	connection.onmessage = function (data)
+	{
+		Datos = JSON.parse(data.data);
+		if (Datos.EsHost == 1) {
+            host = 1;
+        } else if (Datos.EsHost == 0) {
+            host = 0;
+        } else if (host == 1) {
+            mensajeParaJ1(Datos);
+        } else if (host == 0) {
+            mensajeParaJ2(Datos);
+        }
+	}
+			
+	$(document).ready(function()
+	{
+		$('#send-btn').click(function()
+		{
+			var message = $('#message').val();
+			connection.send(message);
+		})
+	})
+			
+	connection.onclose = function()
+	{
+		console.log('WS Conexion cerrada')
+	}
+}
+
+function mensajeParaJ1(Datos) {
+    //Jugador listo
+    player2HasSelected = Datos.ready;
+
+    if (player1HasSelected && player2HasSelected == true) {
+        // Posición y estado de los personajes
+        player2.x = Datos.x;
+        player2.y = Datos.y;
+        player2MidAir = Datos.midAir;
+
+        vidas2 = Datos.vidas;
+
+        fireScore2 = Datos.fireScore;
+    }
+}
+
+function mensajeParaJ2(Datos) {
+    //Jugador listo
+    player1HasSelected = Datos.ready;
+
+    if (player1HasSelected && player2HasSelected == true) {
+        // Posición y estado de los personajes
+        player.x = Datos.x;
+        player.y = Datos.y;
+        player1MidAir = Datos.midAir;
+
+        
+        vidas1 = Datos.vidas;
+
+        
+        fireScore1 = Datos.fireScore;
+
+
+    }
+}
+
 //-----------------------------------------------------------------------DECLARACIÓN DE VARIABLES-----------------------------------------------------------------------
 //Variables
 var gameTheme
@@ -7,9 +87,14 @@ var dmgSound
 var fireballSFX
 var vM;
 var vS;
+var player1HasSelected = false;
+var player2HasSelected = false;
 
 var scaleX = .5
 var scaleY = .5
+
+var readyBtn;
+var waiting
 
 //var timer = 0;
 
@@ -37,13 +122,13 @@ var vidasXCoord
 var vidasText1
 var vidasText2
 var textoDebug
-var traps
-var pinchos
-var fireballs
-var fireball1
-var fireball2
-var fireScore1
-var fireScore2
+var traps //
+var pinchos //
+var fireballs //
+var fireball1 //
+var fireball2 //
+var fireScore1 //
+var fireScore2 //
 var camara
 var platforms
 var caidas
@@ -52,13 +137,13 @@ var fallen2
 var cursors
 
 
-var player;
-var player2;
+var player; //
+var player2; //
 var coins;
-var hasWon;
+var hasWon; //
 
 // Variables para los menús
-var gameOnPause = false;
+var gameOnPause = false; //
 var menuPausa;
 var btnAjustes;
 var btnSalir;
@@ -66,7 +151,7 @@ var btnInicio;
 var vol0Musica, vol1Musica, vol2Musica, vol3Musica, vol4Musica, vol5Musica;
 var vol0Sonido, vol1Sonido, vol2Sonido, vol3Sonido, vol4Sonido, vol5Sonido;
 
-var corazon;
+var corazon; //
 
 var player1HP
 var player2HP
@@ -87,8 +172,9 @@ var loginHecho = false;
 var ids = 0;
 var idGET = 0;
 var nombreTemporal = "";
-var passwordTemporal = "";
 var nombreGET = "";
+var passwordGET = "";
+var passwordTemporal = "";
 var enLogin;
 
 //textoslogin
@@ -109,6 +195,7 @@ var menuWincon
 
 var serverText;
 var connectedUsers;
+
 var usuariosEnConexion;
 var conectadoComo;
 
@@ -128,298 +215,299 @@ var progress = 0;
 
 var progressBar, progressBarGradient, progressBarBorder;
 
-
-
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
 
-	constructor(GameScene) {
-		super('GameScene');
-	}
-
-	//------------------------------------------PRELOAD------------------------------------------
-	preload() {
-
-		this.load.image("jugador1", "assets/sprites pj/Yang-juego.png");
-		this.load.image("jugador2", "assets/sprites pj/Yin-juego.png");
-		this.load.image("suelo", "assets/sprites plataformas/Tile-arriba.png");
-		this.load.image("caida", "assets/sprites plataformas/Tile-abajo.png");
-		this.load.image("agua", "assets/Blue.png");
-		this.load.image("coin", "assets/sprites xtra/coin.png");
-		this.load.image("fireball", "assets/sprites xtra/Fireball.png");
-		this.load.image("cameraTracker", "assets/EmptyPNG.png");
-		this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
-		this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
-		this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
-		this.load.image("menuWincon", "assets/backgrounds/FondoMenuPausaVacio.png");
-		this.load.image("btnAjustes", "assets/buttons/BAjustesPequeno.png");
-		this.load.image("btnSalir", "assets/buttons/BSalir.png");
-		this.load.image("btnInicio", "assets/buttons/BInicio.png");
-		this.load.image("vol0", "assets/volume/vol-0.png");
-		this.load.image("vol1", "assets/volume/vol-1.png");
-		this.load.image("vol2", "assets/volume/vol-2.png");
-		this.load.image("vol3", "assets/volume/vol-3.png");
-		this.load.image("vol4", "assets/volume/vol-4.png");
-		this.load.image("vol5", "assets/volume/vol-5.png");
-		this.load.image("btnMenos", "assets/volume/BMenos.png");
-		this.load.image("btnMas", "assets/volume/BMas.png");
-		this.load.image("iconMusica", "assets/volume/IconMusica.png");
-		this.load.image("iconSonido", "assets/volume/IconSonido.png");
-		this.load.image("corazonHP", "assets/sprites xtra/Vida.png");
-
-
-		this.load.image("arco", "assets/escenario/arco.png");
-		this.load.image("estatua", "assets/escenario/estatua.png");
-		this.load.image("sol", "assets/escenario/sol.png");
-		this.load.image("rayos", "assets/escenario/rayos.png");
-		this.load.image("nube1", "assets/escenario/nube1.png");
-		this.load.image("nube2", "assets/escenario/nube2.png");
-		this.load.image("nube3", "assets/escenario/nube3.png");
-		this.load.image("arbolLejano1", "assets/escenario/arbolLejano1.png");
-		this.load.image("arbolLejano2", "assets/escenario/arbolLejano2.png");
-		this.load.image("arbolLejano3", "assets/escenario/arbolLejano3.png");
-		this.load.image("suelo1", "assets/escenario/suelo.png");
-		this.load.image("suelo2", "assets/escenario/suelo2.png");
-		this.load.image("sueloLejano1", "assets/escenario/sueloLejano1.png");
-		this.load.image("sueloLejano2", "assets/escenario/sueloLejano2.png");
-
-
-		this.load.image("btnAjustesMenuDouble", "assets/buttons/botones nuevos/Bajustesdoble.png");
-
-
-		this.load.audio("gameTheme", ["Assets/Audio/BattleMusicRep.mp3"]);
-		this.load.audio("coinPickUp", ["assets/audio/CoinSound.mp3"])
-		this.load.audio("dmgSound", ["assets/audio/DmgSound.mp3"])
-		this.load.audio("fireballSFX", ["assets/audio/fireball.mp3"])
-
-	}
-
-	//------------------------------------------CREATE------------------------------------------
-	create() {
-
-		vM = 0.8;
-		vS = 0.3;
-
-		this.scale.resize(10000, 600);
-
-		gameTheme = this.sound.add("gameTheme");
-		gameTheme.play({ loop: true })
-		coinSound = this.sound.add("coinPickUp");
-		coinSound.setVolume(vS)
-		dmgSound = this.sound.add("dmgSound")
-		fireballSFX = this.sound.add("fireballSFX")
-		fireballSFX.setVolume(vS)
-
-		volumenMusica = 2;
-		volumenSonido = 2;
-
-		// GENERAR FONO
-		this.CreateBackground();
-
-		//Player1
-		player = this.physics.add.sprite(0, 200, "jugador1").refreshBody();
-		player.setScale(scaleX, scaleY)
-		player.setBounce(0.2)
-
-		player.setCollideWorldBounds(true);
-
-		//Player2
-		player2 = this.physics.add.sprite(0, 500, "jugador2").refreshBody();
-		player2.setScale(scaleX, scaleY)
-		player2.setBounce(0.2)
-
-		player2.setCollideWorldBounds(true);
-
-
-		//Atributos de los personajes, y variables auxiliares
-		gameVelocity = 300;
-
-		score1 = 0;
-		score2 = 0;
+    constructor(GameScene) {
+        super('GameScene');
+    }
+
+    //------------------------------------------PRELOAD------------------------------------------
+    preload() {
+
+        this.load.image("jugador1", "assets/sprites pj/Yang-juego.png");
+        this.load.image("jugador2", "assets/sprites pj/Yin-juego.png");
+        this.load.image("suelo", "assets/sprites plataformas/Tile-arriba.png");
+        this.load.image("caida", "assets/sprites plataformas/Tile-abajo.png");
+        this.load.image("agua", "assets/Blue.png");
+        this.load.image("coin", "assets/sprites xtra/coin.png");
+        this.load.image("fireball", "assets/sprites xtra/Fireball.png");
+        this.load.image("cameraTracker", "assets/EmptyPNG.png");
+        this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
+        this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
+        this.load.image("fondoMenuPausa", "assets/buttons/FondoMenuPausa.png");
+        this.load.image("menuWincon", "assets/backgrounds/FondoMenuPausaVacio.png");
+        this.load.image("btnAjustes", "assets/buttons/BAjustesPequeno.png");
+        this.load.image("btnSalir", "assets/buttons/BSalir.png");
+        this.load.image("btnInicio", "assets/buttons/BInicio.png");
+        this.load.image("vol0", "assets/volume/vol-0.png");
+        this.load.image("vol1", "assets/volume/vol-1.png");
+        this.load.image("vol2", "assets/volume/vol-2.png");
+        this.load.image("vol3", "assets/volume/vol-3.png");
+        this.load.image("vol4", "assets/volume/vol-4.png");
+        this.load.image("vol5", "assets/volume/vol-5.png");
+        this.load.image("btnMenos", "assets/volume/BMenos.png");
+        this.load.image("btnMas", "assets/volume/BMas.png");
+        this.load.image("iconMusica", "assets/volume/IconMusica.png");
+        this.load.image("iconSonido", "assets/volume/IconSonido.png");
+        this.load.image("corazonHP", "assets/sprites xtra/Vida.png");
+
+
+        this.load.image("arco", "assets/escenario/arco.png");
+        this.load.image("estatua", "assets/escenario/estatua.png");
+        this.load.image("sol", "assets/escenario/sol.png");
+        this.load.image("rayos", "assets/escenario/rayos.png");
+        this.load.image("nube1", "assets/escenario/nube1.png");
+        this.load.image("nube2", "assets/escenario/nube2.png");
+        this.load.image("nube3", "assets/escenario/nube3.png");
+        this.load.image("arbolLejano1", "assets/escenario/arbolLejano1.png");
+        this.load.image("arbolLejano2", "assets/escenario/arbolLejano2.png");
+        this.load.image("arbolLejano3", "assets/escenario/arbolLejano3.png");
+        this.load.image("suelo1", "assets/escenario/suelo.png");
+        this.load.image("suelo2", "assets/escenario/suelo2.png");
+        this.load.image("sueloLejano1", "assets/escenario/sueloLejano1.png");
+        this.load.image("sueloLejano2", "assets/escenario/sueloLejano2.png");
+
+
+        this.load.image("btnAjustesMenuDouble", "assets/buttons/botones nuevos/Bajustesdoble.png");
+
+
+        this.load.audio("gameTheme", ["Assets/Audio/BattleMusicRep.mp3"]);
+        this.load.audio("coinPickUp", ["assets/audio/CoinSound.mp3"])
+        this.load.audio("dmgSound", ["assets/audio/DmgSound.mp3"])
+        this.load.audio("fireballSFX", ["assets/audio/fireball.mp3"])
+
+    }
+
+    //------------------------------------------CREATE------------------------------------------
+    create() {
+
+        vM = 0.8;
+        vS = 0.3;
+
+        this.scale.resize(10000, 600);
+
+        gameTheme = this.sound.add("gameTheme");
+        gameTheme.play({ loop: true })
+        coinSound = this.sound.add("coinPickUp");
+        coinSound.setVolume(vS)
+        dmgSound = this.sound.add("dmgSound")
+        fireballSFX = this.sound.add("fireballSFX")
+        fireballSFX.setVolume(vS)
+
+        volumenMusica = 2;
+        volumenSonido = 2;
+
+        // GENERAR FONO
+        this.CreateBackground();
+
+        //Player1
+        player = this.physics.add.sprite(0, 200, "jugador1");
+        player.body.setAllowGravity(true)
+        player.setScale(scaleX, scaleY)
+        player.setBounce(0.2)
+        player.refreshBody()
+
+        player.setCollideWorldBounds(true);
+
+        //Player2
+        player2 = this.physics.add.sprite(0, 500, "jugador2");
+        player2.setScale(scaleX, scaleY)
+        player2.setBounce(0.2)
+        player2.refreshBody()
+
+        player2.setCollideWorldBounds(true);
+
+
+        //Atributos de los personajes, y variables auxiliares
+        gameVelocity = 300;
 
-		fireScore1 = 0;
-		fireScore2 = 0;
+        score1 = 0;
+        score2 = 0;
 
-		fallen1 = false;
-		fallen2 = false;
+        fireScore1 = 0;
+        fireScore2 = 0;
 
-		vidas1 = 3;
-		vidas2 = 3;
+        fallen1 = false;
+        fallen2 = false;
 
-		textos1YCoord = 10;
-		textos2YCoord = 315;
+        vidas1 = 3;
+        vidas2 = 3;
 
-		scoresXCoord = 1530;
-		vidasXCoord = 20;
+        textos1YCoord = 10;
+        textos2YCoord = 315;
 
-		hasWon = false;
+        scoresXCoord = 1530;
+        vidasXCoord = 20;
 
-		//CREACION DEL MUNDO
-		//Creo los grupos
-		this.CrearGrupos(this);
-		//Creo los objetos
-		this.InicializarMundo(this);
+        hasWon = false;
 
-		//CameraObject
-		camara = this.physics.add.sprite(config.width / 2.05, 300, "cameraTracker");
+        //CREACION DEL MUNDO
+        //Creo los grupos
+        this.CrearGrupos(this);
+        //Creo los objetos
+        this.InicializarMundo(this);
 
-		camara.body.setAllowGravity(false)
-		camara.setCollideWorldBounds(true);
+        //CameraObject
+        camara = this.physics.add.sprite(config.width / 2.05, 300, "cameraTracker");
 
-		//Colisiones fireballs
-		this.physics.add.overlap(player, fireballs, function(player, fireball1) { player1HP[vidas1 - 1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
-		this.physics.add.overlap(player2, fireballs, function(player2, fireball2) { player2HP[vidas2 - 1].destroy(); vidas2--, dmgSound.play(), fireball2.destroy() });
+        camara.body.setAllowGravity(false)
+        camara.setCollideWorldBounds(true);
 
-		//Controles flechas
-		cursors = this.input.keyboard.createCursorKeys();
-		//Controles WASD
-		this.keyboard = this.input.keyboard.addKeys("W,A,S,D,ESC");
+        //Colisiones fireballs
+        this.physics.add.overlap(player, fireballs, function (player, fireball1) { player1HP[vidas1 - 1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
+        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { player2HP[vidas2 - 1].destroy(); vidas2--, dmgSound.play(), fireball2.destroy() });
 
-		//Camara
-		this.cameras.main.startFollow(camara);
-		this.cameras.main.setBackgroundColor('0240e1');
+        //Controles flechas
+        cursors = this.input.keyboard.createCursorKeys();
+        //Controles WASD
+        this.keyboard = this.input.keyboard.addKeys("W,A,S,D,ESC");
 
-		// BOTÓN DE AJUSTES
-		btnAjustes = this.add.image(1800, 50, 'btnAjustes').setInteractive({ useHandCursor: true });
-		btnAjustes.setScale(.8);
+        //Camara
+        this.cameras.main.startFollow(camara);
+        this.cameras.main.setBackgroundColor('0240e1');
 
-		btnAjustes.on('pointerdown', function() { PausarJuego(); });
+        // BOTÓN DE AJUSTES
+        btnAjustes = this.add.image(1800, 50, 'btnAjustes').setInteractive({ useHandCursor: true });
+        btnAjustes.setScale(.8);
 
-		// Mantener botón en la esquina
-		btnAjustes.scrollFactorX = 0;
-		btnAjustes.scrollFactorY = 0;
+        btnAjustes.on('pointerdown', function () { PausarJuego(); });
 
-		// Ocurecer la pantalla al pausar el juego
-		const blackSquare = this.add.graphics();
-		blackSquare.fillStyle(0x000000, 0.5);
-		blackSquare.fillRect(0, 0, 10000, 600);
-		blackSquare.setVisible(false);
-		blackSquare.scrollFactorX = 0;
-		blackSquare.scrollFactorY = 0;
+        // Mantener botón en la esquina
+        btnAjustes.scrollFactorX = 0;
+        btnAjustes.scrollFactorY = 0;
 
-		// MENÚ DE PAUSA
-		menuPausa = this.add.image(950, 300, 'fondoMenuPausa');
-		menuPausa.setScale(1, 1);
-		menuPausa.setVisible(false);
+        // Ocurecer la pantalla al pausar el juego
+        const blackSquare = this.add.graphics();
+        blackSquare.fillStyle(0x000000, 0.5);
+        blackSquare.fillRect(0, 0, 10000, 600);
+        blackSquare.setVisible(false);
+        blackSquare.scrollFactorX = 0;
+        blackSquare.scrollFactorY = 0;
 
-		menuWincon = this.add.image(0, 300, 'menuWincon');
-		menuWincon.setScale(1.2, 1.2);
-		menuWincon.setVisible(false);
+        // MENÚ DE PAUSA
+        menuPausa = this.add.image(950, 300, 'fondoMenuPausa');
+        menuPausa.setScale(1, 1);
+        menuPausa.setVisible(false);
 
-		// Mantener menu de pausa en su posición.
-		menuPausa.scrollFactorX = 0;
-		menuPausa.scrollFactorY = 0;
+        menuWincon = this.add.image(0, 300, 'menuWincon');
+        menuWincon.setScale(1.2, 1.2);
+        menuWincon.setVisible(false);
 
-		// BOTÓN DE SALIR
-		btnSalir = this.add.image(1326, 122, 'btnSalir').setInteractive({ useHandCursor: true });
-		btnSalir.setScale(.5, .5);
-		btnSalir.setVisible(false);
+        // Mantener menu de pausa en su posición.
+        menuPausa.scrollFactorX = 0;
+        menuPausa.scrollFactorY = 0;
 
-		btnSalir.on('pointerdown', function() { PausarJuego(); });
+        // BOTÓN DE SALIR
+        btnSalir = this.add.image(1326, 122, 'btnSalir').setInteractive({ useHandCursor: true });
+        btnSalir.setScale(.5, .5);
+        btnSalir.setVisible(false);
 
-		// Mantener botón en la esquina
-		btnSalir.scrollFactorX = 0;
-		btnSalir.scrollFactorY = 0;
+        btnSalir.on('pointerdown', function () { PausarJuego(); });
 
-		// BOTÓN DE SALIR
-		btnInicio = this.add.image(726, 342, 'btnInicio').setInteractive({ useHandCursor: true });
-		btnInicio.setScale(1, 1);
-		btnInicio.setVisible(false);
+        // Mantener botón en la esquina
+        btnSalir.scrollFactorX = 0;
+        btnSalir.scrollFactorY = 0;
 
-		btnInicio.on('pointerdown', () => this.ChangeToMainMenu());
+        // BOTÓN DE SALIR
+        btnInicio = this.add.image(726, 342, 'btnInicio').setInteractive({ useHandCursor: true });
+        btnInicio.setScale(1, 1);
+        btnInicio.setVisible(false);
 
-		// Mantener botón en su sitio
-		btnInicio.scrollFactorX = 0;
-		btnInicio.scrollFactorY = 0;
+        btnInicio.on('pointerdown', () => this.ChangeToMainMenu());
 
-		//Volumen y Sonido
+        // Mantener botón en su sitio
+        btnInicio.scrollFactorX = 0;
+        btnInicio.scrollFactorY = 0;
 
-		var volumenesM = [vol0Musica, vol1Musica, vol2Musica, vol3Musica, vol4Musica, vol5Musica];
-		var volumenesS = [vol0Sonido, vol1Sonido, vol2Sonido, vol3Sonido, vol4Sonido, vol5Sonido];
+        //Volumen y Sonido
 
+        var volumenesM = [vol0Musica, vol1Musica, vol2Musica, vol3Musica, vol4Musica, vol5Musica];
+        var volumenesS = [vol0Sonido, vol1Sonido, vol2Sonido, vol3Sonido, vol4Sonido, vol5Sonido];
 
-		for (var i = 0; i < volumenesM.length; i++) {
 
-			volumenesM[i] = this.add.image(1156, 272, 'vol' + i);
-			volumenesS[i] = this.add.image(1156, 402, 'vol' + i);
+        for (var i = 0; i < volumenesM.length; i++) {
 
-			volumenesM[i].setScale(1, 1);
-			volumenesS[i].setScale(1, 1);
+            volumenesM[i] = this.add.image(1156, 272, 'vol' + i);
+            volumenesS[i] = this.add.image(1156, 402, 'vol' + i);
 
-			volumenesM[i].setVisible(false);
-			volumenesS[i].setVisible(false);
+            volumenesM[i].setScale(1, 1);
+            volumenesS[i].setScale(1, 1);
 
-			volumenesM[i].scrollFactorX = 0;
-			volumenesS[i].scrollFactorX = 0;
-		}
+            volumenesM[i].setVisible(false);
+            volumenesS[i].setVisible(false);
 
-		//
-		player1HP = [corazon, corazon, corazon];
-		player2HP = [corazon, corazon, corazon];
+            volumenesM[i].scrollFactorX = 0;
+            volumenesS[i].scrollFactorX = 0;
+        }
 
-		var hpOffset = 70;
+        //
+        player1HP = [corazon, corazon, corazon];
+        player2HP = [corazon, corazon, corazon];
 
-		for (var i = 0; i < player1HP.length; i++) {
+        var hpOffset = 70;
 
-			player1HP[i] = this.add.image((i + .4) * hpOffset, 30, 'corazonHP');
-			player2HP[i] = this.add.image((i + .4) * hpOffset, 340, 'corazonHP');
+        for (var i = 0; i < player1HP.length; i++) {
 
-			player1HP[i].setScale(.8);
-			player2HP[i].setScale(.8);
+            player1HP[i] = this.add.image((i + .4) * hpOffset, 30, 'corazonHP');
+            player2HP[i] = this.add.image((i + .4) * hpOffset, 340, 'corazonHP');
 
-			player1HP[i].scrollFactorX = 0;
-			player2HP[i].scrollFactorX = 0;
+            player1HP[i].setScale(.8);
+            player2HP[i].setScale(.8);
 
-		}
+            player1HP[i].scrollFactorX = 0;
+            player2HP[i].scrollFactorX = 0;
 
+        }
 
-		btnMasMusica = this.add.image(1276, 272, 'btnMas').setInteractive({ useHandCursor: true });
-		btnMasMusica.setScale(.5, .5);
-		btnMasMusica.setVisible(false);
-		btnMasMusica.on('pointerdown', function() { ConfigurarMusica('añadir'); });
 
-		btnMasMusica.scrollFactorX = 0;
-		btnMasMusica.scrollFactorY = 0;
+        btnMasMusica = this.add.image(1276, 272, 'btnMas').setInteractive({ useHandCursor: true });
+        btnMasMusica.setScale(.5, .5);
+        btnMasMusica.setVisible(false);
+        btnMasMusica.on('pointerdown', function () { ConfigurarMusica('añadir'); });
 
-		btnMenosMusica = this.add.image(1036, 272, 'btnMenos').setInteractive({ useHandCursor: true });
-		btnMenosMusica.setScale(.5, .5);
-		btnMenosMusica.setVisible(false);
-		btnMenosMusica.on('pointerdown', function() { ConfigurarMusica('reducir'); });
+        btnMasMusica.scrollFactorX = 0;
+        btnMasMusica.scrollFactorY = 0;
 
-		btnMenosMusica.scrollFactorX = 0;
-		btnMenosMusica.scrollFactorY = 0;
+        btnMenosMusica = this.add.image(1036, 272, 'btnMenos').setInteractive({ useHandCursor: true });
+        btnMenosMusica.setScale(.5, .5);
+        btnMenosMusica.setVisible(false);
+        btnMenosMusica.on('pointerdown', function () { ConfigurarMusica('reducir'); });
 
-		iconMusica = this.add.image(936, 272, 'iconMusica');
-		iconMusica.setScale(.7, .7);
-		iconMusica.setVisible(false);
+        btnMenosMusica.scrollFactorX = 0;
+        btnMenosMusica.scrollFactorY = 0;
 
-		iconMusica.scrollFactorX = 0;
-		iconMusica.scrollFactorY = 0;
+        iconMusica = this.add.image(936, 272, 'iconMusica');
+        iconMusica.setScale(.7, .7);
+        iconMusica.setVisible(false);
 
-		btnMasSonido = this.add.image(1276, 402, 'btnMas').setInteractive({ useHandCursor: true });
-		btnMasSonido.setScale(.5, .5);
-		btnMasSonido.setVisible(false);
-		btnMasSonido.on('pointerdown', function() { ConfigurarSonido('añadir'); });
+        iconMusica.scrollFactorX = 0;
+        iconMusica.scrollFactorY = 0;
 
-		btnMasSonido.scrollFactorX = 0;
-		btnMasSonido.scrollFactorY = 0;
+        btnMasSonido = this.add.image(1276, 402, 'btnMas').setInteractive({ useHandCursor: true });
+        btnMasSonido.setScale(.5, .5);
+        btnMasSonido.setVisible(false);
+        btnMasSonido.on('pointerdown', function () { ConfigurarSonido('añadir'); });
 
-		btnMenosSonido = this.add.image(1036, 402, 'btnMenos').setInteractive({ useHandCursor: true });
-		btnMenosSonido.setScale(.5, .5);
-		btnMenosSonido.setVisible(false);
-		btnMenosSonido.on('pointerdown', function() { ConfigurarSonido('reducir'); });
+        btnMasSonido.scrollFactorX = 0;
+        btnMasSonido.scrollFactorY = 0;
 
-		btnMenosSonido.scrollFactorX = 0;
-		btnMenosSonido.scrollFactorY = 0;
+        btnMenosSonido = this.add.image(1036, 402, 'btnMenos').setInteractive({ useHandCursor: true });
+        btnMenosSonido.setScale(.5, .5);
+        btnMenosSonido.setVisible(false);
+        btnMenosSonido.on('pointerdown', function () { ConfigurarSonido('reducir'); });
 
-		iconSonido = this.add.image(936, 402, 'iconSonido');
-		iconSonido.setScale(.7, .7);
-		iconSonido.setVisible(false);
+        btnMenosSonido.scrollFactorX = 0;
+        btnMenosSonido.scrollFactorY = 0;
 
-		iconSonido.scrollFactorX = 0;
-		iconSonido.scrollFactorY = 0;
-		
-		// Barra de progreso
+        iconSonido = this.add.image(936, 402, 'iconSonido');
+        iconSonido.setScale(.7, .7);
+        iconSonido.setVisible(false);
+
+        iconSonido.scrollFactorX = 0;
+        iconSonido.scrollFactorY = 0;
+        
+        // Barra de progreso
 
         progressBar = this.add.graphics();
         progressBar.scrollFactorX = 0;
@@ -433,739 +521,852 @@ class GameScene extends Phaser.Scene {
         progressBarBorder.strokeRoundedRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, progressBarRadius);
 
 		//ConectadoDesconectado
-		function DisconnectUser() {
+        function DisconnectUser() {
 
-			$.ajax({
+            $.ajax({
 
-				method: "GET",
-				async: true,
-				url: "/disconnectUsers",
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
+                method: "GET",
+                async: true,
+                url: "/disconnectUsers",
+                processData: false,
+                contentType: "application/json"
+            }).done(function(data) {
 
-				console.log("Se ha desconectado un usuario");
+                console.log("Se ha desconectado un usuario");
 
-			}).catch(error => {
+            }).catch(error => {
 
-				console.error("Error al desconectar user", error.message);
+                console.error("Error al desconectar user", error.message);
 
-			});
-
-
-
-		}
+            });
 
 
 
+        }
+
+        window.addEventListener('beforeunload', function(event) {
+            // Lógica al detectar que la ventana se va a cerrar
+
+            DisconnectUser();
+
+            console.log('La ventana se está cerrando');
+
+        });
+
+        //------------------------------------------MENÚ DE PAUSA------------------------------------------
+        //Función para pausar el juego
+        function PausarJuego() {
+
+            if (!gameOnPause) {
+
+                player.setVelocityX(0);
+                player2.setVelocityX(0);
+                camara.setVelocityX(0);
+
+                gameOnPause = true;
+                menuPausa.setVisible(true);
+                blackSquare.setVisible(true);
+                btnAjustes.setVisible(false);
+                btnSalir.setVisible(true);
+                btnInicio.setVisible(true);
+
+                MostrarVolumen();
+                btnMasMusica.setVisible(true);
+                btnMenosMusica.setVisible(true);
+
+                btnMasSonido.setVisible(true);
+                btnMenosSonido.setVisible(true);
+
+                iconMusica.setVisible(true);
+                iconSonido.setVisible(true);
 
 
-		window.addEventListener('beforeunload', function(event) {
-			// Lógica al detectar que la ventana se va a cerrar
+            } else {
 
-			DisconnectUser();
+                player.setVelocityX(gameVelocity);
+                player2.setVelocityX(gameVelocity);
+                camara.setVelocityX(gameVelocity);
 
-			console.log('La ventana se está cerrando');
+                gameOnPause = false;
+                menuPausa.setVisible(false);
+                blackSquare.setVisible(false);
+                btnAjustes.setVisible(true);
+                btnSalir.setVisible(false);
+                btnInicio.setVisible(false);
+
+                soundToggles(-1);
+                musicToggles(-1);
+
+                btnMasMusica.setVisible(false);
+                btnMenosMusica.setVisible(false);
+
+                btnMasSonido.setVisible(false);
+                btnMenosSonido.setVisible(false);
+
+                iconMusica.setVisible(false);
+                iconSonido.setVisible(false);
+            }
+        }
+
+        function ConfigurarMusica(operacion) {
+
+            if (operacion == 'añadir' && volumenMusica < 5) {
+
+                volumenMusica++;
+                vM += 0.3;
+                gameTheme.setVolume(vM)
+
+            } else if (operacion == 'reducir' && volumenMusica > 0) {
+
+                volumenMusica--;
+                vM -= 0.3;
+                gameTheme.setVolume(vM)
+
+            }
+
+            musicToggles(volumenMusica);
+        }
+
+        function ConfigurarSonido(operacion) {
+
+            if (operacion == 'añadir' && volumenSonido < 5) {
+
+                volumenSonido++;
+                vS += 0.1;
+                coinSound.setVolume(vS)
+
+            } else if (operacion == 'reducir' && volumenSonido > 0) {
+
+                volumenSonido--;
+                vS -= 0.1;
+                coinSound.setVolume(vS)
+
+            }
+
+            soundToggles(volumenSonido);
+
+        }
+
+        function MostrarVolumen() {
+
+            musicToggles(volumenMusica);
+
+            soundToggles(volumenSonido);
+
+        }
+
+        function musicToggles(whichTrue) {
+
+            for (var i = 0; i < volumenesM.length; i++) {
+
+                if (i == whichTrue) {
+
+                    volumenesM[i].setVisible(true);
+
+                }
+                else {
+
+                    volumenesM[i].setVisible(false);
+
+                }
+
+            }
+
+        }
+
+        function soundToggles(whichTrue) {
+
+            for (var i = 0; i < volumenesS.length; i++) {
+
+                if (i == whichTrue) {
+
+                    volumenesS[i].setVisible(true);
+
+                }
+                else {
+
+                    volumenesS[i].setVisible(false);
+
+                }
+
+            }
+
+        }
+        
+        //------------------------------------------ENVIO DE DATOS------------------------------------------
+        if (host == 0) {
+            connection.send(
+                JSON.stringify({
+                    //Player 2 ready
+                    ready: player2HasSelected,
+
+                    //Posición del jugador
+                    x: player2.x,
+                    y: player2.y,
+
+					midAir: player2MidAir,
+					
+					vidas: vidas2,
+					
+					fireScore: fireScore2
+
+                })
+            );
+        }
+
+        if (host == 1) {
+            connection.send(
+                JSON.stringify({
+                    //Player 1 ready
+                    ready: player1HasSelected,
+
+                    // Posición del jugador
+                    x: player.x,
+                    y: player.y,
+
+					midAir: player1MidAir,
+					
+					vidas: vidas1,
+					
+					fireScore: fireScore1
+                })
+            );
+        }
+
+    }
 
 
+    //------------------------------------------UPDATE------------------------------------------
+    update() {
+
+        if (!gameOnPause) {
+
+            //Player 1
+            // if (this.keyboard.A.isDown) {
+            //     player.setVelocityX(-160);
+            // }
+            // else if (this.keyboard.D.isDown) {
+            //     player.setVelocityX(160);
+
+            // }
+            // else {
+            //     player.setVelocityX(0);
+            // }
+            if(host == 1)
+            {
+				if (this.keyboard.W.isDown && !player1MidAir) 
+				{
+	                player.setVelocityY(-400);
+	                player1MidAir = true;
+	            }
+	            
+	            connection.send(
+	                JSON.stringify({
+	                    //Player 2 ready
+	                    ready: player1HasSelected,
+	
+	                    //Posición del jugador
+	                    x: player.x,
+	                    y: player.y,
+	
+						midAir: player1MidAir,
+						
+						vidas: vidas1,
+						
+						fireScore: fireScore1
+		
+		               })
+	            );
+			}
+
+			if(host == 0)
+			{
+				if (this.keyboard.W.isDown && !player2MidAir) 
+				{
+	                player2.setVelocityY(-400);
+	                player2MidAir = true;
+	            }
+	            
+	            connection.send(
+	                JSON.stringify({
+	                    //Player 2 ready
+	                    ready: player2HasSelected,
+	
+	                    //Posición del jugador
+	                    x: player2.x,
+	                    y: player2.y,
+	
+						midAir: player2MidAir,
+						
+						vidas: vidas2,
+						
+						fireScore: fireScore2
+		
+		               })
+	            );
+			}
+            
+
+            player.setVelocityX(gameVelocity)
+            player2.setVelocityX(gameVelocity)
+            camara.setVelocityX(gameVelocity)
 
 
+            //LOOP
+            if (player.x > 6700) {
 
+                player.x = 0;
+                player2.x = 0;
+                camara.x = config.width / 2.05;
+
+                this.InicializarMundo(this);
+
+            }
+
+            //WIN AND LOSE
+            if (!hasWon) {
+
+                if (vidas1 < 1 || vidas2 < 1) {
+
+                    this.WinCondition();
+
+                }
+                else if (fallen1 || fallen2) {
+                    this.WinCondition();
+                }
+
+            }
+            
+            this.UpdateProgressBar();
+            
+            /*if(host == 1)
+            {
+				
+	            connection.send(
+	                JSON.stringify({
+	                    //Player 2 ready
+	                    ready: player1HasSelected,
+	
+	                    //Posición del jugador
+	                    x: player.x,
+	                    y: player.y,
+	
+						midAir: player1MidAir,
+						
+						vidas: vidas1,
+						
+						fireScore: fireScore1
+		
+		               })
+	            );
+			}
+
+			if(host == 0)
+			{
+	            
+	            connection.send(
+	                JSON.stringify({
+	                    //Player 2 ready
+	                    ready: player2HasSelected,
+	
+	                    //Posición del jugador
+	                    x: player2.x,
+	                    y: player2.y,
+	
+						midAir: player2MidAir,
+						
+						vidas: vidas2,
+						
+						fireScore: fireScore2
+		
+		               })
+	            );
+			}*/
+        }
+    }
+
+    //------------------------------------------FUNCIONES DEL JUEGO------------------------------------------
+
+    ChangeToMainMenu() {
+
+        gameOnPause = false;
+        //this.scale.resize(1280, 720);
+        gameTheme.pause();
+        this.scene.start('MainMenu');
+
+    }
+
+    GenerateCoins(contexto, startingX, separation, number) {
+
+        for (let index = 0; index < number; index++) {
+
+            //Monedas Player 1
+            coins.create(startingX, 220 - 100, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 120, 220, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 240, 220 - 100, "coin").setScale(.8).refreshBody()
+
+            //Monedas Player 2
+            coins.create(startingX, 520, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 120, 520 - 100, "coin").setScale(.8).refreshBody()
+            coins.create(startingX + 240, 520, "coin").setScale(.8).refreshBody()
+
+            startingX += separation;
+        }
+
+
+        //Colisiones
+        contexto.physics.add.overlap(player, coins, function (player, coin) {
+            coinSound.play()
+            coin.destroy();
+            score1++;
+            fireScore1++
+            //scoreText1.text = 'Puntuación: ' + score1;
+            if (fireScore1 === 4) {
+
+                fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireballSFX.play()
+                fireScore1 = 0;
+
+            }
+        })
+
+        contexto.physics.add.overlap(player2, coins, function (player2, coin) {
+            coinSound.play()
+            coin.destroy();
+            score2++;
+            fireScore2++;
+            //scoreText2.text = 'Puntuación: ' + score2;
+            if (fireScore2 === 4) {
+
+                fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                fireballSFX.play()
+                fireScore2 = 0;
+
+            }
+        })
+
+    }
+
+    GenerateTraps(contexto, startingX, separation, number) {
+
+
+        pinchos.create(1900, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 2, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 3, 272, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 2, 565, "pincho").setScale(.9).refreshBody()
+        pinchos.create(1900 * 3, 565, "pincho").setScale(.9).refreshBody()
+
+        for (let index = 0; index < number; index++) {
+
+            traps.create(startingX, 220 - 100, "trampas").setScale(.8).refreshBody()
+            traps.create(startingX, 520, "trampas").setScale(.8).refreshBody()
+
+            startingX += separation;
+        }
+
+        //Colisiones con trampas
+        contexto.physics.add.overlap(player, traps, function (player, trap) {
+
+            trap.destroy();
+            pinchos.create(player.x + screen.width + 20, 565, "pincho").setScale(.9).refreshBody()
+
+        })
+
+        //Colisiones con trampas
+        contexto.physics.add.overlap(player, pinchos, function (player, pincho) {
+
+            pincho.destroy();
+            player1HP[vidas1 - 1].destroy(); vidas1--;
+            dmgSound.play();
+
+        })
+
+        contexto.physics.add.overlap(player2, traps, function (player2, trap) {
+
+            trap.destroy();
+            pinchos.create(player2.x + screen.width + 50, 272, "pincho").setScale(.9).refreshBody()
+
+        })
+
+        contexto.physics.add.overlap(player2, pinchos, function (player2, pincho) {
+
+            pincho.destroy();
+            player2HP[vidas2 - 1].destroy(); vidas2--;
+            dmgSound.play();
+
+        })
+
+    }
+
+    GeneratePlatforms(contexto, startingX, separation, number, holePosition) {
+
+        for (let index = 0; index < number; index++) {
+
+            //Plataforma Player 1
+            platforms.create(startingX, 290, "suelo").setScale(.5).refreshBody();
+
+            //Plataforma Player 2
+            platforms.create(startingX, 583, "suelo").setScale(.5).refreshBody();
+
+            //Creación de un hueco en el suelo
+            if (startingX === 32 * holePosition) {
+                startingX += 128
+                holePosition += 46
+            }
+
+            startingX += separation;
+
+        }
+
+        //Colisiones
+        contexto.physics.add.collider(player, platforms, function (player, platforms) 
+        { 
+			player1MidAir = false 
+		});
+        contexto.physics.add.collider(player2, platforms, function (player2, platforms) 
+        { 
+			player2MidAir = false 
 		});
 
+    }
 
-		//------------------------------------------MENÚ DE PAUSA------------------------------------------
-		//Función para pausar el juego
-		function PausarJuego() {
+    GenerateFalls(contexto, startingX, separation, number, holePosition) {
 
-			if (!gameOnPause) {
+        for (let index = 0; index < number; index++) {
 
-				player.setVelocityX(0);
-				player2.setVelocityX(0);
-				camara.setVelocityX(0);
+            //Creación de una plataforma que detecte caida
+            if (startingX === 32 * (holePosition + 1)) {
+                for (let i = 0; i < 4; i++) {
 
-				gameOnPause = true;
-				menuPausa.setVisible(true);
-				blackSquare.setVisible(true);
-				btnAjustes.setVisible(false);
-				btnSalir.setVisible(true);
-				btnInicio.setVisible(true);
+                    caidas.create(startingX, 300, "agua").setScale(.2, .005).refreshBody();
+                    caidas.create(startingX, 593, "agua").setScale(.2, .005).refreshBody()
 
-				MostrarVolumen();
-				btnMasMusica.setVisible(true);
-				btnMenosMusica.setVisible(true);
+                }
 
-				btnMasSonido.setVisible(true);
-				btnMenosSonido.setVisible(true);
+                for (let i = 0; i < 4; i++) {
+                    //Plataforma Caida Player 1
 
-				iconMusica.setVisible(true);
-				iconSonido.setVisible(true);
+                    caidas.create(startingX, 302.5, "suelo").setScale(.5, .1).refreshBody();
 
 
-			} else {
+                    //Plataforma Caida Player 2
+                    caidas.create(startingX, 595.5, "suelo").setScale(.5, .1).refreshBody()
 
-				player.setVelocityX(gameVelocity);
-				player2.setVelocityX(gameVelocity);
-				camara.setVelocityX(gameVelocity);
+                    startingX += separation;
+                }
 
-				gameOnPause = false;
-				menuPausa.setVisible(false);
-				blackSquare.setVisible(false);
-				btnAjustes.setVisible(true);
-				btnSalir.setVisible(false);
-				btnInicio.setVisible(false);
+                holePosition += 46;
+            }
 
-				soundToggles(-1);
-				musicToggles(-1);
 
-				btnMasMusica.setVisible(false);
-				btnMenosMusica.setVisible(false);
+            startingX += separation;
 
-				btnMasSonido.setVisible(false);
-				btnMenosSonido.setVisible(false);
+        }
 
-				iconMusica.setVisible(false);
-				iconSonido.setVisible(false);
-			}
-		}
+        //Colisiones
+        contexto.physics.add.collider(player, caidas, function (player, caidas) { fallen1 = true });
+        contexto.physics.add.collider(player2, caidas, function (player2, caidas) { fallen2 = true });
 
-		function ConfigurarMusica(operacion) {
+    }
 
-			if (operacion == 'añadir' && volumenMusica < 5) {
+    CrearGrupos(contexto) {
 
-				volumenMusica++;
-				vM += 0.3;
-				gameTheme.setVolume(vM)
+        //Creo los grupos fisicos
+        platforms = contexto.physics.add.staticGroup()
+        caidas = contexto.physics.add.staticGroup();
+        coins = contexto.physics.add.staticGroup()
+        traps = contexto.physics.add.staticGroup()
+        pinchos = contexto.physics.add.staticGroup();
 
-			} else if (operacion == 'reducir' && volumenMusica > 0) {
+        //Grupo dinámic
+        fireballs = contexto.physics.add.group({ allowGravity: false });
 
-				volumenMusica--;
-				vM -= 0.3;
-				gameTheme.setVolume(vM)
+    }
 
-			}
+    InicializarMundo(contexto) {
 
-			musicToggles(volumenMusica);
-		}
+        this.GenerateFalls(contexto, -128, 32, 250, 46);
+        this.GeneratePlatforms(contexto, -128, 32, 250, 46);
+        this.GenerateCoins(contexto, 800, 1300, 5);
+        this.GenerateTraps(contexto, 920, 1300, 5);
 
-		function ConfigurarSonido(operacion) {
+    }
 
-			if (operacion == 'añadir' && volumenSonido < 5) {
+    WinCondition() {
 
-				volumenSonido++;
-				vS += 0.1;
-				coinSound.setVolume(vS)
+        gameVelocity = 0;
+        this.gravity = 0;
+        
+        menuWincon.x = player2.x+750;
+        menuWincon.setVisible(true)
 
-			} else if (operacion == 'reducir' && volumenSonido > 0) {
+        if (fallen1 || fallen2) {
 
-				volumenSonido--;
-				vS -= 0.1;
-				coinSound.setVolume(vS)
+            if (fallen1 && fallen2) {
 
-			}
+                //Draw
+                WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
 
-			soundToggles(volumenSonido);
+                LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
 
-		}
+                WinText.y = player1TextY;
+                LoseText.y = player2TextY;
 
-		function MostrarVolumen() {
+            }
+            else if (fallen2) {
 
-			musicToggles(volumenMusica);
+                //WINTEXT
+                WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
 
-			soundToggles(volumenSonido);
+                LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
 
-		}
+                WinText.y = player1TextY;
+                LoseText.y = player2TextY;
 
-		function musicToggles(whichTrue) {
-
-			for (var i = 0; i < volumenesM.length; i++) {
-
-				if (i == whichTrue) {
-
-					volumenesM[i].setVisible(true);
-
-				}
-				else {
-
-					volumenesM[i].setVisible(false);
-
-				}
-
-			}
-
-		}
-
-		function soundToggles(whichTrue) {
-
-			for (var i = 0; i < volumenesS.length; i++) {
-
-				if (i == whichTrue) {
-
-					volumenesS[i].setVisible(true);
-
-				}
-				else {
-
-					volumenesS[i].setVisible(false);
-
-				}
-
-			}
-
-		}
-
-	}
-
-
-	//------------------------------------------UPDATE------------------------------------------
-	update() {
-
-		if (!gameOnPause) {
-
-			//Player 1
-			// if (this.keyboard.A.isDown) {
-			//     player.setVelocityX(-160);
-			// }
-			// else if (this.keyboard.D.isDown) {
-			//     player.setVelocityX(160);
-
-			// }
-			// else {
-			//     player.setVelocityX(0);
-			// }
-			if (this.keyboard.W.isDown && !player1MidAir) {
-				player.setVelocityY(-400);
-				player1MidAir = true;
-			}
-
-
-			//Player 2
-			// if (cursors.left.isDown) {
-			//     player2.setVelocityX(-160);
-			// }
-			// else if (cursors.right.isDown) {
-			//     player2.setVelocityX(160);
-
-			// }
-			// else {
-			//     player2.setVelocityX(0);
-			// }
-
-			if (cursors.up.isDown && !player2MidAir) {
-				player2.setVelocityY(-400);
-				player2MidAir = true;
-			}
-
-			player.setVelocityX(gameVelocity)
-			player2.setVelocityX(gameVelocity)
-			camara.setVelocityX(gameVelocity)
-
-
-			//LOOP
-			if (player.x > 6700) {
-
-				player.x = 0;
-				player2.x = 0;
-				camara.x = config.width / 2.05;
-
-				this.InicializarMundo(this);
-
-			}
-
-			//WIN AND LOSE
-			if (!hasWon) {
-
-				if (vidas1 < 1 || vidas2 < 1) {
-
-					this.WinCondition();
-
-				}
-				else if (fallen1 || fallen2) {
-					this.WinCondition();
-				}
-
-			}
-			
-			this.UpdateProgressBar();
-		}
-	}
-
-	//------------------------------------------FUNCIONES DEL JUEGO------------------------------------------
-
-	ChangeToMainMenu() {
-
-		gameOnPause = false;
-		//this.scale.resize(1280, 720);
-		gameTheme.pause();
-		this.scene.start('MainMenu');
-
-	}
-
-	GenerateCoins(contexto, startingX, separation, number) {
-
-		for (let index = 0; index < number; index++) {
-
-			//Monedas Player 1
-			coins.create(startingX, 220 - 100, "coin").setScale(.8).refreshBody()
-			coins.create(startingX + 120, 220, "coin").setScale(.8).refreshBody()
-			coins.create(startingX + 240, 220 - 100, "coin").setScale(.8).refreshBody()
-
-			//Monedas Player 2
-			coins.create(startingX, 520, "coin").setScale(.8).refreshBody()
-			coins.create(startingX + 120, 520 - 100, "coin").setScale(.8).refreshBody()
-			coins.create(startingX + 240, 520, "coin").setScale(.8).refreshBody()
-
-			startingX += separation;
-		}
-
-
-		//Colisiones
-		contexto.physics.add.overlap(player, coins, function(player, coin) {
-			coinSound.play()
-			coin.destroy();
-			score1++;
-			fireScore1++
-			//scoreText1.text = 'Puntuación: ' + score1;
-			if (fireScore1 === 4) {
-
-				fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
-				fireballSFX.play()
-				fireScore1 = 0;
-
-			}
-		})
-
-		contexto.physics.add.overlap(player2, coins, function(player2, coin) {
-			coinSound.play()
-			coin.destroy();
-			score2++;
-			fireScore2++;
-			//scoreText2.text = 'Puntuación: ' + score2;
-			if (fireScore2 === 4) {
-
-				fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
-				fireballSFX.play()
-				fireScore2 = 0;
-
-			}
-		})
-
-	}
-
-	GenerateTraps(contexto, startingX, separation, number) {
-
-
-		pinchos.create(1900, 272, "pincho").setScale(.9).refreshBody()
-		pinchos.create(1900 * 2, 272, "pincho").setScale(.9).refreshBody()
-		pinchos.create(1900 * 3, 272, "pincho").setScale(.9).refreshBody()
-		pinchos.create(1900, 565, "pincho").setScale(.9).refreshBody()
-		pinchos.create(1900 * 2, 565, "pincho").setScale(.9).refreshBody()
-		pinchos.create(1900 * 3, 565, "pincho").setScale(.9).refreshBody()
-
-		for (let index = 0; index < number; index++) {
-
-			traps.create(startingX, 220 - 100, "trampas").setScale(.8).refreshBody()
-			traps.create(startingX, 520, "trampas").setScale(.8).refreshBody()
-
-			startingX += separation;
-		}
-
-		//Colisiones con trampas
-		contexto.physics.add.overlap(player, traps, function(player, trap) {
-
-			trap.destroy();
-			pinchos.create(player.x + screen.width + 20, 565, "pincho").setScale(.9).refreshBody()
-
-		})
-
-		//Colisiones con trampas
-		contexto.physics.add.overlap(player, pinchos, function(player, pincho) {
-
-			pincho.destroy();
-			player1HP[vidas1 - 1].destroy(); vidas1--;
-			dmgSound.play();
-
-		})
-
-		contexto.physics.add.overlap(player2, traps, function(player2, trap) {
-
-			trap.destroy();
-			pinchos.create(player2.x + screen.width + 50, 272, "pincho").setScale(.9).refreshBody()
-
-		})
-
-		contexto.physics.add.overlap(player2, pinchos, function(player2, pincho) {
-
-			pincho.destroy();
-			player2HP[vidas2 - 1].destroy(); vidas2--;
-			dmgSound.play();
-
-		})
-
-	}
-
-	GeneratePlatforms(contexto, startingX, separation, number, holePosition) {
-
-		for (let index = 0; index < number; index++) {
-
-			//Plataforma Player 1
-			platforms.create(startingX, 290, "suelo").setScale(.5).refreshBody();
-
-			//Plataforma Player 2
-			platforms.create(startingX, 583, "suelo").setScale(.5).refreshBody();
-
-			//Creación de un hueco en el suelo
-			if (startingX === 32 * holePosition) {
-				startingX += 128
-				holePosition += 46
-			}
-
-			startingX += separation;
-
-		}
-
-		//Colisiones
-		contexto.physics.add.collider(player, platforms, function(player, platforms) { player1MidAir = false });
-		contexto.physics.add.collider(player2, platforms, function(player2, platforms) { player2MidAir = false });
-
-	}
-
-	GenerateFalls(contexto, startingX, separation, number, holePosition) {
-
-		for (let index = 0; index < number; index++) {
-
-			//Creación de una plataforma que detecte caida
-			if (startingX === 32 * (holePosition + 1)) {
-				for (let i = 0; i < 4; i++) {
-
-					caidas.create(startingX, 300, "agua").setScale(.2, .005).refreshBody();
-					caidas.create(startingX, 593, "agua").setScale(.2, .005).refreshBody()
-
-				}
-
-				for (let i = 0; i < 4; i++) {
-					//Plataforma Caida Player 1
-
-					caidas.create(startingX, 302.5, "suelo").setScale(.5, .1).refreshBody();
-
-
-					//Plataforma Caida Player 2
-					caidas.create(startingX, 595.5, "suelo").setScale(.5, .1).refreshBody()
-
-					startingX += separation;
-				}
-
-				holePosition += 46;
-			}
-
-
-			startingX += separation;
-
-		}
-
-		//Colisiones
-		contexto.physics.add.collider(player, caidas, function(player, caidas) { fallen1 = true });
-		contexto.physics.add.collider(player2, caidas, function(player2, caidas) { fallen2 = true });
-
-	}
-
-	CrearGrupos(contexto) {
-
-		//Creo los grupos fisicos
-		platforms = contexto.physics.add.staticGroup()
-		caidas = contexto.physics.add.staticGroup();
-		coins = contexto.physics.add.staticGroup()
-		traps = contexto.physics.add.staticGroup()
-		pinchos = contexto.physics.add.staticGroup();
-
-		//Grupo dinámic
-		fireballs = contexto.physics.add.group({ allowGravity: false });
-
-	}
-
-	InicializarMundo(contexto) {
-
-		this.GenerateFalls(contexto, -128, 32, 250, 46);
-		this.GeneratePlatforms(contexto, -128, 32, 250, 46);
-		this.GenerateCoins(contexto, 800, 1300, 5);
-		this.GenerateTraps(contexto, 920, 1300, 5);
-
-	}
-
-	WinCondition() {
-
-		gameVelocity = 0;
-		this.gravity = 0;
-
-		menuWincon.x = player2.x + 750;
-		menuWincon.setVisible(true)
-
-		if (fallen1 || fallen2) {
-
-			if (fallen1 && fallen2) {
-
-				//Draw
-				WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
-				WinText.scrollFactorX = 0;
-
-				LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
-				LoseText.scrollFactorX = 0;
-
-				WinText.y = player1TextY;
-				LoseText.y = player2TextY;
-
-			}
-			else if (fallen2) {
-
-				//WINTEXT
-				WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
-				WinText.scrollFactorX = 0;
-
-				LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
-				LoseText.scrollFactorX = 0;
-
-				WinText.y = player1TextY;
-				LoseText.y = player2TextY;
-
-			}
-			else if (fallen1) {
-
-				//WINTEXT
-				WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
-				WinText.scrollFactorX = 0;
-
-				LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
-				LoseText.scrollFactorX = 0;
-
-				WinText.y = player2TextY;
-				LoseText.y = player1TextY;
-
-			}
-
-		}
-		else if (vidas1 == vidas2) {
-
-			//Draw
-			WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
-			WinText.scrollFactorX = 0;
-
-			LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
-			LoseText.scrollFactorX = 0;
-
-			WinText.y = player1TextY;
-			LoseText.y = player2TextY;
-
-		}
-		else {
-
-			//WINTEXT
-			WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
-			WinText.scrollFactorX = 0;
-
-			LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
-			LoseText.scrollFactorX = 0;
-
-			if (vidas2 < vidas1) {
-
-				WinText.y = player1TextY;
-				LoseText.y = player2TextY;
-
-			}
-			else {
-
-				WinText.y = player2TextY;
-				LoseText.y = player1TextY;
-
-			}
-
-		}
-
-		hasWon = true;
-		btnInicio.setVisible(true);
-		btnAjustes.destroy();
-		btnInicio.x = 880;
-		btnInicio.y = 300;
-
-	}
-
-	CreateBackground() {
-
-		// Jugador 1
-		var sol1 = this.add.image(1300, 100, 'sol');
-		sol1.setScale(.15);
-		sol1.scrollFactorX = 0.1;
-		sol1.scrollFactorY = 0;
-		var nube1 = this.add.image(1300, 100, 'nube1');
-		nube1.setScale(.15);
-		nube1.scrollFactorX = 0.15;
-		nube1.scrollFactorY = 0;
-		var nube8 = this.add.image(200, 100, 'nube1');
-		nube8.setScale(.15);
-		nube8.scrollFactorX = 0.15;
-		nube8.scrollFactorY = 0;
-		var nube2 = this.add.image(1500, 200, 'nube2');
-		nube2.setScale(.15);
-		nube2.scrollFactorX = 0.2;
-		nube2.scrollFactorY = 0;
-		var nube9 = this.add.image(2600, 200, 'nube2');
-		nube9.setScale(.15);
-		nube9.scrollFactorX = 0.2;
-		nube9.scrollFactorY = 0;
-		var nube3 = this.add.image(900, 150, 'nube3');
-		nube3.setScale(.15);
-		nube3.scrollFactorX = 0.25;
-		nube3.scrollFactorY = 0;
-		var nube10 = this.add.image(2300, 100, 'nube3');
-		nube10.setScale(.15);
-		nube10.scrollFactorX = 0.25;
-		nube10.scrollFactorY = 0;
-
-		var arbolLejano3 = this.add.image(1200, 185, 'arbolLejano3');
-		arbolLejano3.setScale(.07);
-		arbolLejano3.scrollFactorX = 0.3;
-		arbolLejano3.scrollFactorY = 0;
-		var arbolLejano4 = this.add.image(2200, 185, 'arbolLejano3');
-		arbolLejano4.setScale(.07);
-		arbolLejano4.scrollFactorX = 0.3;
-		arbolLejano4.scrollFactorY = 0;
-		var arbolLejano1 = this.add.image(900, 175, 'arbolLejano1');
-		arbolLejano1.setScale(.1);
-		arbolLejano1.scrollFactorX = 0.4;
-		arbolLejano1.scrollFactorY = 0;
-		var arbolLejano2 = this.add.image(1100, 175, 'arbolLejano2');
-		arbolLejano2.setScale(.1);
-		arbolLejano2.scrollFactorX = 0.4;
-		arbolLejano2.scrollFactorY = 0;
-		var arbolLejano5 = this.add.image(2400, 175, 'arbolLejano1');
-		arbolLejano5.setScale(.1);
-		arbolLejano5.scrollFactorX = 0.4;
-		arbolLejano5.scrollFactorY = 0;
-		var arbolLejano6 = this.add.image(2100, 175, 'arbolLejano2');
-		arbolLejano6.setScale(.1);
-		arbolLejano6.scrollFactorX = 0.4;
-		arbolLejano6.scrollFactorY = 0;
-
-
-
-
-		var rayos = this.add.image(1370, 30, 'rayos');
-		rayos.setScale(.5);
-		rayos.scrollFactorX = 0.1;
-		rayos.scrollFactorY = 0;
-
-		var arco1 = this.add.image(6450, 130, 'arco');
-		arco1.setScale(.15);
-
-		// Jugador 2
-		var sol2 = this.add.image(1300, 443, 'sol');
-		sol2.setScale(.15);
-		sol2.scrollFactorX = 0.1;
-		sol2.scrollFactorY = 0;
-		var nube4 = this.add.image(1300, 393, 'nube1');
-		nube4.setScale(.15);
-		nube4.scrollFactorX = 0.15;
-		nube4.scrollFactorY = 0;
-		var nube5 = this.add.image(1500, 493, 'nube2');
-		nube5.setScale(.15);
-		nube5.scrollFactorX = 0.2;
-		nube5.scrollFactorY = 0;
-		var nube6 = this.add.image(900, 443, 'nube3');
-		nube6.setScale(.15);
-		nube6.scrollFactorX = 0.25;
-		nube6.scrollFactorY = 0;
-		var nube8 = this.add.image(200, 393, 'nube1');
-		nube8.setScale(.15);
-		nube8.scrollFactorX = 0.15;
-		nube8.scrollFactorY = 0;
-		var nube9 = this.add.image(2600, 493, 'nube2');
-		nube9.setScale(.15);
-		nube9.scrollFactorX = 0.2;
-		nube9.scrollFactorY = 0;
-		var nube10 = this.add.image(2300, 393, 'nube3');
-		nube10.setScale(.15);
-		nube10.scrollFactorX = 0.25;
-		nube10.scrollFactorY = 0;
-		var arbolLejano3 = this.add.image(1200, 453, 'arbolLejano3');
-		arbolLejano3.setScale(.07);
-		arbolLejano3.scrollFactorX = 0.3;
-		arbolLejano3.scrollFactorY = 0;
-		var arbolLejano4 = this.add.image(2200, 453, 'arbolLejano3');
-		arbolLejano4.setScale(.07);
-		arbolLejano4.scrollFactorX = 0.3;
-		arbolLejano4.scrollFactorY = 0;
-		var arbolLejano1 = this.add.image(900, 443, 'arbolLejano1');
-		arbolLejano1.setScale(.1);
-		arbolLejano1.scrollFactorX = 0.4;
-		arbolLejano1.scrollFactorY = 0;
-		var arbolLejano2 = this.add.image(1100, 453, 'arbolLejano2');
-		arbolLejano2.setScale(.1);
-		arbolLejano2.scrollFactorX = 0.4;
-		arbolLejano2.scrollFactorY = 0;
-		var arbolLejano5 = this.add.image(2400, 443, 'arbolLejano1');
-		arbolLejano5.setScale(.1);
-		arbolLejano5.scrollFactorX = 0.4;
-		arbolLejano5.scrollFactorY = 0;
-		var arbolLejano6 = this.add.image(2100, 453, 'arbolLejano2');
-		arbolLejano6.setScale(.1);
-		arbolLejano6.scrollFactorX = 0.4;
-		arbolLejano6.scrollFactorY = 0;
-
-		var rayos = this.add.image(1210, 570, 'rayos');
-		rayos.setScale(.5);
-		rayos.scrollFactorX = 0.1;
-		rayos.scrollFactorY = 0;
-		var arco2 = this.add.image(6450, 423, 'arco');
-		arco2.setScale(.15);
-
-
-
-		//INICIO SUELOS MIO
-		coordenadasXSuelosCerca = [1240, 1900, 2155, 2500, 2700, 200, 3600, 1500];
-		coordenadasXSuelosLejano = [800, 1006, 1200, 1400, 2400, 2600, 2800, 3005, 2200, 1610, 1910];
-
-		this.creadorSuelos(coordenadasXSuelosLejano, .12, .5, 0, "sueloLejano1", "sueloLejano2");
-		this.creadorSuelos(coordenadasXSuelosCerca, .15, 0.6, 0, "suelo1", "suelo2");
-
-	}
-
-	creadorSuelos(XSuelos, escala, scrollX, scrollY, opcion1, opcion2) {
-
-		let suelos = [];
-		var ySuelos = 190;
-		var xSubstractor = 0;
-
-		for (var i = 0; i < XSuelos.length * 2; i++) {
-
-			if (i == 8) {
-
-				ySuelos = 483;
-				xSubstractor = XSuelos.length;
-			}
-
-			if (i == 0 || i == 2 || i == 6 || i == 8 || i == 10 || i == 14) {
-
-				suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion1);
-			}
-			else if (i == 7 || i == 15) {
-
-
-				suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, "estatua");
-
-			}
-			else {
-
-				suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion2);
-
-			}
-
-			suelos[i].setScale(escala);
-			suelos[i].scrollFactorX = scrollX;
-			suelos[i].scrollFactorY = scrollY;
-		}
-
-	}
-	
-	UpdateProgressBar(){
+            }
+            else if (fallen1) {
+
+                //WINTEXT
+                WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
+                WinText.scrollFactorX = 0;
+
+                LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
+                LoseText.scrollFactorX = 0;
+
+                WinText.y = player2TextY;
+                LoseText.y = player1TextY;
+
+            }
+
+        }
+        else if (vidas1 == vidas2) {
+
+            //Draw
+            WinText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+            WinText.scrollFactorX = 0;
+
+            LoseText = this.add.text(700, 10, "EMPATE", { fontSize: "100px", fill: '#000' })
+            LoseText.scrollFactorX = 0;
+
+            WinText.y = player1TextY;
+            LoseText.y = player2TextY;
+
+        }
+        else {
+
+            //WINTEXT
+            WinText = this.add.text(580, 10, "HAS GANADO", { fontSize: "100px", fill: '#000' })
+            WinText.scrollFactorX = 0;
+
+            LoseText = this.add.text(580, 10, "HAS PERDIDO", { fontSize: "100px", fill: '#000' })
+            LoseText.scrollFactorX = 0;
+
+            if (vidas2 < vidas1) {
+
+                WinText.y = player1TextY;
+                LoseText.y = player2TextY;
+
+            }
+            else {
+
+                WinText.y = player2TextY;
+                LoseText.y = player1TextY;
+
+            }
+
+        }
+
+        hasWon = true;
+        btnInicio.setVisible(true);
+        btnAjustes.destroy();
+        btnInicio.x = 880;
+        btnInicio.y = 300;
+
+    }
+
+    CreateBackground() {
+
+        // Jugador 1
+        var sol1 = this.add.image(1300, 100, 'sol');
+        sol1.setScale(.15);
+        sol1.scrollFactorX = 0.1;
+        sol1.scrollFactorY = 0;
+        var nube1 = this.add.image(1300, 100, 'nube1');
+        nube1.setScale(.15);
+        nube1.scrollFactorX = 0.15;
+        nube1.scrollFactorY = 0;
+        var nube8 = this.add.image(200, 100, 'nube1');
+        nube8.setScale(.15);
+        nube8.scrollFactorX = 0.15;
+        nube8.scrollFactorY = 0;
+        var nube2 = this.add.image(1500, 200, 'nube2');
+        nube2.setScale(.15);
+        nube2.scrollFactorX = 0.2;
+        nube2.scrollFactorY = 0;
+        var nube9 = this.add.image(2600, 200, 'nube2');
+        nube9.setScale(.15);
+        nube9.scrollFactorX = 0.2;
+        nube9.scrollFactorY = 0;
+        var nube3 = this.add.image(900, 150, 'nube3');
+        nube3.setScale(.15);
+        nube3.scrollFactorX = 0.25;
+        nube3.scrollFactorY = 0;
+        var nube10 = this.add.image(2300, 100, 'nube3');
+        nube10.setScale(.15);
+        nube10.scrollFactorX = 0.25;
+        nube10.scrollFactorY = 0;
+
+        var arbolLejano3 = this.add.image(1200, 185, 'arbolLejano3');
+        arbolLejano3.setScale(.07);
+        arbolLejano3.scrollFactorX = 0.3;
+        arbolLejano3.scrollFactorY = 0;
+        var arbolLejano4 = this.add.image(2200, 185, 'arbolLejano3');
+        arbolLejano4.setScale(.07);
+        arbolLejano4.scrollFactorX = 0.3;
+        arbolLejano4.scrollFactorY = 0;
+        var arbolLejano1 = this.add.image(900, 175, 'arbolLejano1');
+        arbolLejano1.setScale(.1);
+        arbolLejano1.scrollFactorX = 0.4;
+        arbolLejano1.scrollFactorY = 0;
+        var arbolLejano2 = this.add.image(1100, 175, 'arbolLejano2');
+        arbolLejano2.setScale(.1);
+        arbolLejano2.scrollFactorX = 0.4;
+        arbolLejano2.scrollFactorY = 0;
+        var arbolLejano5 = this.add.image(2400, 175, 'arbolLejano1');
+        arbolLejano5.setScale(.1);
+        arbolLejano5.scrollFactorX = 0.4;
+        arbolLejano5.scrollFactorY = 0;
+        var arbolLejano6 = this.add.image(2100, 175, 'arbolLejano2');
+        arbolLejano6.setScale(.1);
+        arbolLejano6.scrollFactorX = 0.4;
+        arbolLejano6.scrollFactorY = 0;
+
+
+
+
+        var rayos = this.add.image(1370, 30, 'rayos');
+        rayos.setScale(.5);
+        rayos.scrollFactorX = 0.1;
+        rayos.scrollFactorY = 0;
+
+        var arco1 = this.add.image(6450, 130, 'arco');
+        arco1.setScale(.15);
+
+        // Jugador 2
+        var sol2 = this.add.image(1300, 443, 'sol');
+        sol2.setScale(.15);
+        sol2.scrollFactorX = 0.1;
+        sol2.scrollFactorY = 0;
+        var nube4 = this.add.image(1300, 393, 'nube1');
+        nube4.setScale(.15);
+        nube4.scrollFactorX = 0.15;
+        nube4.scrollFactorY = 0;
+        var nube5 = this.add.image(1500, 493, 'nube2');
+        nube5.setScale(.15);
+        nube5.scrollFactorX = 0.2;
+        nube5.scrollFactorY = 0;
+        var nube6 = this.add.image(900, 443, 'nube3');
+        nube6.setScale(.15);
+        nube6.scrollFactorX = 0.25;
+        nube6.scrollFactorY = 0;
+        var nube8 = this.add.image(200, 393, 'nube1');
+        nube8.setScale(.15);
+        nube8.scrollFactorX = 0.15;
+        nube8.scrollFactorY = 0;
+        var nube9 = this.add.image(2600, 493, 'nube2');
+        nube9.setScale(.15);
+        nube9.scrollFactorX = 0.2;
+        nube9.scrollFactorY = 0;
+        var nube10 = this.add.image(2300, 393, 'nube3');
+        nube10.setScale(.15);
+        nube10.scrollFactorX = 0.25;
+        nube10.scrollFactorY = 0;
+        var arbolLejano3 = this.add.image(1200, 453, 'arbolLejano3');
+        arbolLejano3.setScale(.07);
+        arbolLejano3.scrollFactorX = 0.3;
+        arbolLejano3.scrollFactorY = 0;
+        var arbolLejano4 = this.add.image(2200, 453, 'arbolLejano3');
+        arbolLejano4.setScale(.07);
+        arbolLejano4.scrollFactorX = 0.3;
+        arbolLejano4.scrollFactorY = 0;
+        var arbolLejano1 = this.add.image(900, 443, 'arbolLejano1');
+        arbolLejano1.setScale(.1);
+        arbolLejano1.scrollFactorX = 0.4;
+        arbolLejano1.scrollFactorY = 0;
+        var arbolLejano2 = this.add.image(1100, 453, 'arbolLejano2');
+        arbolLejano2.setScale(.1);
+        arbolLejano2.scrollFactorX = 0.4;
+        arbolLejano2.scrollFactorY = 0;
+        var arbolLejano5 = this.add.image(2400, 443, 'arbolLejano1');
+        arbolLejano5.setScale(.1);
+        arbolLejano5.scrollFactorX = 0.4;
+        arbolLejano5.scrollFactorY = 0;
+        var arbolLejano6 = this.add.image(2100, 453, 'arbolLejano2');
+        arbolLejano6.setScale(.1);
+        arbolLejano6.scrollFactorX = 0.4;
+        arbolLejano6.scrollFactorY = 0;
+
+        var rayos = this.add.image(1210, 570, 'rayos');
+        rayos.setScale(.5);
+        rayos.scrollFactorX = 0.1;
+        rayos.scrollFactorY = 0;
+        var arco2 = this.add.image(6450, 423, 'arco');
+        arco2.setScale(.15);
+
+        
+
+        //INICIO SUELOS MIO
+        coordenadasXSuelosCerca = [1240, 1900, 2155, 2500, 2700, 200, 3600, 1500];
+        coordenadasXSuelosLejano = [800, 1006, 1200, 1400, 2400, 2600, 2800, 3005, 2200, 1610, 1910];
+
+        this.creadorSuelos(coordenadasXSuelosLejano, .12, .5, 0, "sueloLejano1", "sueloLejano2");
+        this.creadorSuelos(coordenadasXSuelosCerca, .15, 0.6, 0, "suelo1", "suelo2");
+
+    }
+
+    creadorSuelos(XSuelos, escala, scrollX, scrollY, opcion1, opcion2) {
+
+        let suelos = [];
+        var ySuelos = 190;
+        var xSubstractor = 0;
+
+        for (var i = 0; i < XSuelos.length * 2; i++) {
+
+            if (i == 8) {
+
+                ySuelos = 483;
+                xSubstractor = XSuelos.length;
+            }
+
+            if (i == 0 || i == 2 || i == 6 || i == 8 || i == 10 || i == 14) {
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion1);
+            }
+            else if (i == 7 || i == 15) {
+
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, "estatua");
+
+            }
+            else {
+
+                suelos[i] = this.add.image(XSuelos[i - xSubstractor], ySuelos, opcion2);
+
+            }
+
+            suelos[i].setScale(escala);
+            suelos[i].scrollFactorX = scrollX;
+            suelos[i].scrollFactorY = scrollY;
+        }
+
+    }
+    
+    UpdateProgressBar(){
 
         progress = progressBarWidth * (player.x / 6700);
         progressBar.clear();
@@ -1181,11 +1382,211 @@ class GameScene extends Phaser.Scene {
     }
 
 
-	//-----------------------------------------------------------------------FIN ESCENA DE JUEGO-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------FIN ESCENA DE JUEGO-----------------------------------------------------------------------
 }
 
 
 //------------------------------------------------------------------------------------------//
+class EscenaCarga extends Phaser.Scene {
+	
+	constructor(){
+		super("EscenaCarga")
+	}
+	
+	preload()
+	{
+		this.load.image("jugador1", "assets/sprites pj/Yang-juego.png");
+        this.load.image("jugador2", "assets/sprites pj/Yin-juego.png");
+        
+        this.load.image("listo", "assets/blisto.png");
+        this.load.image("esperando", "assets/besperando.png");
+	}
+	
+	create()
+	{
+		
+		videoFondo = this.add.video(640, 360, 'videoFondo');
+        videoFondo.setScale(.67);
+        videoFondo.play(true);
+		
+		readyBtn = this.add.sprite(640, 360, 'listo').setScale(2).setInteractive({ useHandCursor: true });
+		waiting = this.add.sprite(640, 360, 'esperando').setScale(2).setVisible(false);
+		
+		//Player1
+        player = this.physics.add.sprite(0, 200, "jugador1").setVisible(false);
+        player.body.setAllowGravity(false)
+
+
+        //Player2
+        player2 = this.physics.add.sprite(0, 500, "jugador2").setVisible(false);
+
+		player1HasSelected = false;
+		player2HasSelected = false;
+        
+        player1MidAir = true
+        player1MidAir = true
+        
+        vidas1 = 3;
+        vidas2 = 3;
+        
+        fireScore1 = 0;
+        fireScore2 = 0;
+
+		player.setCollideWorldBounds(true);
+        player2.setCollideWorldBounds(true);
+		
+		readyBtn.on('pointerdown', function() {
+			console.log("Jugador listo")
+			readyBtn.setVisible(false)
+			waiting.setVisible(true)
+			if(host == 0)
+			{
+				player2HasSelected = true;
+				connection.send(
+	                JSON.stringify({
+	                    //Player 2 ready
+	                    ready: player2HasSelected,
+	
+	                    //Posición del jugador
+	                    x: player2.x,
+	                    y: player2.y,
+	
+						midAir: player2MidAir,
+						
+						vidas: vidas2,
+						
+						fireScore: fireScore2
+	
+	                })
+	            );
+				
+			}
+			
+			if(host == 1)
+			{
+				player1HasSelected = true;
+				connection.send(
+	                JSON.stringify({
+	                    //Player 1 ready
+	                    ready: player1HasSelected,
+	
+	                    // Posición del jugador
+	                    x: player.x,
+	                    y: player.y,
+	
+						midAir: player1MidAir,
+						
+						vidas: vidas1,
+						
+						fireScore: fireScore1
+	                })
+	            );
+			}
+		});
+		
+		function DisconnectUser() {
+
+            $.ajax({
+
+                method: "GET",
+                async: true,
+                url: "/disconnectUsers",
+                processData: false,
+                contentType: "application/json"
+            }).done(function(data) {
+
+                console.log("Se ha desconectado un usuario");
+
+            }).catch(error => {
+
+                console.error("Error al desconectar user", error.message);
+
+            });
+
+
+
+        }
+
+        window.addEventListener('beforeunload', function(event) {
+            // Lógica al detectar que la ventana se va a cerrar
+
+            DisconnectUser();
+
+            console.log('La ventana se está cerrando');
+
+
+
+
+
+        });
+	}
+	
+	update()
+	{
+		if(player1HasSelected && player2HasSelected)
+		{
+			this.ChangeToGameScene();
+			
+			readyBtn.setVisible(true)
+			waiting.setVisible(false)
+			
+			if(host == 0)
+			{
+				player2HasSelected = true;
+				connection.send(
+	                JSON.stringify({
+	                    //Player 1 ready
+	                    ready: player2HasSelected,
+	
+	                    // Posición del jugador
+	                    x: player2.x,
+	                    y: player2.y,
+	
+						midAir: player2MidAir,
+						
+						vidas: vidas2,
+						
+						fireScore: fireScore2
+	                })
+	            );
+			}
+			if(host == 1)
+			{
+				player1HasSelected = true;
+				connection.send(
+	                JSON.stringify({
+	                    //Player 1 ready
+	                    ready: player1HasSelected,
+	
+	                    // Posición del jugador
+	                    x: player.x,
+	                    y: player.y,
+	
+						midAir: player1MidAir,
+						
+						vidas: vidas1,
+						
+						fireScore: fireScore1
+	                })
+	            );
+			}
+		}
+		console.log(player1HasSelected + " " + player2HasSelected)
+		
+		
+	}
+	
+	ChangeToGameScene() {
+
+        this.scale.resize(10000, 600);
+        this.scene.start('GameScene');
+        menuTheme.pause();
+
+    }
+    
+}
+	
+
 
 class AjustesUsuarios extends Phaser.Scene {
 
@@ -1568,10 +1969,6 @@ class AjustesUsuarios extends Phaser.Scene {
 
 		}
 
-
-
-
-
 		window.addEventListener('beforeunload', function(event) {
 			// Lógica al detectar que la ventana se va a cerrar
 
@@ -1724,7 +2121,7 @@ class MainMenu extends Phaser.Scene {
 
 		const playButton = this.add.sprite(200, 370, 'btnJugar').setInteractive({ useHandCursor: true });
 		playButton.setScale(1.4)
-		playButton.on('pointerdown', () => this.ChangeToGameScene());
+		playButton.on('pointerdown', () => this.ChangeToReadyScene());
 
 		const creditsButton = this.add.sprite(200, 670, 'btnCreditos').setInteractive({ useHandCursor: true });
 		creditsButton.setScale(1.4)
@@ -1891,6 +2288,11 @@ jsonpCallback: "callback",
 		menuTheme.pause();
 
 	}
+	
+	ChangeToReadyScene()
+    {
+        this.scene.start('EscenaCarga');
+    }
 
 	LoadCredits() {
 
@@ -1939,49 +2341,47 @@ class Credits extends Phaser.Scene {
 		const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
 		playButton.setScale(1.2)
 		playButton.on('pointerdown', () => this.LoadMenu());
-
-
-		//ConectadoDesconectado
-
+		
 		function DisconnectUser() {
 
-			$.ajax({
+            $.ajax({
 
-				method: "GET",
-				async: true,
-				url: "/disconnectUsers",
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
+                method: "GET",
+                async: true,
+                url: "/disconnectUsers",
+                processData: false,
+                contentType: "application/json"
+            }).done(function(data) {
 
-				console.log("Se ha desconectado un usuario");
+                console.log("Se ha desconectado un usuario");
 
-			}).catch(error => {
+            }).catch(error => {
 
-				console.error("Error al desconectar user", error.message);
+                console.error("Error al desconectar user", error.message);
 
-			});
-
-
-
-		}
+            });
 
 
 
-
-
-		window.addEventListener('beforeunload', function(event) {
-			// Lógica al detectar que la ventana se va a cerrar
-
-			DisconnectUser();
-
-			console.log('La ventana se está cerrando');
+        }
 
 
 
 
 
-		});
+        window.addEventListener('beforeunload', function(event) {
+            // Lógica al detectar que la ventana se va a cerrar
+
+            DisconnectUser();
+
+            console.log('La ventana se está cerrando');
+
+
+
+
+
+        });
+
 
 	}
 
@@ -1991,113 +2391,7 @@ class Credits extends Phaser.Scene {
 
 	}
 }
-
-class GuideScene extends Phaser.Scene {
-
-	constructor() {
-		super('GuideScene')
-	}
-
-	preload() {
-
-		this.load.image("guia1", "assets/backgrounds/Guia1.png");
-        this.load.image("guia2", "assets/backgrounds/guia2.png");
-        this.load.image("guia3", "assets/backgrounds/guia3.png");
-		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
-        this.load.image("flechaIzq", "assets/buttons/botones nuevos/FlechaIzq.png");
-        this.load.image("flechaDcha", "assets/buttons/botones nuevos/FlechaDcha.png");
-	}
-
-	create() {
-
-        idGuia = 0;
-		guia1 = this.add.image(640, 360, "guia1");
-        guia1.setVisible(false);
-        guia2 = this.add.image(640, 360, "guia2");
-        guia2.setVisible(false);
-        guia3 = this.add.image(640, 360, "guia3");
-
-        flechaDchaGuia1 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
-        flechaDchaGuia1.setVisible(false);
-        flechaDchaGuia1.on('pointerdown', () => this.PasarGuia("avanza"));
-        flechaDchaGuia3 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
-        flechaDchaGuia3.on('pointerdown', () => this.PasarGuia("avanza"));
-
-        flechaIzqGuia1 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
-        flechaIzqGuia1.on('pointerdown', () => this.PasarGuia("retrocede"));
-        flechaIzqGuia1.setVisible(false);
-        flechaIzqGuia2 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
-        flechaIzqGuia2.on('pointerdown', () => this.PasarGuia("retrocede"));
-        flechaIzqGuia2.setVisible(false);
-
-		const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
-		playButton.setScale(1.2)
-		playButton.on('pointerdown', () => this.LoadMenu());
-
-
-	}
-
-    PasarGuia(paso){
-
-        if(paso == "avanza"){
-
-            idGuia++;
-
-        }else if(paso == "retrocede"){
-
-            idGuia--;
-
-        }
-        if(idGuia > 2){
-
-            idGuia = 2;
-
-        }
-
-        if(idGuia < 0){
-
-            idGuia = 0;
-
-        }
-
-        switch(idGuia){
-
-            case 0:
-                flechaDchaGuia3.setVisible(true);
-                flechaDchaGuia1.setVisible(false);
-                flechaIzqGuia1.setVisible(false);
-                guia3.setVisible(true);
-                guia1.setVisible(false);
-            break;
-
-            case 1:
-                flechaDchaGuia3.setVisible(false);
-                flechaDchaGuia1.setVisible(true);
-                flechaIzqGuia1.setVisible(true);
-                flechaIzqGuia2.setVisible(false);
-                guia3.setVisible(false);
-                guia2.setVisible(false);
-                guia1.setVisible(true);
-            break;
-
-            case 2:
-                flechaDchaGuia1.setVisible(false);
-                flechaIzqGuia2.setVisible(true);
-                flechaIzqGuia1.setVisible(false);
-                guia1.setVisible(false);
-                guia2.setVisible(true);
-            break;
-        }
-    }
-
-	LoadMenu() {
-
-		this.scene.start('MainMenu')
-		menuTheme.pause();
-
-	}
-}
-//-----------------------------------------------------------------------LOGUUIIUIIIIN-----------------------------------------------------------------------
+//-----------------------------------------------------------------------LOGIN-----------------------------------------------------------------------
 
 class LogIn extends Phaser.Scene {
 
@@ -2398,6 +2692,151 @@ class LogIn extends Phaser.Scene {
 
 }
 
+class GuideScene extends Phaser.Scene {
+
+	constructor() {
+		super('GuideScene')
+	}
+
+	preload() {
+
+		this.load.image("guia1", "assets/backgrounds/Guia1.png");
+        this.load.image("guia2", "assets/backgrounds/guia2.png");
+        this.load.image("guia3", "assets/backgrounds/guia3.png");
+		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
+        this.load.image("flechaIzq", "assets/buttons/botones nuevos/FlechaIzq.png");
+        this.load.image("flechaDcha", "assets/buttons/botones nuevos/FlechaDcha.png");
+	}
+
+	create() {
+
+        idGuia = 0;
+		guia1 = this.add.image(640, 360, "guia1");
+        guia1.setVisible(false);
+        guia2 = this.add.image(640, 360, "guia2");
+        guia2.setVisible(false);
+        guia3 = this.add.image(640, 360, "guia3");
+
+        flechaDchaGuia1 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
+        flechaDchaGuia1.setVisible(false);
+        flechaDchaGuia1.on('pointerdown', () => this.PasarGuia("avanza"));
+        flechaDchaGuia3 = this.add.image(1100, 640, "flechaDcha").setInteractive({ useHandCursor: true });
+        flechaDchaGuia3.on('pointerdown', () => this.PasarGuia("avanza"));
+
+        flechaIzqGuia1 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
+        flechaIzqGuia1.on('pointerdown', () => this.PasarGuia("retrocede"));
+        flechaIzqGuia1.setVisible(false);
+        flechaIzqGuia2 = this.add.image(1000, 640, "flechaIzq").setInteractive({ useHandCursor: true });
+        flechaIzqGuia2.on('pointerdown', () => this.PasarGuia("retrocede"));
+        flechaIzqGuia2.setVisible(false);
+
+		const playButton = this.add.sprite(230, 640, 'btnMenu').setInteractive({ useHandCursor: true });
+		playButton.setScale(1.2)
+		playButton.on('pointerdown', () => this.LoadMenu());
+
+function DisconnectUser() {
+
+			$.ajax({
+
+				method: "GET",
+				async: true,
+				url: "/disconnectUsers",
+				processData: false,
+				contentType: "application/json"
+			}).done(function(data) {
+
+				console.log("Se ha desconectado un usuario");
+
+			}).catch(error => {
+
+				console.error("Error al desconectar user", error.message);
+
+			});
+
+
+
+		}
+
+
+
+
+
+		window.addEventListener('beforeunload', function(event) {
+			// Lógica al detectar que la ventana se va a cerrar
+
+			DisconnectUser();
+
+			console.log('La ventana se está cerrando');
+
+
+
+
+
+		});
+		
+	}
+
+    PasarGuia(paso){
+
+        if(paso == "avanza"){
+
+            idGuia++;
+
+        }else if(paso == "retrocede"){
+
+            idGuia--;
+
+        }
+        if(idGuia > 2){
+
+            idGuia = 2;
+
+        }
+
+        if(idGuia < 0){
+
+            idGuia = 0;
+
+        }
+
+        switch(idGuia){
+
+            case 0:
+                flechaDchaGuia3.setVisible(true);
+                flechaDchaGuia1.setVisible(false);
+                flechaIzqGuia1.setVisible(false);
+                guia3.setVisible(true);
+                guia1.setVisible(false);
+            break;
+
+            case 1:
+                flechaDchaGuia3.setVisible(false);
+                flechaDchaGuia1.setVisible(true);
+                flechaIzqGuia1.setVisible(true);
+                flechaIzqGuia2.setVisible(false);
+                guia3.setVisible(false);
+                guia2.setVisible(false);
+                guia1.setVisible(true);
+            break;
+
+            case 2:
+                flechaDchaGuia1.setVisible(false);
+                flechaIzqGuia2.setVisible(true);
+                flechaIzqGuia1.setVisible(false);
+                guia1.setVisible(false);
+                guia2.setVisible(true);
+            break;
+        }
+    }
+
+	LoadMenu() {
+
+		this.scene.start('MainMenu')
+		menuTheme.pause();
+
+	}
+}
+
 //-----------------------------------------------------------------------CONFIGURACIÓN E INICIALIZACIÓN DEL JUEGO-----------------------------------------------------------------------
 var config = {
 	type: Phaser.AUTO,
@@ -2414,13 +2853,11 @@ var config = {
 	},
 	dom: {
 		createContainer: true
-	},
-
-	//scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
-
-	//scene: [LogIn, MainMenu, GameScene, Credits, AjustesUsuarios]
+	},	
 	
-    scene: [LogIn, MainMenu, GameScene, Credits, GuideScene, AjustesUsuarios]
+	//scene: [MainMenu, GameScene, Credits, AjustesUsuarios]
+	
+    scene: [LogIn, MainMenu, EscenaCarga, GameScene, GuideScene, Credits,AjustesUsuarios]
 
 };
 
