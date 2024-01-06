@@ -85,6 +85,7 @@ var menuTheme
 var coinSound
 var dmgSound
 var fireballSFX
+var glitterSFX
 var vM;
 var vS;
 var player1HasSelected = false;
@@ -232,6 +233,7 @@ class GameScene extends Phaser.Scene {
         this.load.image("agua", "assets/Blue.png");
         this.load.image("coin", "assets/sprites xtra/coin.png");
         this.load.image("fireball", "assets/sprites xtra/Fireball.png");
+        this.load.image("nyanCat", "assets/sprites xtra/NyanCAt.png");
         this.load.image("cameraTracker", "assets/EmptyPNG.png");
         this.load.image("trampas", "assets/sprites xtra/Bloque trampas.png");
         this.load.image("pincho", "assets/sprites xtra/Trampa-pinchos.png");
@@ -276,6 +278,7 @@ class GameScene extends Phaser.Scene {
         this.load.audio("coinPickUp", ["assets/audio/CoinSound.mp3"])
         this.load.audio("dmgSound", ["assets/audio/DmgSound.mp3"])
         this.load.audio("fireballSFX", ["assets/audio/fireball.mp3"])
+        this.load.audio("glitterSFX", ["assets/audio/GlitterSound.mp3"])
 
     }
 
@@ -294,6 +297,9 @@ class GameScene extends Phaser.Scene {
         dmgSound = this.sound.add("dmgSound")
         fireballSFX = this.sound.add("fireballSFX")
         fireballSFX.setVolume(vS)
+
+        glitterSFX = this.sound.add("glitterSFX");
+        glitterSFX.setVolume(vS);
 
         volumenMusica = 2;
         volumenSonido = 2;
@@ -923,9 +929,21 @@ class GameScene extends Phaser.Scene {
             //scoreText1.text = 'Puntuación: ' + score1;
             if (fireScore1 === 4) {
 
-                fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
-                fireballSFX.play()
-                fireScore1 = 0;
+                var probNyancat = Math.random();
+                
+                if(probNyancat <= 0.20){
+
+                    fireball2 = fireballs.create(player.x + 300, 520, "nyanCat").setScale(.5).setVelocityX(-100).refreshBody();
+                    glitterSFX.play()
+                    fireScore1 = 0;
+
+                }else{
+
+                    fireball2 = fireballs.create(player.x + 300, 520, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                    fireballSFX.play()
+                    fireScore1 = 0;
+
+                }
 
             }
         })
@@ -938,10 +956,22 @@ class GameScene extends Phaser.Scene {
             //scoreText2.text = 'Puntuación: ' + score2;
             if (fireScore2 === 4) {
 
-                fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
-                fireballSFX.play()
-                fireScore2 = 0;
+                var probNyancat = Math.random();
+                
+                if(probNyancat <= 0.20){
 
+                    fireball1 = fireballs.create(player2.x + 300, 220, "nyanCat").setScale(.5).setVelocityX(-100).refreshBody();
+                    glitterSFX.play()
+                    fireScore2 = 0;
+
+
+                }else{
+
+                    fireball1 = fireballs.create(player2.x + 300, 220, "fireball").setScale(.5).setVelocityX(-100).refreshBody();
+                    fireballSFX.play()
+                    fireScore2 = 0;
+
+                }
             }
         })
 
