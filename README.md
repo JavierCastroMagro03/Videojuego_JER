@@ -6,12 +6,23 @@
 - Raúl González Suero -- r.gonzalezs.2021@alumnos.urjc.es -- raulglezsuero7
 - Manuel Alejandro Villalba Cruz -- ma.villalba.2021@alumnos.urjc.es -- LonchaDeXope
 
-## 0. Instrucciones
+## 0. Instrucciones y explicación sobre implementación de WebSockets
+
+*Video explicativo:* https://youtu.be/gC7tDmzQAF8
+
 1-. Iniciar SpringBoot y ejecutar la aplicación, asignando la IP correspondiente a la red. En nuestro caso, http://ip/index.html, donde ip es la IP de la red del servidor.
 
 2-. Abrir el buscador y escribir en la barra de búsqueda la dirección HTTP del servidor.
 
 3-. Jugar.
+
+*WebSockets:* La función WebSocketConnection() en main.js, se encarga de crear el WebSocket y de llamar a las distintas funciones de este (onopen, onerror, onmessage y onclose). La comunicación con el websocket se inicia desde la pantalla de LogIn.
+
+El manejador de websockets crea un mapa que almacena las sesiones en el servidor. Si se realiza una conexión websocket, esta recibe la sesion que ha iniciado la conversación entre cliente y servidor y se añade la nueva sesión al mapa. Tras esto se crea un nodo host para almacenar cual de los dos jugadores actua como host y el número de sesiones activas, y se envia un mensaje al cliente que ha iniciado la sesión con la información de host. Esta información es enviada como un string mediante sendMessagge al WebSocket en main.js gracias a onmessage(), asignando el host en base a la información recibida.
+
+En la pantalla previa al juego, se comprueba que ambos jugadores esten listos y se envia permanentemente dicho estado al otro jugador. Una vez ambos están listos, comienza el juego, donde debido a sus mecánicas solo es necesario enviar la posición y si el jugador se encuentra en el aire. La información de cada jugador va al servidor, y luego al jugador contrario, ya que el usuario no debe recibir su propia información, ya que ya la posee.
+
+La información se manda en las pantallas de carga y juego en base a quien es el host. En la pantalla de carga se envía al confirmar que se esta listo. En cambio en la pantalla de juego se envía cada vez que el jugador salta y constanmente en el update.
 
 ## 1. Equipo
 ### 1.1 Nombre
@@ -280,7 +291,8 @@ Pantalla de juego:
 ### 6.1 Diagrama de clases y APIREST
 
 A continuación podemos ver el diagrama de clases:
-![UML JER](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/9120f7f1-9f6e-419a-bac1-c6e62e4b4ba5)
+![UML JER FINAL](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/746adcb6-4141-4554-8f4b-6d41de14fb85)
+
 
 
 ## 7. Interfaces
