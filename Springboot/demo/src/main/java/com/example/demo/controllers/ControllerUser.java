@@ -34,10 +34,10 @@ public class ControllerUser {
     }
 
     @GetMapping("/usuario")
-    public Usuario getUsuario(@RequestParam String nombre, @RequestParam Boolean existe)
+    public Usuario getUsuario(@RequestParam String nombre,@RequestParam String password, @RequestParam Boolean existe)
     {
 
-        Usuario usuario = usersService.getUsuario(nombre);
+        Usuario usuario = usersService.getUsuario(nombre, password);
 
         if(usuario != null)
         {
@@ -112,6 +112,7 @@ public class ControllerUser {
     {
 
         usersService.cargarUsuarios();
+        usersService.CargarChat();
 
     }
     
@@ -157,7 +158,7 @@ public class ControllerUser {
     }
 
     @DeleteMapping("/borrarUsuario")
-    public Usuario deleteUsuario(@RequestParam int id)
+    public Usuario deleteUsuario(@RequestParam int id) throws IOException
     {
         Optional<Usuario> usuarioBorrado = usersService.deleteUsuario(id);
 
@@ -178,19 +179,37 @@ public class ControllerUser {
     }
 
     @PutMapping("/actualizarNombreUsuario")
-    public String actualizarNombreUsuario(@RequestParam int id, @RequestParam String name)
+    public String actualizarNombreUsuario(@RequestParam int id, @RequestParam String name) throws IOException
     {
 
         String nuevoNombre;
+        Boolean existe = false;
 
+for(Usuario u: usersService.getUserList()) {
+	
+	if(u.getNombre().equals(name)) {
+		
+	existe = true;
+	
+	}
+}
+
+if(!existe) {
         nuevoNombre = usersService.actualizarNombreUsuario(id, name);
-
         return nuevoNombre;
+}
+else {
+	
+	return "error";
+}
+
+
+       
 
     }
 
     @PutMapping("/actualizarPassword")
-    public String actualizarPassword(@RequestParam int id, @RequestParam String password)
+    public String actualizarPassword(@RequestParam int id, @RequestParam String password) throws IOException
     {
 
         String contra;
@@ -199,6 +218,26 @@ public class ControllerUser {
         contra = usersService.actualizarPassword(id, password);
 
         return contra;
+
+    }
+    
+    @PutMapping("/escribirEnChat")
+    public String escribirEnChat(@RequestParam String q) throws IOException {
+    	
+    	String frase;
+    	
+    	frase = usersService.WriteInChat(q);
+    	usersService.saveChatToTXT(q);
+    	
+    	return frase;
+    	
+    }
+    
+    @GetMapping("/getChat")
+    public String getChat()
+    {
+
+        return usersService.GetChat();
 
     }
 

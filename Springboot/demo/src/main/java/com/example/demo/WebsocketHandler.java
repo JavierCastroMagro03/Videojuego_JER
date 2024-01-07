@@ -50,8 +50,8 @@ public class WebsocketHandler extends TextWebSocketHandler
 		if(sessions.size() == 2)
 		{
 			System.out.println("SESION DE JUEGO CERRADA");
-			//sessions.clear();
-			sessions.remove(session.getId(), session);
+			sessions.clear();
+			//sessions.remove(session.getId(), session);
 		}
 		else if (sessions.size()==1)
 		{
@@ -93,7 +93,7 @@ public class WebsocketHandler extends TextWebSocketHandler
         newNode.put("midAir", node.get("midAir").asBoolean());   
         
         //newNode.put("vidas", node.get("vidas").asDouble());
-        newNode.put("fireScore", node.get("fireScore").asDouble());
+        //newNode.put("fireScore", node.get("fireScore").asDouble());
         
         //System.out.println("NODO: " + newNode);
         
