@@ -33,6 +33,9 @@ public class WebsocketHandler extends TextWebSocketHandler
 			sessions.put(session.getId(), session); 
 		}
 		
+		String numUsers = "" + sessions.size();
+		host.put("SesionesActivas", numUsers);
+		
 		System.out.println("HOST: " + host);
 		System.out.println("SESIONES ACTIVAS: " + sessions);
 		
@@ -43,10 +46,12 @@ public class WebsocketHandler extends TextWebSocketHandler
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		//System.out.println("SESION CON ID " + session.getId() + " CERRADA");
 		//sessions.remove(session.getId());
+
 		if(sessions.size() == 2)
 		{
 			System.out.println("SESION DE JUEGO CERRADA");
-			sessions.clear();
+			//sessions.clear();
+			sessions.remove(session.getId(), session);
 		}
 		else if (sessions.size()==1)
 		{
@@ -55,6 +60,19 @@ public class WebsocketHandler extends TextWebSocketHandler
 
 		System.out.println("SESIONES ACTIVAS: " + sessions);
 	}
+	
+	/*private void usuariosActivos(WebSocketSession session, JsonNode node) throws IOException {
+		ObjectNode counterNode = mapper.createObjectNode();
+        
+		counterNode.put("usuariosActivos", node.get("usuariosActivos").asInt());     
+
+        //System.out.println("NODO: " + newNode);
+        
+		for(WebSocketSession participant : sessions.values()) 
+		{
+			participant.sendMessage(new TextMessage(counterNode.toString()));
+		}
+	}*/
 	
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException
@@ -74,7 +92,7 @@ public class WebsocketHandler extends TextWebSocketHandler
         
         newNode.put("midAir", node.get("midAir").asBoolean());   
         
-        newNode.put("vidas", node.get("vidas").asDouble());
+        //newNode.put("vidas", node.get("vidas").asDouble());
         newNode.put("fireScore", node.get("fireScore").asDouble());
         
         //System.out.println("NODO: " + newNode);

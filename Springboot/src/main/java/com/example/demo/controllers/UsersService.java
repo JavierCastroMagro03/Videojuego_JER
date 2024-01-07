@@ -82,7 +82,7 @@ public class UsersService
 					
 				userList.get(i).setId(i);
 				
-}
+		}
 		
 
 		return userList;
@@ -92,6 +92,12 @@ public class UsersService
 		
 		return nUsers;
 	}
+	
+	public int setConnectedUsers(int usuariosConectados) {
+		nUsers = usuariosConectados;
+		return nUsers;
+	}
+	
 	
 public int connectUser() {
 		nUsers++;
@@ -198,6 +204,33 @@ public String actualizarPassword(int id, String password) {
                 System.out.println(linea);
             }
 
+        }
+        catch(Exception e) 
+        {
+            e.printStackTrace();
+        }
+        return encontrado;
+    }
+    
+    public Boolean cargarUsuarios()
+    {
+    	Boolean encontrado = false;
+    	List<Usuario> aux = new ArrayList<>();
+        try (FileReader fr = new FileReader("C:/Users/raulg/Documents/workspace-spring-tool-suite-4-4.21.0.RELEASE/demo/usuariosGuardados.txt")) 
+        {
+            BufferedReader br = new BufferedReader(fr);
+            String lista = br.readLine();
+            while(lista!=null)
+            {
+            	
+            	System.out.println(lista);
+            	Usuario u = new Usuario(lista.split(";")[0].split(": ")[1],lista.split(";")[1].split(": ")[1],0,true);
+            	System.out.println(u);
+	            save(u);
+	            lista = br.readLine();
+            	
+            }
+            
         }
         catch(Exception e) 
         {

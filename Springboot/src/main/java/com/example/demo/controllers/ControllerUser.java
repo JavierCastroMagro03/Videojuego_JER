@@ -34,7 +34,7 @@ public class ControllerUser {
     }
 
     @GetMapping("/usuario")
-    public Usuario getUsuario(@RequestParam String nombre)
+    public Usuario getUsuario(@RequestParam String nombre, @RequestParam Boolean existe)
     {
 
         Usuario usuario = usersService.getUsuario(nombre);
@@ -83,6 +83,18 @@ public class ControllerUser {
 
     }
     
+    @GetMapping("/setOnlineUsers")
+    public int setOnlineUsers(@RequestParam int usuariosConectados)
+    {
+
+        int n = usersService.setConnectedUsers(usuariosConectados);
+        
+
+            return n;
+
+
+    }
+    
     @GetMapping("/disconnectUsers")
     public int minusUser()
     {
@@ -92,6 +104,14 @@ public class ControllerUser {
 
             return n;
 
+
+    }
+    
+    @GetMapping("/cargarUsuarios")
+    public void cargarUsuarios()
+    {
+
+        usersService.cargarUsuarios();
 
     }
     
@@ -110,13 +130,30 @@ public class ControllerUser {
     @PostMapping("/crearUsuario")
     public Usuario createUser(@RequestBody Usuario usuario) throws IOException
     {
-        Usuario usuarioGuardado = usersService.save(usuario);
-        
-        usersService.saveTXT(usuario);
-        
-        usersService.readTXT(usuario);
+    	
+    	
+    	if(!usersService.readTXT(usuario))
+    	{
+    		Usuario usuarioGuardado = usersService.save(usuario);
+    		
+    		usuarioGuardado.setExiste(true);
+            
+    		
+    		
+            usersService.saveTXT(usuario);
+            
+            return usuarioGuardado;
+    	}
+    	else
+    	{
+    		usuario.setExiste(true);
+    		System.out.println(usuario.getExiste());
+    		return usuario;
+    	}
+       
+        //usersService.readTXT(usuario);
 
-        return usuarioGuardado;
+        
     }
 
     @DeleteMapping("/borrarUsuario")

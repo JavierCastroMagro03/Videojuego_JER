@@ -1,3 +1,4 @@
+
 //-----------------------------------------------------------------------WEBSOCKETS-----------------------------------------------------------------------
 function WebSocketConnection()
 {
@@ -12,29 +13,54 @@ function WebSocketConnection()
 		console.log('WS error: ' + e)
 	}
 	
+	//connection.onmessage = function (data)
+	//{
+		//console.log("Usuarios conectados: " + data.data)
+	//}
 	
 	connection.onmessage = function (data)
 	{
+		
 		Datos = JSON.parse(data.data);
-		if (Datos.EsHost == 1) {
-            host = 1;
-        } else if (Datos.EsHost == 0) {
-            host = 0;
-        } else if (host == 1) {
-            mensajeParaJ1(Datos);
-        } else if (host == 0) {
-            mensajeParaJ2(Datos);
-        }
+		if(Datos.EsHost != null)
+		{
+			if (Datos.EsHost == 1) {
+	            host = 1;
+	        } else if (Datos.EsHost == 0) {
+	            host = 0;
+	        } else if (host == 1) {
+	            mensajeParaJ1(Datos);
+	        } else if (host == 0) {
+	            mensajeParaJ2(Datos);
+	        }
+		}
+
+        
+        $.ajax({
+
+			method: "GET",
+			async: true,
+			url: "/setOnlineUsers?usuariosConectados=" +Datos.SesionesActivas,
+			processData: false,
+			contentType: "application/json",
+			timeout: 9000,
+		}).done(function(data) {
+
+			usuariosConectados = data;
+			console.log(usuariosConectados);
+			
+
+		}).catch(error => {
+
+			console.error("Error al devolver usuarios", error.message);
+		});
+
+        //console.log("Usuarios conectados: " + usuariosConectados)
+        
+        
+        console.log("Usuarios conectados: " + Datos.SesionesActivas)
 	}
 			
-	$(document).ready(function()
-	{
-		$('#send-btn').click(function()
-		{
-			var message = $('#message').val();
-			connection.send(message);
-		})
-	})
 			
 	connection.onclose = function()
 	{
@@ -52,7 +78,7 @@ function mensajeParaJ1(Datos) {
         player2.y = Datos.y;
         player2MidAir = Datos.midAir;
 
-        vidas2 = Datos.vidas;
+        //vidas2 = Datos.vidas;
 
         fireScore2 = Datos.fireScore;
     }
@@ -69,7 +95,7 @@ function mensajeParaJ2(Datos) {
         player1MidAir = Datos.midAir;
 
         
-        vidas1 = Datos.vidas;
+       // vidas1 = Datos.vidas;
 
         
         fireScore1 = Datos.fireScore;
@@ -90,6 +116,8 @@ var vM;
 var vS;
 var player1HasSelected = false;
 var player2HasSelected = false;
+
+var usuariosConectados = 0;
 
 var scaleX = .5
 var scaleY = .5
@@ -176,6 +204,8 @@ var nombreTemporal = "";
 var nombreGET = "";
 var passwordGET = "";
 var passwordTemporal = "";
+var existeGET = false;
+var existeTemporal = false
 var enLogin;
 
 //textoslogin
@@ -215,6 +245,8 @@ const progressBarY = 10;
 var progress = 0;
 
 var progressBar, progressBarGradient, progressBarBorder;
+
+var FeedbackAjustes
 
 //-----------------------------------------------------------------------ESCENA DE JUEGO-----------------------------------------------------------------------
 class GameScene extends Phaser.Scene {
@@ -297,7 +329,6 @@ class GameScene extends Phaser.Scene {
         dmgSound = this.sound.add("dmgSound")
         fireballSFX = this.sound.add("fireballSFX")
         fireballSFX.setVolume(vS)
-
         glitterSFX = this.sound.add("glitterSFX");
         glitterSFX.setVolume(vS);
 
@@ -361,8 +392,16 @@ class GameScene extends Phaser.Scene {
         camara.setCollideWorldBounds(true);
 
         //Colisiones fireballs
-        this.physics.add.overlap(player, fireballs, function (player, fireball1) { player1HP[vidas1 - 1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() });
-        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { player2HP[vidas2 - 1].destroy(); vidas2--, dmgSound.play(), fireball2.destroy() });
+        this.physics.add.overlap(player, fireballs, function (player, fireball1) { 
+			player1HP[vidas1 - 1].destroy(); vidas1--, dmgSound.play(), fireball1.destroy() 
+			console.log("bola golpeada")
+	
+		});
+        this.physics.add.overlap(player2, fireballs, function (player2, fireball2) { 
+			player2HP[vidas2 - 1].destroy(); vidas2--, dmgSound.play(), fireball2.destroy() 
+			console.log("bola golpeada")
+			
+		});
 
         //Controles flechas
         cursors = this.input.keyboard.createCursorKeys();
@@ -845,7 +884,7 @@ class GameScene extends Phaser.Scene {
             
             this.UpdateProgressBar();
             
-            /*if(host == 1)
+            if(host == 1)
             {
 				
 	            connection.send(
@@ -887,7 +926,10 @@ class GameScene extends Phaser.Scene {
 		
 		               })
 	            );
-			}*/
+			}
+			
+			console.log(vidas1)
+			console.log(vidas2)
         }
     }
 
@@ -972,6 +1014,7 @@ class GameScene extends Phaser.Scene {
                     fireScore2 = 0;
 
                 }
+
             }
         })
 
@@ -1000,6 +1043,7 @@ class GameScene extends Phaser.Scene {
 
             trap.destroy();
             pinchos.create(player.x + screen.width + 20, 565, "pincho").setScale(.9).refreshBody()
+            console.log("pincho creao")
 
         })
 
@@ -1009,6 +1053,8 @@ class GameScene extends Phaser.Scene {
             pincho.destroy();
             player1HP[vidas1 - 1].destroy(); vidas1--;
             dmgSound.play();
+            
+            
 
         })
 
@@ -1024,6 +1070,7 @@ class GameScene extends Phaser.Scene {
             pincho.destroy();
             player2HP[vidas2 - 1].destroy(); vidas2--;
             dmgSound.play();
+            
 
         })
 
@@ -1430,6 +1477,8 @@ class EscenaCarga extends Phaser.Scene {
         
         this.load.image("listo", "assets/blisto.png");
         this.load.image("esperando", "assets/besperando.png");
+        
+        this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
 	}
 	
 	create()
@@ -1444,7 +1493,7 @@ class EscenaCarga extends Phaser.Scene {
 		
 		//Player1
         player = this.physics.add.sprite(0, 200, "jugador1").setVisible(false);
-        player.body.setAllowGravity(false)
+        //player.body.setAllowGravity(false)
 
 
         //Player2
@@ -1601,7 +1650,7 @@ class EscenaCarga extends Phaser.Scene {
 	            );
 			}
 		}
-		console.log(player1HasSelected + " " + player2HasSelected)
+		//console.log(player1HasSelected + " " + player2HasSelected)
 		
 		
 	}
@@ -1631,38 +1680,131 @@ class AjustesUsuarios extends Phaser.Scene {
 		this.load.html("ActualizarContrasena", "assets/ActualizarContrasena.html");
 		this.load.video("videoFondo", "assets/video/FondoPantallaInicio.mp4");
 		this.load.image("btnMenu", "assets/buttons/botones nuevos/Binicionuevo.png");
+
+		this.load.image("FondoReg", "assets/backgrounds/FondoRegistrarse.png")
+		this.load.image("fondoGestion", "assets/backgrounds/Fondo Gestionar Cuenta.png");
+		this.load.image("FondoCambiarUsuario", "assets/backgrounds/FondoCambiarUsuario.png")
+		this.load.image("FondoSeguridadBorrarCuenta", "assets/backgrounds/FondoSeguridadBorrarCuenta.png")
+		this.load.image("FondoCambiarContrasena", "assets/backgrounds/FondoCambiarContrasena.png")
+		this.load.image("btnCUsuario", "assets/buttons/botones nuevos/BCambiarUsuario.png");
+		this.load.image("btnCPassword", "assets/buttons/botones nuevos/BCambiarContrasena.png");
+		this.load.image("btnBorrar", "assets/buttons/botones nuevos/BBorrarCuenta.png");
+
+
+		this.load.image("btnConfirmar", "assets/buttons/botones nuevos/BConfirmar.png");
+		this.load.image("btnSalir", "assets/buttons/botones nuevos/BCancelar.png");
 	}
 
 	create() {
+		
+		var botonX = 480;
+		var botonXd = 820;
+		
+		var botonY = 500;
 
 		this.scale.resize(1280, 720);
 
-		videoFondo = this.add.video(640, 360, 'videoFondo');
-		videoFondo.setScale(.67);
-		videoFondo.play(true);
+		var medio = this.cameras.main.worldView.x + this.cameras.main.width / 2;
 
-		const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
+		/*videoFondo = this.add.video(640, 360, 'videoFondo');
+		videoFondo.setScale(.67);
+		videoFondo.play(true);*/
+
+		var fondoGest = this.add.image(640, 360, "fondoGestion");
+
+
+		/*const text = this.add.text(10, 10, '', { color: 'black', fontSize: '24px ' });
 
 		const element = this.add.dom(640, 360, "body",).createFromCache('userConfig');
-
-		const element2 = this.add.dom(640, 360, "body",).createFromCache('borrarUsuario');
+*/
+		const element2 = this.add.dom(630, 360, "body",).createFromCache('borrarUsuario');
 		element2.setVisible(false);
 
-		const element3 = this.add.dom(640, 360, "body",).createFromCache('ActualizarUsuario');
+		const element3 = this.add.dom(630, 330, "body",).createFromCache('ActualizarUsuario');
 		element3.setVisible(false);
 
-		const element4 = this.add.dom(640, 360, "body",).createFromCache('ActualizarContrasena');
+		const element4 = this.add.dom(630, 330, "body",).createFromCache('ActualizarContrasena');
 		element4.setVisible(false);
 
 
-		const menuButton = this.add.sprite(130, 670, 'btnMenu').setInteractive({ useHandCursor: true });
+		const menuButton = this.add.sprite(210, 645, 'btnMenu').setInteractive({ useHandCursor: true });
 		menuButton.setScale(1.2)
 		menuButton.on('pointerdown', () => this.LoadMenu());
 
-		conectadoComo = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 90, "Conectado como: " + nombreActual, { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5)
-		conectadoComo.setColor('#ffffff');
+		//BOTONES GESTION
+		const btnCUsuario = this.add.sprite(medio, 300, 'btnCUsuario').setInteractive({ useHandCursor: true });
+		btnCUsuario.setScale(1.2)
 
-		element.addListener('click');
+		const btnCPassword = this.add.sprite(medio, 410, 'btnCPassword').setInteractive({ useHandCursor: true });
+		btnCPassword.setScale(1.2)
+
+		const btnBorrar = this.add.sprite(medio, 520, 'btnBorrar').setInteractive({ useHandCursor: true });
+		btnBorrar.setScale(1.2)
+
+		var fondoCambioUser = this.add.image(640, 360, "FondoCambiarUsuario");
+		var fondoCambioPassword = this.add.image(640, 360, "FondoCambiarContrasena");
+		var fondoBorrarCuenta = this.add.image(640, 360, "FondoSeguridadBorrarCuenta");
+
+		fondoCambioUser.setScale(.7)
+		fondoCambioPassword.setScale(.7)
+		fondoBorrarCuenta.setScale(.7)
+
+		fondoCambioUser.setVisible(false);
+		fondoCambioPassword.setVisible(false);
+		fondoBorrarCuenta.setVisible(false);
+
+
+		var ConfirmarUser = this.add.sprite(botonX, botonY, 'btnConfirmar').setInteractive({ useHandCursor: true });
+		var SalirUser = this.add.sprite(botonXd, botonY, 'btnSalir').setInteractive({ useHandCursor: true });
+
+		ConfirmarUser.setScale(1.1)
+		SalirUser.setScale(1.1)
+
+		var ConfirmarPassword = this.add.sprite(botonX, botonY, 'btnConfirmar').setInteractive({ useHandCursor: true });
+		var SalirPassword = this.add.sprite(botonXd, botonY, 'btnSalir').setInteractive({ useHandCursor: true });
+
+		ConfirmarPassword.setScale(1.1)
+		SalirPassword.setScale(1.1)
+
+		var ConfirmarBorrar = this.add.sprite(botonX, botonY, 'btnConfirmar').setInteractive({ useHandCursor: true });
+		var SalirBorrar = this.add.sprite(botonXd, botonY, 'btnSalir').setInteractive({ useHandCursor: true });
+
+		ConfirmarBorrar.setScale(1.1)
+		SalirBorrar.setScale(1.1)
+
+		ConfirmarUser.setVisible(false);
+		SalirUser.setVisible(false);
+
+		ConfirmarPassword.setVisible(false);
+		SalirPassword.setVisible(false);
+
+		ConfirmarBorrar.setVisible(false);
+		SalirBorrar.setVisible(false);
+
+		FeedbackAjustes = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 410, "", { fontSize: "40px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5)
+
+		FeedbackAjustes.setColor('#00ff00');
+
+
+		btnCUsuario.on('pointerdown', () => this.MostrarCambioUsuario(element3, fondoCambioUser, ConfirmarUser, SalirUser, FeedbackAjustes, ""));
+		ConfirmarUser.on('pointerdown', () => this.ActualizarUsuario(element3));
+		SalirUser.on('pointerdown', () => this.EsconderCambioUsuario(element3, fondoCambioUser, ConfirmarUser, SalirUser, FeedbackAjustes, 'changeUserField'));
+
+		btnCPassword.on('pointerdown', () => this.MostrarCambioUsuario(element4, fondoCambioPassword, ConfirmarPassword, SalirPassword, FeedbackAjustes, ""));
+		ConfirmarPassword.on('pointerdown', () => this.ActualizarContrasena(element4));
+		SalirPassword.on('pointerdown', () => this.EsconderCambioUsuario(element4, fondoCambioPassword, ConfirmarPassword, SalirPassword, FeedbackAjustes, 'changePasswordField'));
+
+		btnBorrar.on('pointerdown', () => this.MostrarCambioUsuario(element2, fondoBorrarCuenta, ConfirmarBorrar, SalirBorrar, FeedbackAjustes, "Esta acci\xf3n es irreversible"));
+		ConfirmarBorrar.on('pointerdown', () => this.BorrarCuenta());
+		SalirBorrar.on('pointerdown', () => this.EsconderBorrado(element2, fondoBorrarCuenta, ConfirmarBorrar, SalirBorrar, FeedbackAjustes));
+
+		// FIN BOTONES GESTION
+
+		conectadoComo = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 645, "Conectado como: " + nombreActual, { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5)
+
+		conectadoComo.setColor('#00ff00');
+
+		/*element.addListener('click');
 		element2.addListener('click');
 		element3.addListener('click');
 		element4.addListener('click');
@@ -1773,10 +1915,11 @@ class AjustesUsuarios extends Phaser.Scene {
 
 			}
 
-		});
+		});*/
 
 
 		//FUNCIONES JQUERY
+
 
 		function checkIfUserExists(username, password) {
 
@@ -1894,115 +2037,12 @@ class AjustesUsuarios extends Phaser.Scene {
 
 		}
 
-		function updateUsername(i, n) {
 
-			$.ajax({
-
-
-				method: "PUT",
-				async: false,
-				url: '/actualizarNombreUsuario?id=' + i + '&name=' + n,
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				nombreActual = data;
-
-				console.log("Se ha actualizado el usuario " + i + ", de nombre " + nombreActual);
-
-
-			}).catch(error => {
-
-				console.error("Error al hacer PUT: ", error.message);
-
-			});
-
-
-		}
-
-		function updatePassword(i, p) {
-
-			$.ajax({
-
-
-				method: "PUT",
-				async: false,
-				url: '/actualizarPassword?id=' + i + '&password=' + p,
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				passwordActual = data;
-
-				console.log("Se ha actualizado el usuario " + i + ", con contraseña " + passwordActual);
-
-				console.log("Hay que ocultar estos mensajes para no mostrar la contraseña, solo estoy probando");
-
-
-			}).catch(error => {
-
-				console.error("Error al hacer PUT: ", error.message);
-
-			});
-
-
-		}
-
-		function deleteUsuario(id) {
-
-			$.ajax({
-
-				method: "DELETE",
-				async: false,
-				url: '/borrarUsuario?id=' + id,
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				console.log("Delete del usuario realizado correctamente");
-				ids--;
-				nombreGET = '';
-				nombreTemporal = ''
-				usuariosEnConexion--;
-
-
-			}).catch(error => {
-
-				console.error("Error al hacer DELETE: ", error.message);
-
-			});
-
-
-		}
-
-		//ConectadoDesconectado
-		function DisconnectUser() {
-
-			$.ajax({
-
-				method: "GET",
-				async: true,
-				url: "/disconnectUsers",
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				console.log("Se ha desconectado un usuario");
-
-			}).catch(error => {
-
-				console.error("Error al desconectar user", error.message);
-
-			});
-
-
-
-		}
 
 		window.addEventListener('beforeunload', function(event) {
 			// Lógica al detectar que la ventana se va a cerrar
 
-			DisconnectUser();
+			this.DisconnectUser();
 
 			console.log('La ventana se está cerrando');
 
@@ -2014,6 +2054,207 @@ class AjustesUsuarios extends Phaser.Scene {
 
 
 	}
+	updateUsername(i, n) {
+
+		$.ajax({
+
+
+			method: "PUT",
+			async: false,
+			url: '/actualizarNombreUsuario?id=' + i + '&name=' + n,
+			processData: false,
+			contentType: "application/json"
+		}).done(function(data) {
+
+			nombreActual = data;
+
+			FeedbackAjustes.setText("Usuario actualizado");
+			FeedbackAjustes.setColor('#00ff00');
+
+			//console.log("Se ha actualizado el usuario " + i + ", de nombre " + nombreActual);
+
+
+		}).catch(error => {
+
+			FeedbackAjustes.setText("Error al cambiar el usuario");
+			FeedbackAjustes.setColor('#ff0000');
+
+		});
+
+
+	}
+
+	updatePassword(i, p) {
+
+		$.ajax({
+
+
+			method: "PUT",
+			async: false,
+			url: '/actualizarPassword?id=' + i + '&password=' + p,
+			processData: false,
+			contentType: "application/json"
+		}).done(function(data) {
+
+			passwordActual = data;
+
+			FeedbackAjustes.setText("Contrase\xf1a  actualizada");
+			FeedbackAjustes.setColor('#00ff00');
+
+
+		}).catch(error => {
+
+			FeedbackAjustes.setText("Error al cambiar la Contrase\xf1a");
+			FeedbackAjustes.setColor('#ff0000');
+
+		});
+
+
+	}
+
+	deleteUsuario(id) {
+
+		$.ajax({
+
+			method: "DELETE",
+			async: false,
+			url: '/borrarUsuario?id=' + id,
+			processData: false,
+			contentType: "application/json"
+		}).done(function(data) {
+
+			console.log("Delete del usuario realizado correctamente");
+			ids--;
+			nombreGET = '';
+			nombreTemporal = ''
+			usuariosEnConexion--;
+
+
+		}).catch(error => {
+
+			console.error("Error al hacer DELETE: ", error.message);
+
+		});
+
+
+	}
+	//Funciones nuevas wiii
+
+	MostrarCambioUsuario(element, fondo, b1, b2, texto, string) {
+
+		element.setVisible(true);
+		fondo.setVisible(true);
+		b1.setVisible(true);
+		b2.setVisible(true);
+		texto.setVisible(true);
+
+		texto.setText(string)
+		FeedbackAjustes.setColor('#ff0000');
+
+	}
+
+	EsconderCambioUsuario(element, fondo, b1, b2, texto, string) {
+
+
+		const inputText = element.getChildByName(string);
+		inputText.value = "";
+
+		element.setVisible(false);
+		fondo.setVisible(false);
+		b1.setVisible(false);
+		b2.setVisible(false);
+
+		texto.setText("");
+		texto.setVisible(false);
+
+	}
+
+	EsconderBorrado(element, fondo, b1, b2, texto) {
+
+
+		element.setVisible(false);
+		fondo.setVisible(false);
+		b1.setVisible(false);
+		b2.setVisible(false);
+
+		texto.setText("");
+		texto.setVisible(false);
+
+	}
+
+	ActualizarUsuario(element) {
+
+
+		const inputText = element.getChildByName('changeUserField');
+
+		if (inputText.value != "") {
+
+			nombreTemporal = "" + inputText.value;
+
+			this.updateUsername(idActual, nombreTemporal);
+
+
+		}
+
+
+
+
+	}
+
+	ActualizarContrasena(element) {
+
+		const inputPass = element.getChildByName('changePasswordField');
+
+
+		if (inputPass.value != "") {
+
+
+			passwordTemporal = "" + inputPass.value;
+			this.updatePassword(idActual, passwordTemporal);
+
+
+
+		}
+
+	}
+
+	BorrarCuenta() {
+
+		this.deleteUsuario(idActual);
+		this.DisconnectUser()
+
+
+		enLogin = true;
+
+	}
+
+
+	//ConectadoDesconectado
+	DisconnectUser() {
+
+		$.ajax({
+
+			method: "GET",
+			async: true,
+			url: "/disconnectUsers",
+			processData: false,
+			contentType: "application/json"
+		}).done(function(data) {
+
+			console.log("Se ha desconectado un usuario");
+
+		}).catch(error => {
+
+			console.error("Error al desconectar user", error.message);
+
+		});
+
+
+
+	}
+
+
+	//Final funciones nuevas wuuu
 
 	getUsuarioViaID(id) {
 
@@ -2173,51 +2414,15 @@ class MainMenu extends Phaser.Scene {
 
 		connectedUsers = this.add.text(600, 650, "Usuarios conectados: 0", { fontSize: "50px", fill: '#000', stroke: '#000000', strokeThickness: 5 })
 		connectedUsers.setColor('#ffffff');
+		
+		connectedUsers.text = "Usuarios conectados " + usuariosConectados;
 
 
 		//FUNCIIONES
 
 
 
-		function DisconnectUser() {
 
-			$.ajax({
-
-				method: "GET",
-				async: true,
-				url: "/disconnectUsers",
-				processData: false,
-				contentType: "application/json"
-			}).done(function(data) {
-
-				console.log("Se ha desconectado un usuario");
-
-			}).catch(error => {
-
-				console.error("Error al desconectar user", error.message);
-
-			});
-
-
-
-		}
-
-
-
-
-
-		window.addEventListener('beforeunload', function(event) {
-			// Lógica al detectar que la ventana se va a cerrar
-
-			DisconnectUser();
-
-			console.log('La ventana se está cerrando');
-
-
-
-
-
-		});
 
 	}
 
@@ -2244,9 +2449,7 @@ class MainMenu extends Phaser.Scene {
 			timeout: 9000,
 		}).done(function(data) {
 
-			usuariosEnConexion = data;
-			serverText.setText("Estado del Servidor: Conectado ");
-			serverText.setColor('#00ff00');
+			usuariosConectados = data;
 
 		}).catch(error => {
 
@@ -2256,9 +2459,11 @@ class MainMenu extends Phaser.Scene {
 
 
 		});
+		
+		
 
 
-		connectedUsers.text = "Usuarios conectados " + usuariosEnConexion;
+		connectedUsers.text = "Usuarios conectados " + usuariosConectados;
 
 
 
@@ -2439,13 +2644,19 @@ class LogIn extends Phaser.Scene {
 		this.load.image("btnCancelar", "assets/buttons/botones nuevos/Bsalir.png")
 		this.load.image("btnRegistrarse", "assets/buttons/botones nuevos/BRegistrarse.png")
 		this.load.image("FondoLogIn", "assets/backgrounds/Fondo Iniciar Sesion.png")
-		this.load.image("FondoReg", "assets/backgrounds/FondoGenerico.png")
+		this.load.image("FondoReg", "assets/backgrounds/FondoRegistrarse.png")
 
 	}
 
+
 	create() {
 
+		WebSocketConnection();
+
 		this.scale.resize(1280, 720);
+		
+		cargarUsuarios();
+        UpdateUserList(true);
 
 		videoFondo = this.add.video(640, 360, 'videoFondo');
 		videoFondo.setScale(.67);
@@ -2454,39 +2665,40 @@ class LogIn extends Phaser.Scene {
 
 		var logIn = this.add.image(640, 360, "FondoLogIn");
 
-		var textoAviso = this.add.text(510, 640, " Para usuarios nuevos -> ", { fontSize: "38px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
+		var textoAviso = this.add.text(510, 640, " Para usuarios nuevos -> ", { fontSize: "37px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
 		textoAviso.setColor('#ffffff')
 
 		const element = this.add.dom(630, 360, "body").createFromCache("login");
 
-		const iniciarSesion = this.add.sprite(640, 470, 'btnIniciarSesion').setInteractive({ useHandCursor: true });
-		iniciarSesion.setScale(1.4)
+		const iniciarSesion = this.add.sprite(640, 545, 'btnIniciarSesion').setInteractive({ useHandCursor: true });
+		iniciarSesion.setScale(1.3)
 		iniciarSesion.on('pointerdown', () => IniciarSesionJugador(element));
 
 		const registrarse = this.add.sprite(910, 640, 'btnRegistrarse').setInteractive({ useHandCursor: true });
 		registrarse.setScale(0.8)
 
 		var fondoReg = this.add.image(640, 360, "FondoReg");
-		fondoReg.setScale(.8);
+		fondoReg.setScale(.7);
 		fondoReg.setVisible(false);
-		const registro = this.add.dom(640, 300, "body").createFromCache("reg");
+
+		const registro = this.add.dom(620, 330, "body").createFromCache("reg");
 		registro.setVisible(false);
 
-		const registrarse2 = this.add.sprite(640, 460, 'btnRegistrarse').setInteractive({ useHandCursor: true });
+		const registrarse2 = this.add.sprite(470, 530, 'btnRegistrarse').setInteractive({ useHandCursor: true });
 		registrarse2.setScale(1.1)
 		registrarse2.on('pointerdown', () => LogearJugador(registro));
 		registrarse2.setVisible(false);
 
-		const cancelar = this.add.sprite(960, 170, 'btnCancelar').setInteractive({ useHandCursor: true });
-		cancelar.setScale(.8)
+		const cancelar = this.add.sprite(840, 530, 'btnCancelar').setInteractive({ useHandCursor: true });
+		cancelar.setScale(1.1)
 		cancelar.setVisible(false);
 
-		usuarioExiste = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 570, "", { fontSize: "45px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
+		usuarioExiste = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 450, "", { fontSize: "45px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
 
 		usuarioExiste.setColor('#ff0000');
 
 
-		avisosInicioSesion = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 550, "", { fontSize: "40px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
+		avisosInicioSesion = this.add.text(this.cameras.main.worldView.x + this.cameras.main.width / 2, 440, "", { fontSize: "40px", fill: '#000', stroke: '#000000', strokeThickness: 5, align: 'center' }).setOrigin(0.5);
 		avisosInicioSesion.setColor('#ffffff')
 
 
@@ -2504,7 +2716,8 @@ class LogIn extends Phaser.Scene {
 			if (inputText.value !== '' && inputPassword.value !== '') {
 
 				nombreTemporal = "" + inputText.value;
-				getUsuario(inputText.value);
+				existeTemporal = false;
+				getUsuario(inputText.value, existeTemporal);
 
 				checkLogIn(inputText.value)
 
@@ -2513,17 +2726,20 @@ class LogIn extends Phaser.Scene {
 
 
 				usuarioExiste.setText(" Nombre de usuario incorrecto ");
+		usuarioExiste.setColor('#ff0000');
 
 			}
 			else if (inputText.value !== '') {
 
 
 				usuarioExiste.setText(" Contrase\xf1a introducida incorrecta ");
+		usuarioExiste.setColor('#ff0000');
 
 			}
 			else {
 
 				usuarioExiste.setText(" Nombre o Contrase\xf1a incorrectos ");
+		usuarioExiste.setColor('#ff0000');
 
 			}
 
@@ -2570,8 +2786,8 @@ class LogIn extends Phaser.Scene {
 			if (inputText.value !== '' && inputPassword.value !== '') {
 
 				nombreTemporal = "" + inputText.value;
-
-				getUsuario(nombreTemporal);
+				existeTemporal = false;
+				getUsuario(inputText.value, existeTemporal);
 
 				checkIfUserExists(inputText.value, inputPassword.value);
 
@@ -2581,17 +2797,23 @@ class LogIn extends Phaser.Scene {
 
 
 				avisosInicioSesion.setText(" Nombre de usuario no v\xe1lido ");
+		avisosInicioSesion.setColor('#ff0000');
+
 
 			}
 			else if (inputText.value !== '') {
 
 
 				avisosInicioSesion.setText(" Contrase\xf1a introducida no v\xe1lida ");
+		avisosInicioSesion.setColor('#ff0000');
+
 
 			}
 			else {
 
 				avisosInicioSesion.setText(" Nombre o Contrase\xf1a no v\xe1lidos ");
+		avisosInicioSesion.setColor('#ff0000');
+
 
 			}
 
@@ -2605,10 +2827,12 @@ class LogIn extends Phaser.Scene {
 
 				postUsuario(username, password, ids);
 				avisosInicioSesion.setText("Usuario " + username + " creado correctamente");
+		avisosInicioSesion.setColor('#00ff00');
 
 			}
 			else {
 				avisosInicioSesion.setText("El usuario " + username + " ya existe");
+		avisosInicioSesion.setColor('#ff0000');
 
 			}
 
@@ -2621,8 +2845,6 @@ class LogIn extends Phaser.Scene {
 				loginHecho = true;
 				nombreActual = username;
 				idActual = idGET;
-				usuarioExiste.setText("Login hecho correctamente");
-				conectarUsuario();
 
 			}
 			else {
@@ -2634,21 +2856,22 @@ class LogIn extends Phaser.Scene {
 
 		}
 
-		function getUsuario(n) {
+		function getUsuario(n, e) {
 
-			const datos = { nombre: n };
+			const datos = { nombre: n, existe: e };
 
 			$.ajax({
 
 				method: "GET",
 				async: false,
-				url: '/usuario?nombre=' + datos.nombre,
+				url: '/usuario?nombre=' + datos.nombre + '&existe=' + datos.existe,
 				processData: false,
 				contentType: "application/json"
 			}).done(function(data) {
 				idGET = data.id;
 
 				nombreGET = "" + data.nombre;
+				existeGET = "" + data.existe;
 
 			}).catch(error => {
 
@@ -2708,9 +2931,59 @@ class LogIn extends Phaser.Scene {
 
 
 		}
+		
+		function cargarUsuarios() {
+            $.ajax({
+
+                method: "GET",
+                async: false,
+                url: "/cargarUsuarios",
+                processData: false,
+                contentType: "application/json"
+            }).done(function(data) {
+
+                console.log("Se han cargado los usuarios");
+
+            }).catch(error => {
+
+                console.error("No se han podido cargar los usuarios");
+
+            });
+
+
+
+        }
+
+        function UpdateUserList(sacarConsola) {
+
+        $.ajax({
+
+            method: "GET",
+            async: false,
+            url: '/userList',
+            processData: false,
+            timeout: 9000,
+            contentType: "application/json"
+        }).done(function(data) {
+            if (sacarConsola) {
+
+                for (var i = 0; i < data.length; i++) {
+
+                    console.log("Usuario " + data[i].id + " nombre: " + data[i].nombre + " password: " + data[i].password);
+
+                }
+
+            }
+
+        }).catch(error => {
+
+            console.error("Error al hacer GET: ", error.message);
+
+        });
 
 
 	}
+}
 
 
 	update() {
@@ -2718,6 +2991,8 @@ class LogIn extends Phaser.Scene {
 		if (loginHecho) {
 			this.scene.start('MainMenu');
 		}
+		
+
 	}
 
 }
