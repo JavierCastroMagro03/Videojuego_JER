@@ -6,6 +6,15 @@
 - Raúl González Suero -- r.gonzalezs.2021@alumnos.urjc.es -- raulglezsuero7
 - Manuel Alejandro Villalba Cruz -- ma.villalba.2021@alumnos.urjc.es -- LonchaDeXope
 
+# PUBLICACION DEL JUEGO
+
+Se puede disfrutar de DOUBLE TROUBLE desde los siguientes enlaces:
+
+itch.io: https://raulglez7.itch.io/double-trouble
+Gamejolt: https://gamejolt.com/games/Double_Trouble/893726
+Newgrounds: https://www.newgrounds.com/portal/view/928255
+Kongregate: en proceso de subirse, nos tienen que responder a la petición de subida.
+
 ## 0. Instrucciones y explicación sobre implementación de WebSockets
 
 *Video explicativo:* https://youtu.be/gC7tDmzQAF8
@@ -404,6 +413,7 @@ En la figura 13 se muestran diversas paletas de colores empleadas en los element
 extra del apartado anterior.
 
 ![image](https://github.com/JavierCastroMagro03/Videojuego_JER/assets/108340802/54d388b3-dff9-45b2-8226-4e50eebd5c5c)
+
 
 ## 12. Anexo
 **Anexo 1: Estructura del GDD**

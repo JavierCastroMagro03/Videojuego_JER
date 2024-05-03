@@ -1,0 +1,13 @@
+eduardonew: aquí lleva tilde
+2: Hola
+1: Hola
+Raul: Hola
+1: hoy es el ultimo
+1: hoy es el ultimo
+1: dia de springboot
+2: Este mensaje es muy largo
+ y ya cabe
+2: Este mensaje es muy largo
+ y ya cabe
+awd: Este mensaje es muy lar
+go y ya cabe
